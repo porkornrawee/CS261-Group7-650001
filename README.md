@@ -48,6 +48,13 @@ git rebase --continue
 
 ถ้าพังมาก ใช้ `git rebase --abort` แล้วเริ่มใหม่
 
+## กติกา Issue
+
+- งานทุกอย่าง (ฟีเจอร์/บั๊ก) **เปิด Issue ก่อนเริ่มทำ** เพื่อ track และคุยกันในทีม
+- ใช้ template ที่มีให้ (Bug report / Feature request) เวลากด New Issue
+- ตั้งชื่อ branch/commit ให้ตรงกับ Issue ที่ทำ และใส่ `closes #<เลข issue>` ใน PR description เพื่อให้ปิด Issue อัตโนมัติตอน merge
+- ใส่ label ให้ตรงประเภท (`bug`, `enhancement`) และ assign คนรับผิดชอบ
+
 ## กติกา Pull Request
 
 - **PR ขนาดเล็ก** ทำทีละงาน อย่ารวมหลายฟีเจอร์ใน PR เดียว — รีวิวเร็ว conflict น้อย
