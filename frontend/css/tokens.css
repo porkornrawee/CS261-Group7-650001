@@ -1,0 +1,36 @@
+/* Design tokens — PM ล็อกค่าไว้ ห้าม Dev เปลี่ยนค่าเองโดยไม่แจ้ง PM
+   ทุก component ต้องใช้ var(--...) เท่านั้น ห้าม hard-code สี */
+:root {
+  /* แบรนด์ มธ. แดง-ส้ม */
+  --tu-red: #b5121b;
+  --tu-red-dark: #8a0e14;
+  --orange: #f26b21;
+  --orange-dark: #c9531a;
+  --orange-50: #fff3ec;
+  --orange-100: #ffe1d0;
+  --tu-gold: #f2b705;
+
+  /* พื้นผิวและตัวอักษร */
+  --bg: #fffaf6;
+  --surface: #ffffff;
+  --line: #f0d9cc;
+  --ink: #2a1a14;
+  --muted: #7a6458;
+  --on-brand: #ffffff;
+
+  /* สถานะช่องจอด: ว่าง / ติดบางช่วง / เต็ม (เต็มใช้เทาเข้ม+ลายขีด ไม่ใช้แดงชนสีแบรนด์) */
+  --ok: #1fa75a;     --ok-bg: #e5f8ed;    --ok-ink: #0f6d38;
+  --warn: #f2b705;   --warn-bg: #fff5cc;  --warn-ink: #7a5400;
+  --full: #6b6b6b;   --full-bg: #e8e8e8;  --full-ink: #3a3a3a;
+  --danger: #d92d20; --danger-bg: #fee4e2; --danger-ink: #912018;
+  --info: #2f7df6;   --info-bg: #e6f1ff;  --info-ink: #1d5fd0;
+
+  /* ระยะ / มุม / เงา / ฟอนต์ */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px;
+  --radius-sm: 8px; --radius: 14px; --radius-lg: 20px; --radius-pill: 999px;
+  --shadow: 0 8px 24px rgba(181, 18, 27, .08), 0 2px 6px rgba(42, 26, 20, .05);
+  --font: "Noto Sans Thai", "Sarabun", "Leelawadee UI", "Thonburi", "Tahoma", system-ui, sans-serif;
+  --page-max: 1080px;
+  --header-h: 64px;
+}

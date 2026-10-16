@@ -1,0 +1,6 @@
+@media (max-width: 520px) {
+  .panel { padding: 18px; border-radius: 20px; }
+  .masthead h1 { font-size: 24px; }
+  .bay-face { width: 72px; height: 90px; }
+  .bays { gap: 10px; }
+}

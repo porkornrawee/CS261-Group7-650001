@@ -1,0 +1,16 @@
+{
+  "reservations": [
+    {
+      "id": 1,
+      "code": "PK-MOCK2345",
+      "user_name": "สมชาย ใจดี",
+      "slot_id": 1,
+      "slot": "A1",
+      "zone": "โซน A",
+      "date": "2026-10-17",
+      "start": "09:00",
+      "end": "10:00",
+      "created_at": "2026-10-16T12:00:00"
+    }
+  ]
+}

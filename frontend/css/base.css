@@ -1,0 +1,35 @@
+/* Base — reset + typography + โครงหน้า + กล่อง TODO ของ stub (ลบ .todo-box ได้เมื่อ stub หมด) */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--bg);
+  font: 16px/1.55 var(--font);
+}
+h1, h2, h3 { line-height: 1.25; margin: 0 0 var(--space-3); }
+a { color: var(--tu-red); }
+img { max-width: 100%; }
+button, input, select { font: inherit; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+#app-header { min-height: var(--header-h); background: var(--tu-red); color: var(--on-brand); }
+#app { max-width: var(--page-max); margin: 0 auto; padding: var(--space-5) var(--space-4); }
+
+/* เมนูชั่วคราวของ PM ให้เดินดูทุกหน้าได้ — Dev 1 ลบเมื่อ AppHeader (LY-01) เสร็จ */
+#dev-nav { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-3) var(--space-4); align-items: center; }
+#dev-nav strong { margin-right: var(--space-3); }
+#dev-nav a { color: var(--on-brand); text-decoration: none; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: rgba(255, 255, 255, .16); }
+#dev-nav a:hover { background: var(--orange); }
+
+.todo-box {
+  border: 2px dashed var(--orange);
+  background: var(--orange-50);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  margin: var(--space-3) 0;
+}
+.todo-box b { color: var(--tu-red); }
+.todo-box small { color: var(--muted); display: block; }

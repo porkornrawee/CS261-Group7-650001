@@ -1,0 +1,42 @@
+{
+  "open_time": "08:00",
+  "close_time": "20:00",
+  "zones": [
+    {
+      "id": 1,
+      "name": "โซน A",
+      "slots": [
+        {
+          "id": 1,
+          "label": "A1"
+        },
+        {
+          "id": 2,
+          "label": "A2"
+        },
+        {
+          "id": 3,
+          "label": "A3"
+        },
+        {
+          "id": 4,
+          "label": "A4"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "โซน B",
+      "slots": [
+        {
+          "id": 5,
+          "label": "B1"
+        },
+        {
+          "id": 6,
+          "label": "B2"
+        }
+      ]
+    }
+  ]
+}

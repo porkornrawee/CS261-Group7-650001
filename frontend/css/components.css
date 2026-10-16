@@ -1,0 +1,27 @@
+/* รวม CSS ของทุก component — PM สร้างให้ครบแล้ว Dev เติมในไฟล์ของตัวเอง ไม่ต้องแก้ไฟล์นี้ */
+@import "../js/components/ui/Button.css";
+@import "../js/components/ui/Card.css";
+@import "../js/components/ui/Field.css";
+@import "../js/components/ui/Chip.css";
+@import "../js/components/ui/Badge.css";
+@import "../js/components/ui/Alert.css";
+@import "../js/components/ui/Toast.css";
+@import "../js/components/ui/Stepper.css";
+@import "../js/components/ui/Spinner.css";
+@import "../js/components/ui/EmptyState.css";
+@import "../js/components/layout/AppHeader.css";
+@import "../js/components/layout/AppFooter.css";
+@import "../js/components/layout/PageShell.css";
+@import "../js/features/vehicle/VehicleForm.css";
+@import "../js/features/vehicle/StudentVerifyStatus.css";
+@import "../js/features/vehicle/VehicleCard.css";
+@import "../js/features/booking/DateStrip.css";
+@import "../js/features/booking/TimeChips.css";
+@import "../js/features/booking/DurationPicker.css";
+@import "../js/features/booking/ParkingLot.css";
+@import "../js/features/booking/ZoneBlock.css";
+@import "../js/features/booking/SlotBay.css";
+@import "../js/features/booking/BookingSummary.css";
+@import "../js/features/ticket/TicketCard.css";
+@import "../js/features/ticket/ReservationLookup.css";
+@import "../js/features/history/ReservationTable.css";

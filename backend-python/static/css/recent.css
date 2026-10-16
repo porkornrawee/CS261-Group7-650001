@@ -1,0 +1,10 @@
+/* ---------- รายการจองล่าสุด ---------- */
+.recent h2 { margin: 0 0 10px; font-size: 19px; }
+.recent-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.recent-list li { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--sky-50); }
+.r-slot { flex: none; min-width: 46px; height: 46px; padding: 0 6px; display: grid; place-items: center; border-radius: 14px; background: linear-gradient(145deg, #5ca0ff, var(--blue-dark)); color: #fff; font-weight: 700; }
+.r-main { min-width: 0; flex: 1; }
+.r-code { font-weight: 700; letter-spacing: .04em; font-size: 15px; }
+.r-sub { display: flex; flex-wrap: wrap; gap: 0 12px; font-size: 13.5px; color: var(--muted); }
+.r-sub span { overflow-wrap: anywhere; }
+.empty { margin: 0; color: var(--muted); }

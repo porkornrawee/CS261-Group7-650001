@@ -1,0 +1,30 @@
+/* ---------- หัวหน้า ---------- */
+.masthead { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.p-sign {
+  flex: none; width: 54px; height: 54px; display: grid; place-items: center;
+  background: linear-gradient(145deg, #5ca0ff, var(--blue-dark)); color: #fff;
+  font-size: 30px; font-weight: 700; border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(47, 125, 246, .35), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+.masthead-text { flex: 1 1 220px; min-width: 0; }
+.masthead h1 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -.01em; }
+.masthead p { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
+.hours-pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+  background: var(--white); border: 1px solid var(--line); border-radius: 99px;
+  box-shadow: var(--shadow); font-size: 14px; font-weight: 600; color: var(--blue-dark);
+}
+.hours-pill .ico svg { width: 18px; height: 18px; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 22px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.layout > * { min-width: 0; }
+
+.panel {
+  background: var(--white); border: 1px solid var(--line); border-radius: 22px;
+  padding: 26px; box-shadow: var(--shadow);
+}
+.side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+
+.ico { display: inline-grid; place-items: center; line-height: 0; }
+.ico svg { width: 20px; height: 20px; fill: currentColor; }
