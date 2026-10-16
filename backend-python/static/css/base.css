@@ -1,0 +1,36 @@
+:root {
+  /* ธีมฟ้าอ่อน + ขาว */
+  --sky-50: #f4f9ff;
+  --sky-100: #e6f1ff;
+  --sky-200: #d3e6ff;
+  --line: #dbe7f5;
+  --blue: #2f7df6;
+  --blue-dark: #1d5fd0;
+  --ink: #14263d;
+  --muted: #5b6b80;
+  --white: #fff;
+
+  /* สถานะช่องจอด: เขียว = ว่าง, เหลือง = ติดจอง, แดง = ไม่ว่าง */
+  --ok: #1fa75a;     --ok-bg: #e5f8ed;   --ok-line: #8fdcb0;   --ok-ink: #0f6d38;
+  --warn: #f2b705;   --warn-bg: #fff5cc; --warn-line: #f5d55e; --warn-ink: #7a5400;
+  --bad: #e5484d;    --bad-bg: #ffe6e7;  --bad-line: #f5a3a6;  --bad-ink: #b42318;
+
+  --shadow: 0 10px 30px rgba(47, 125, 246, .10), 0 2px 6px rgba(20, 38, 61, .04);
+  --font: "Noto Sans Thai", "Sarabun", "Leelawadee UI", "Thonburi", "Tahoma", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font: 16px/1.55 var(--font);
+  background:
+    radial-gradient(900px 420px at 85% -80px, #c4ddff 0%, transparent 70%),
+    radial-gradient(700px 380px at -10% 0, #d9ebff 0%, transparent 70%),
+    linear-gradient(180deg, #e9f3ff 0, var(--sky-50) 420px, #fff 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.page { max-width: 1120px; margin: 0 auto; padding: 24px 16px 56px; }

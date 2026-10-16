@@ -1,0 +1,39 @@
+/* ---------- บัตรจอง (ผลลัพธ์) ---------- */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.placeholder {
+  display: grid; justify-items: center; gap: 8px; border: 2px dashed #b7d2f5; border-radius: 22px; padding: 40px 20px;
+  text-align: center; color: var(--muted); background: rgba(255, 255, 255, .6);
+}
+.placeholder .ico { width: 56px; height: 56px; border-radius: 18px; background: var(--sky-100); color: var(--blue); }
+.placeholder .ico svg { width: 30px; height: 30px; }
+
+.ticket { background: #fff; border: 1px solid var(--line); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
+.ticket.fresh { animation: print .6s ease-out; }
+@keyframes print { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticket.fresh { animation: none; }
+  * { transition: none !important; }
+}
+
+.ticket-head { display: flex; align-items: center; gap: 12px; padding: 16px 22px; background: linear-gradient(135deg, #5ca0ff, var(--blue-dark)); color: #fff; font-size: 18px; font-weight: 700; }
+.ticket-head .p-sign { width: 36px; height: 36px; font-size: 22px; border-radius: 11px; background: #fff; color: var(--blue); box-shadow: none; }
+.ticket-body { padding: 22px 22px 20px; text-align: center; }
+.ticket-body img { display: block; width: 210px; height: 210px; margin: 0 auto; padding: 10px; border: 1px solid var(--line); border-radius: 18px; image-rendering: pixelated; }
+.ticket-code { margin-top: 12px; font-size: 27px; font-weight: 700; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--blue-dark); }
+.ticket-note { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+.ticket-note a { color: var(--blue); }
+
+.ticket-meta { position: relative; margin: 20px -22px 0; padding: 20px 22px 0; border-top: 2px dashed var(--line); text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; }
+.ticket-meta::before, .ticket-meta::after {
+  content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--sky-50); border: 1px solid var(--line);
+}
+.ticket-meta::before { left: -12px; }
+.ticket-meta::after { right: -12px; }
+.ticket-meta dt { color: var(--muted); }
+.ticket-meta dd { margin: 0; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+
+.alert { background: var(--bad-bg); border: 1px solid var(--bad-line); border-left: 6px solid var(--bad); border-radius: 18px; padding: 16px 20px; }
+.alert h2 { margin: 0 0 4px; font-size: 19px; color: var(--bad-ink); }
+.alert p { margin: 0; }
+.alert .alert-code { margin-top: 8px; font-size: 13px; color: var(--muted); }

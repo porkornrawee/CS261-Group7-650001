@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "vehicle": {
+    "id": 1,
+    "student_id": "6410000001",
+    "plate": "1กข 1234",
+    "province": "กรุงเทพมหานคร"
+  }
+}

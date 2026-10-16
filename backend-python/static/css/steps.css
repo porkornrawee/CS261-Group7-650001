@@ -1,0 +1,24 @@
+/* ---------- ขั้นตอน 1-2-3 ---------- */
+.step + .step { margin-top: 28px; padding-top: 26px; border-top: 1px solid var(--line); }
+.step-title { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; font-size: 19px; }
+.step-no {
+  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
+  border-radius: 50%; background: linear-gradient(145deg, #5ca0ff, var(--blue-dark));
+  color: #fff; font-size: 15px; font-weight: 700; box-shadow: 0 4px 10px rgba(47, 125, 246, .3);
+}
+
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: grid; gap: 6px; }
+.field.wide { grid-column: 1 / -1; }
+.field label, .label { font-weight: 600; font-size: 14.5px; color: var(--ink); }
+.field input {
+  height: 48px; padding: 0 14px; font: inherit; color: inherit; background: var(--sky-50);
+  border: 1.5px solid var(--line); border-radius: 14px; transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.field input:hover { border-color: #b9d3f3; }
+.field input:focus-visible { outline: 0; background: #fff; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(47, 125, 246, .18); }
+.hint { min-height: 1.4em; margin: 6px 0 0; font-size: 14px; color: var(--bad-ink); }
+
+.group { margin-top: 18px; }
+.group > .label { display: block; margin-bottom: 8px; }
+.group-note { font-weight: 400; color: var(--muted); font-size: 13.5px; margin-left: 6px; }

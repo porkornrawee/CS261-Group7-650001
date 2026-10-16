@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "error": {
+    "code": "TU_NOT_FOUND",
+    "message": "ไม่พบข้อมูลนักศึกษาในระบบ มธ. (Invalid user)"
+  }
+}

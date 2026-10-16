@@ -1,0 +1,74 @@
+{
+  "slots": [
+    {
+      "id": 1,
+      "booked": false,
+      "status": "free",
+      "busy": []
+    },
+    {
+      "id": 2,
+      "booked": true,
+      "status": "partial",
+      "busy": [
+        {
+          "start": "09:00",
+          "end": "09:30"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "booked": true,
+      "status": "booked",
+      "busy": [
+        {
+          "start": "09:00",
+          "end": "10:00"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "booked": false,
+      "status": "free",
+      "busy": []
+    },
+    {
+      "id": 5,
+      "booked": true,
+      "status": "booked",
+      "busy": [
+        {
+          "start": "09:00",
+          "end": "10:00"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "booked": true,
+      "status": "booked",
+      "busy": [
+        {
+          "start": "09:00",
+          "end": "10:00"
+        }
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": 1,
+      "free": 2,
+      "total": 4,
+      "full": false
+    },
+    {
+      "id": 2,
+      "free": 0,
+      "total": 2,
+      "full": true
+    }
+  ]
+}

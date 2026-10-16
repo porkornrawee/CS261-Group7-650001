@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dcecff">
+<title>จองที่จอดรถ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/masthead.css">
+<link rel="stylesheet" href="/static/css/steps.css">
+<link rel="stylesheet" href="/static/css/chips.css">
+<link rel="stylesheet" href="/static/css/parking-lot.css">
+<link rel="stylesheet" href="/static/css/ticket.css">
+<link rel="stylesheet" href="/static/css/recent.css">
+<link rel="stylesheet" href="/static/css/responsive.css">
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="p-sign" aria-hidden="true">P</div>
+    <div class="masthead-text">
+      <h1>จองที่จอดรถ</h1>
+      <p>เลือกวัน เวลา และช่องจอด แล้วรับ QR Code ได้ทันที</p>
+    </div>
+    <div class="hours-pill"><span class="ico" id="ico-clock"></span><span id="hours">กำลังโหลดเวลาเปิดทำการ…</span></div>
+  </header>
+
+  <div class="layout">
+    <main class="panel">
+      <form id="booking-form" novalidate>
+        <section class="step" aria-labelledby="step1">
+          <h2 class="step-title" id="step1"><span class="step-no">1</span>เลือกวันและเวลา</h2>
+          <div class="fields">
+            <div class="field wide">
+              <label for="user_name">ชื่อผู้จอง</label>
+              <input id="user_name" name="user_name" type="text" maxlength="100" autocomplete="name" placeholder="เช่น สมชาย ใจดี" required>
+            </div>
+          </div>
+
+          <div class="group">
+            <span class="label" id="lbl-date">วันที่</span>
+            <div class="date-strip" id="date-strip" role="group" aria-labelledby="lbl-date"></div>
+          </div>
+
+          <div class="group">
+            <span class="label" id="lbl-time">เวลาเริ่ม<span class="group-note">เลือกชั่วโมงที่ต้องการเข้าจอด</span></span>
+            <div class="chip-grid" id="time-strip" role="group" aria-labelledby="lbl-time"></div>
+          </div>
+
+          <div class="group">
+            <span class="label" id="lbl-dur">ระยะเวลา</span>
+            <div class="dur-row" id="dur-strip" role="group" aria-labelledby="lbl-dur"></div>
+          </div>
+
+          <div class="manual">
+            <div class="fields">
+              <div class="field wide">
+                <label for="date">วันที่ (เลือกวันอื่นนอกเหนือจาก 14 วันข้างต้น)</label>
+                <input id="date" name="date" type="date" required>
+              </div>
+              <div class="field">
+                <label for="start">เวลาเริ่ม</label>
+                <input id="start" name="start" type="time" required>
+              </div>
+              <div class="field">
+                <label for="end">เวลาสิ้นสุด</label>
+                <input id="end" name="end" type="time" required>
+              </div>
+            </div>
+            <p class="duration-text" id="duration-text" aria-live="polite"></p>
+          </div>
+          <p class="hint" id="time-hint" aria-live="polite"></p>
+        </section>
+
+        <section class="step" aria-labelledby="step2">
+          <h2 class="step-title" id="step2"><span class="step-no">2</span>เลือกช่องจอด</h2>
+          <fieldset class="map">
+            <legend class="visually-hidden">ช่องจอด</legend>
+            <div class="lot" id="lot">กำลังโหลดผังช่องจอด…</div>
+          </fieldset>
+          <ul class="legend" aria-label="สัญลักษณ์">
+            <li><span class="dot free"></span>ว่าง <b class="n" data-count="free">–</b></li>
+            <li><span class="dot partial"></span>ติดจอง (บางช่วง) <b class="n" data-count="partial">–</b></li>
+            <li><span class="dot booked"></span>ไม่ว่าง (เต็มช่วง) <b class="n" data-count="booked">–</b></li>
+            <li><span class="dot picked"></span>ช่องที่เลือก</li>
+          </ul>
+          <div class="pick" id="pick" aria-live="polite"></div>
+        </section>
+
+        <section class="step" aria-labelledby="step3">
+          <h2 class="step-title" id="step3"><span class="step-no">3</span>ยืนยันการจอง</h2>
+          <button class="submit" id="submit" type="submit">ยืนยันการจอง</button>
+        </section>
+      </form>
+    </main>
+
+    <aside class="side">
+      <div class="stage" id="stage" aria-live="polite">
+        <div class="placeholder">
+          <span class="ico" id="ico-ticket"></span>
+          <span>บัตรจองและ QR Code จะแสดงที่นี่<br>หลังจากกดยืนยันการจอง</span>
+        </div>
+      </div>
+      <section class="panel recent">
+        <h2>รายการจองล่าสุด</h2>
+        <div id="recent">กำลังโหลด…</div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<!-- ลำดับนี้สำคัญ: แต่ละไฟล์ใช้ตัวแปร/ฟังก์ชันของไฟล์ก่อนหน้า -->
+<script src="/static/js/dom.js"></script>
+<script src="/static/js/state.js"></script>
+<script src="/static/js/time-utils.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/time-picker.js"></script>
+<script src="/static/js/parking-lot.js"></script>
+<script src="/static/js/ticket.js"></script>
+<script src="/static/js/booking-form.js"></script>
+<script src="/static/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# รัน: docker compose up --build  แล้วเปิด http://localhost:8080
+services:
+  api:
+    build: ./backend-python
+    volumes:
+      - parking-data:/data
+    expose:
+      - "5000"
+
+  web:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+
+volumes:
+  parking-data:
