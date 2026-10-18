@@ -6,9 +6,7 @@
  * Done when: มี role=alert สำหรับ error
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .alert- ใน Alert.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Alert(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Alert', 1, 'UI-06');
+import { h } from '../../core/dom.js';
+export function Alert({ tone = 'info', message = '' } = {}) {
+  return h('div', { class: `alert-root alert-root--${tone}`, role: tone === 'error' ? 'alert' : 'status' }, message);
 }

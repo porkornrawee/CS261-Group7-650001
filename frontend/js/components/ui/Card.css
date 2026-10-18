@@ -1,2 +1,13 @@
 /* Card — Owner: Dev 1 | UI-02
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.card-root {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 1.2rem;
+  margin-bottom: var(--space-4);
+}
