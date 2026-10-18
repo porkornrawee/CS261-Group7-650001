@@ -1,2 +1,68 @@
 /* DurationPicker — Owner: Dev 2 | BK-03
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.duration-picker-root {
+  width: 100%;
+  min-width: 0;
+}
+.duration-picker-title {
+  margin: 0 0 var(--space-3);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.duration-picker-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+.duration-picker-option {
+  min-height: 48px;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.duration-picker-option:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+.duration-picker-option--selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-brand);
+}
+.duration-picker-option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.duration-picker-option:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.duration-picker-result {
+  margin: var(--space-3) 0 0;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+/* Tablet */
+@media (max-width: 768px) {
+  .duration-picker-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Mobile */
+@media (max-width: 480px) {
+  .duration-picker-options {
+    gap: var(--space-2);
+  }
+  .duration-picker-option {
+    min-height: 44px;
+    padding: var(--space-2);
+    font-size: 0.9rem;
+  }
+}

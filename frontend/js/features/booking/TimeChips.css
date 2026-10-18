@@ -1,2 +1,59 @@
 /* TimeChips — Owner: Dev 2 | BK-02
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.time-chips-root {
+  width: 100%;
+  min-width: 0;
+}
+.time-chips-title {
+  margin: 0 0 var(--space-3);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.time-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.time-chips-item {
+  min-width: 85px;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.time-chips-item:hover {
+  border-color: var(--primary);
+}
+.time-chips-item--selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-brand);
+}
+.time-chips-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.time-chips-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+@media (max-width: 600px) {
+  .time-chips-list {
+    gap: var(--space-2);
+  }
+  .time-chips-item {
+    min-width: 75px;
+    min-height: 40px;
+    padding: var(--space-2);
+    font-size: 0.85rem;
+  }
+}
