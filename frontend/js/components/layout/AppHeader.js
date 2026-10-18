@@ -6,9 +6,32 @@
  * Done when: โลโก้มุมซ้ายใช้ไฟล์ทางการ, เมนูไฮไลต์หน้าปัจจุบัน, พับเป็นแฮมเบอร์เกอร์บนมือถือ, แล้วลบ #dev-nav ใน index.html
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .app-header- ใน AppHeader.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function AppHeader(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('AppHeader', 1, 'LY-01');
+import { h } from '../../core/dom.js';
+const links = [
+  ['#/', 'หน้าแรก', '/'], ['#/vehicle', 'ลงทะเบียนรถ', '/vehicle'],
+  ['#/booking', 'จองที่จอด', '/booking'],
+  ['#/ticket/PK-TEST2345', 'บัตรจอง', '/ticket'], ['#/history', 'ประวัติ', '/history'],
+];
+export function AppHeader({ activeRoute = '/' } = {}) {
+  const nav = h('nav', { class: 'app-header-nav', 'aria-label': 'เมนูหลัก' });
+  for (const [href, title, path] of links) {
+    const active = path === '/' ? activeRoute === '/' : activeRoute.startsWith(path);
+    nav.append(h('a', {
+      href, class: `app-header-link${active ? ' app-header-link--active' : ''}`,
+      ...(active ? { 'aria-current': 'page' } : {}),
+    }, title));
+  }
+  const menuButton = h('button', {
+    type: 'button', class: 'app-header-toggle', 'aria-expanded': 'false',
+    'aria-label': 'เปิดเมนู', onClick: () => {
+      const expanded = nav.classList.toggle('app-header-nav--open');
+      menuButton.setAttribute('aria-expanded', String(expanded));
+    },
+  }, '☰');
+  return h('div', { class: 'app-header-root' },
+    h('div', { class: 'app-header-inner' },
+      h('a', { class: 'app-header-brand', href: '#/' }, 'จองที่จอดรถ มธ.'),
+      menuButton, nav,
+    ),
+  );
 }
