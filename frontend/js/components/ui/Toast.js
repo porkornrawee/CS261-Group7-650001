@@ -6,15 +6,18 @@
  * Done when: หายเองใน 4 วินาที, ซ้อนหลายอันได้
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .toast- ใน Toast.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Toast(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Toast', 1, 'UI-07');
+import { h } from '../../core/dom.js';
+export function Toast({ message = '', tone = 'info' } = {}) {
+  return h('div', { class: `toast-root toast-root--${tone}`, role: 'status' }, message);
 }
-
-/** เรียกจาก page ได้ทุกที่: showToast('บันทึกแล้ว', 'success') */
 export function showToast(message, tone = 'info') {
-  // TODO(Dev 1): สร้าง Toast ต่อท้าย document.body แล้วลบหลัง durationMs
-  console.info('[toast TODO]', tone, message);
+  let container = document.querySelector('.toast-container');
+  if (!container) {
+    container = h('div', { class: 'toast-container', 'aria-live': 'polite' });
+    document.body.append(container);
+  }
+  const toast = Toast({ message, tone });
+  container.append(toast);
+  window.setTimeout(() => { toast.remove(); if (!container.childElementCount) container.remove(); }, 4000);
+  return toast;
 }
