@@ -1,2 +1,27 @@
 /* TimeChips — Owner: Dev 2 | BK-02
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+
+.time-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+}
+
+.time-chips__item {
+  padding: 8px 14px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border, #d5deea);
+  background-color: var(--surface, #ffffff);
+  color: var(--text-main, #0f2a4a);
+  font-size: var(--font-size-sm, 13px);
+  font-weight: var(--font-weight-bold, 700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-chips__item.is-selected {
+  background-color: var(--primary, #1a6cf0);
+  border-color: var(--primary, #1a6cf0);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(26, 108, 240, 0.25);
+}
