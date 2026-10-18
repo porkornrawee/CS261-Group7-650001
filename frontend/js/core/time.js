@@ -5,11 +5,26 @@
  *   durationText(minutes) -> '1 ชม. 30 นาที', thaiDate('YYYY-MM-DD') -> 'พฤ. 17 ต.ค.'
  * Dev 3 (BookingPage) พึ่งไฟล์นี้ — ส่งให้เร็ว
  */
-export function pad(n) { return String(n).padStart(2, '0'); }
-
-// TODO(Dev 1): ymd, toMin, fromMin, durationText, thaiDate
-export function ymd(_date) { throw new Error('TODO(Dev 1): CO-02'); }
-export function toMin(_hhmm) { throw new Error('TODO(Dev 1): CO-02'); }
-export function fromMin(_minutes) { throw new Error('TODO(Dev 1): CO-02'); }
-export function durationText(_minutes) { throw new Error('TODO(Dev 1): CO-02'); }
-export function thaiDate(_ymdText) { throw new Error('TODO(Dev 1): CO-02'); }
+export const pad = (n) => String(n).padStart(2, '0');
+export function ymd(date) {
+  const d = date instanceof Date ? date : new Date(date);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+export function toMin(hhmm) {
+  const [hours, minutes] = String(hhmm).split(':').map(Number);
+  return hours * 60 + minutes;
+}
+export function fromMin(minutes) {
+  return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
+}
+export function durationText(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return [h ? `${h} ชม.` : '', m ? `${m} นาที` : ''].filter(Boolean).join(' ') || '0 นาที';
+}
+export function thaiDate(text) {
+  const [y, m, d] = text.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const month = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  return `${date.getDate()} ${month[date.getMonth()]} ${date.getFullYear() + 543}`;
+}

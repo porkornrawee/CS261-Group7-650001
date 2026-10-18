@@ -1,2 +1,25 @@
 /* Badge — Owner: Dev 1 | UI-05
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.badge-root {
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  font-size: .85rem;
+  font-weight: 700;
+  padding: var(--space-1) var(--space-3);
+}
+.badge-root--success {
+  color: var(--ok-ink);
+  background: var(--ok-bg);
+}
+.badge-root--warning {
+  color: var(--warn-ink);
+  background: var(--warn-bg);
+}
+.badge-root--danger {
+  color: var(--danger-ink);
+  background: var(--danger-bg);
+}
+.badge-root--neutral {
+  color: var(--full-ink);
+  background: var(--full-bg);
+}

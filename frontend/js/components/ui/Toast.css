@@ -1,2 +1,26 @@
 /* Toast — Owner: Dev 1 | UI-07
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-5);
+  right: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  z-index: 20;
+  max-width: min(360px, 90vw);
+}
+.toast-root {
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  background: var(--info-bg);
+  color: var(--info-ink);
+}
+.toast-root--success {
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+}
+.toast-root--error {
+  background: var(--danger-bg);
+  color: var(--danger-ink);
+}

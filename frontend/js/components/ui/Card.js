@@ -6,9 +6,8 @@
  * Done when: ใช้ห่อ component อื่นได้, ไม่ hard-code สี
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .card- ใน Card.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Card(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Card', 1, 'UI-02');
+import { h } from '../../core/dom.js';
+export function Card({ title, children = [] } = {}) {
+  return h('article', { class: 'card-root' }, title ? h('h2', { class: 'card-title' }, title) : null, children);
 }
+

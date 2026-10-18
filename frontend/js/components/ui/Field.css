@@ -1,2 +1,27 @@
 /* Field — Owner: Dev 1 | UI-03
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.field-root {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.field-label {
+  font-weight: 700;
+}
+.field-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  color: var(--ink);
+}
+.field-input--error {
+  border-color: var(--danger);
+}
+.field-error {
+  font-size: .85rem;
+  margin: 0;
+  color: var(--danger);
+}

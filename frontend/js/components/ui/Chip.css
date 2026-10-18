@@ -1,2 +1,20 @@
 /* Chip — Owner: Dev 1 | UI-04
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.chip-root {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  background: var(--surface);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+}
+.chip-root--selected {
+  border-color: var(--tu-red);
+  background: var(--orange-50);
+  color: var(--tu-red);
+  font-weight: 700;
+}
+.chip-root:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}

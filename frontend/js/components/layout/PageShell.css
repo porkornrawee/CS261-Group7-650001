@@ -1,2 +1,26 @@
 /* PageShell — Owner: Dev 1 | LY-03
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.page-shell-root {
+  width: min(100%, 820px);
+  margin: 0 auto;
+}
+.page-shell-heading {
+  margin-bottom: var(--space-5);
+}
+.page-shell-eyebrow {
+  color: var(--tu-red);
+  font-weight: 700;
+  margin: 0 0 var(--space-2);
+}
+.page-shell-title {
+  font-size: clamp(1.7rem, 3vw, 2.15rem);
+  margin: 0 0 var(--space-3);
+}
+.page-shell-subtitle {
+  color: var(--muted);
+  margin: 0;
+}
+.page-shell-content {
+  width: 100%;
+  min-width: 0;
+}

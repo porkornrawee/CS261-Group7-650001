@@ -1,5 +1,6 @@
 /* DateStrip — Owner: Dev 2 | BK-01
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+<<<<<<< HEAD
 
 .date-strip {
   display: flex;
@@ -16,10 +17,27 @@
   border: 1px solid var(--border, #d5deea);
   background-color: var(--surface, #ffffff);
   color: var(--text-main, #0f2a4a);
+=======
+.date-strip-root {
+  width: 100%;
+  min-width: 0;
+}
+.date-strip-list {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding: var(--space-2) 0;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.date-strip-day {
+>>>>>>> aa44b643c34aa464431b0ca8f58b532830b82c84
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+<<<<<<< HEAD
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -47,3 +65,52 @@
   font-size: 16px;
   font-weight: var(--font-weight-bold, 700);
 }
+=======
+  flex: 0 0 90px;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.date-strip-day:hover {
+  border-color: var(--primary);
+}
+.date-strip-day--selected {
+  background: var(--primary);
+  color: var(--on-brand);
+  border-color: var(--primary);
+}
+.date-strip-day-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.date-strip-day-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.date-strip-day-month {
+  font-size: 0.8rem;
+}
+.date-strip-day:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .date-strip-list {
+    gap: var(--space-2);
+  }
+  .date-strip-day {
+    flex-basis: 76px;
+    padding: var(--space-2);
+  }
+  .date-strip-day-number {
+    font-size: 1.25rem;
+  }
+}
+>>>>>>> aa44b643c34aa464431b0ca8f58b532830b82c84

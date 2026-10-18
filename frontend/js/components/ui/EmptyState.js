@@ -6,9 +6,8 @@
  * Done when: ข้อความไทย อ่านง่าย
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .empty-state- ใน EmptyState.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function EmptyState(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('EmptyState', 1, 'UI-10');
+import { h } from '../../core/dom.js';
+export function EmptyState({ icon = '○', title = '', hint = '' } = {}) {
+  return h('div', { class: 'empty-state-root' }, h('span', { 'aria-hidden': 'true' }, icon),
+    h('h3', null, title), hint ? h('p', null, hint) : null);
 }

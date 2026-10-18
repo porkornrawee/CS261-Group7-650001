@@ -1,2 +1,23 @@
 /* StudentVerifyStatus — Owner: Dev 2 | VH-02
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.student-verify-status-root {
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  background: var(--orange-50);
+}
+.student-verify-status-root p {
+  margin: var(--space-1) 0 0;
+}
+.student-verify-status--checking {
+  background: var(--info-bg);
+  color: var(--info-ink);
+}
+.student-verify-status--ok {
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+}
+.student-verify-status--invalid, .student-verify-status--unavailable {
+  background: var(--danger-bg);
+  color: var(--danger-ink);
+}
