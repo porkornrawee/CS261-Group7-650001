@@ -1,2 +1,65 @@
 /* AppHeader — Owner: Dev 1 | LY-01
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.app-header-root {
+  min-height: var(--header-h);
+  background: var(--tu-red);
+  color: var(--on-brand);
+}
+.app-header-inner {
+  max-width: var(--page-max);
+  min-height: var(--header-h);
+  padding: var(--space-3) var(--space-4);
+  margin: auto;
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+}
+.app-header-brand {
+  color: var(--on-brand);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.app-header-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+.app-header-link {
+  color: var(--on-brand);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--tu-red-dark);
+  white-space: nowrap;
+}
+.app-header-link:hover, .app-header-link--active {
+  background: var(--orange);
+}
+.app-header-toggle {
+  display: none;
+  border: 1px solid var(--on-brand);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--on-brand);
+  padding: var(--space-1) var(--space-3);
+}
+@media (max-width: 720px) {
+  .app-header-inner {
+    flex-wrap: wrap;
+  }
+  .app-header-toggle {
+    display: inline-flex;
+  }
+  .app-header-nav {
+    display: none;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .app-header-nav--open {
+    display: flex;
+  }
+}
