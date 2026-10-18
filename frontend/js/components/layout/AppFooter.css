@@ -1,2 +1,83 @@
 /* AppFooter — Owner: Dev 1 | LY-02
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.app-footer-root {
+  background: var(--tu-red-dark);
+  color: var(--on-brand);
+  margin-top: var(--space-7);
+}
+.app-footer-inner {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-4);
+}
+.app-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 1.5rem;
+}
+.app-footer-brand strong {
+  font-weight: 700;
+}
+.app-footer-brand strong span {
+  color: var(--tu-gold);
+}
+.app-footer-logo {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--orange);
+  color: var(--on-brand);
+  border-radius: var(--radius);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.app-footer-description {
+  margin: var(--space-4) 0;
+  line-height: 1.65;
+  color: var(--on-brand);
+  opacity: .86;
+}
+.app-footer-heading {
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: 1.25rem;
+}
+.app-footer-contacts {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.app-footer-contact-item {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--orange-100);
+  border-radius: var(--radius-lg);
+  background: var(--tu-red);
+  min-width: 0;
+}
+.app-footer-contact-label {
+  color: var(--on-brand);
+  opacity: .75;
+}
+.app-footer-contact-value {
+  color: var(--on-brand);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+.app-footer-contact-value[href]:hover {
+  text-decoration: underline;
+}
+.app-footer-disclaimer {
+  margin: var(--space-5) 0 0;
+  opacity: .75;
+  font-size: .8rem;
+}
+@media (min-width: 768px) {
+  .app-footer-contacts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
