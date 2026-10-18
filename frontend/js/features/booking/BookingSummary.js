@@ -8,7 +8,26 @@
  */
 import { todo } from '../../core/dom.js';
 
+import { h } from '../../core/dom.js';
+
 export function BookingSummary(props = {}) {
-  // TODO(Dev 3): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('BookingSummary', 3, 'BK-07');
+  const { summary = {}, busy = false, onConfirm } = props;
+  const { date = '-', start = '-', end = '-', slotLabel = 'ยังไม่เลือก', zoneName = '-', plate = '-' } = summary;
+  const isReady = slotLabel !== 'ยังไม่เลือก' && slotLabel != null;
+
+  return h('div', { class: 'booking-summary' },
+    h('div', { class: 'booking-summary__content' },
+      h('h3', { class: 'booking-summary__title' }, 'สรุปข้อมูลการจอง'),
+      h('div', { class: 'booking-summary__row' }, h('span', {}, 'วันที่:'), h('strong', {}, date)),
+      h('div', { class: 'booking-summary__row' }, h('span', {}, 'เวลา:'), h('strong', {}, `${start} - ${end} น.`)),
+      h('div', { class: 'booking-summary__row' }, h('span', {}, 'โซน / ช่อง:'), h('strong', {}, `${zoneName} / ${slotLabel}`)),
+      h('div', { class: 'booking-summary__row' }, h('span', {}, 'ทะเบียนรถ:'), h('strong', {}, plate))
+    ),
+    h('button', {
+      class: 'btn btn--primary booking-summary__btn',
+      type: 'button',
+      disabled: !isReady || busy,
+      onClick: onConfirm
+    }, busy ? 'กำลังบันทึกการจอง...' : 'ยืนยันการจอง')
+  );
 }
