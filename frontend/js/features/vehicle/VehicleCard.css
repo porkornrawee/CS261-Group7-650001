@@ -1,2 +1,27 @@
 /* VehicleCard — Owner: Dev 2 | VH-03
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.vehicle-card-root {
+  padding: var(--space-5);
+  margin-top: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.vehicle-card-root h2 {
+  color: var(--ok-ink);
+}
+.vehicle-card-plate {
+  display: grid;
+  justify-items: center;
+  max-width: 290px;
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 1.4rem;
+}
+.vehicle-card-plate span {
+  font-size: 1rem;
+}
