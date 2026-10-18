@@ -6,9 +6,9 @@
  * Done when: มี aria-live ข้อความ 'กำลังโหลด'
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .spinner- ใน Spinner.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Spinner(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Spinner', 1, 'UI-09');
+import { h } from '../../core/dom.js';
+export function Spinner({ label = 'กำลังโหลด' } = {}) {
+  return h('span', { class: 'spinner-root', role: 'status', 'aria-live': 'polite' },
+    h('span', { class: 'spinner-circle', 'aria-hidden': 'true' }), label);
 }
+

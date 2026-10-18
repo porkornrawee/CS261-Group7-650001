@@ -6,9 +6,7 @@
  * Done when: สีมาจาก tokens
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .badge- ใน Badge.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Badge(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Badge', 1, 'UI-05');
+import { h } from '../../core/dom.js';
+export function Badge({ text = '', tone = 'neutral' } = {}) {
+  return h('span', { class: `badge-root badge-root--${tone}` }, text);
 }

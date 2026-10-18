@@ -17,10 +17,19 @@ import { request } from './client.js';
  * mock ผ่าน: vehicle-verify-ok.json | mock ไม่ผ่าน: เปลี่ยน mockFile เป็น vehicle-verify-fail.json
  */
 export function verifyStudent({ student_id, email }) {
-  // TODO(Dev 2): ตอน mock ให้สลับ ok/fail ตามรหัสนักศึกษา เช่น ลงท้าย 0000 = ไม่ผ่าน
-  return request('/api/vehicles/verify', { method: 'POST', body: { student_id, email }, mockFile: 'vehicle-verify-ok.json' });
+  const studentId = String(student_id ?? '').trim();
+  const mockFile = studentId.endsWith('0000')
+    ? 'vehicle-verify-fail.json'
+    : 'vehicle-verify-ok.json';
+  return request('/api/vehicles/verify', {
+    method: 'POST',
+    body: {
+      student_id: studentId,
+      email
+    },
+    mockFile
+  });
 }
-
 /**
  * POST /api/vehicles  { student_id, plate, province }
  * -> { ok:true, vehicle:{id,student_id,plate,province} }   (mock: vehicle-saved.json)

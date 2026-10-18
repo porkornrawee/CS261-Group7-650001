@@ -6,9 +6,11 @@
  * Done when: 3 variant ตาม tokens, มี state loading/disabled, โฟกัสด้วยคีย์บอร์ดเห็นชัด
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .button- ใน Button.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Button(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Button', 1, 'UI-01');
+import { h } from '../../core/dom.js';
+export function Button({ label = '', variant = 'primary', disabled = false, loading = false, type = 'button', onClick } = {}) {
+  return h('button', {
+    type, class: `button-root button-root--${variant}`, disabled: disabled || loading,
+    ...(onClick ? { onClick } : {}),
+  }, loading ? 'กำลังดำเนินการ…' : label);
 }
+

@@ -1,2 +1,98 @@
 /* VehicleForm — Owner: Dev 2 | VH-01
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.vehicle-form-root {
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+.vehicle-form-heading {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.vehicle-form-heading h2 {
+  font-size: 1.3rem;
+  margin: 0 0 var(--space-1);
+}
+.vehicle-form-heading p {
+  color: var(--muted);
+  margin: 0;
+  font-size: .9rem;
+}
+.vehicle-form-icon {
+  font-size: 1.55rem;
+  background: var(--orange-50);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.vehicle-form-fields {
+  display: grid;
+  gap: var(--space-4);
+}
+.vehicle-form-two-columns {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: var(--space-4);
+}
+.vehicle-form-field {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.vehicle-form-field label {
+  font-weight: 700;
+}
+.vehicle-form-input {
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+.vehicle-form-input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.vehicle-form-input::placeholder {
+  color: var(--muted);
+  opacity: .7;
+}
+.vehicle-form-error {
+  color: var(--danger);
+  font-size: .8rem;
+}
+.vehicle-form-error:empty {
+  display: none;
+}
+.vehicle-form-root .alert-root {
+  margin: var(--space-4) 0;
+}
+.vehicle-form-submit {
+  width: 100%;
+}
+@media (max-width: 540px) {
+  .vehicle-form-root {
+    padding: var(--space-4);
+  }
+  .vehicle-form-two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+/* VehiclePage layout */
+.vehicle-page-status:empty, .vehicle-page-result:empty {
+  display: none;
+}
+.vehicle-page-status {
+  margin-top: var(--space-5);
+}
+.vehicle-page-next {
+  display: inline-block;
+  margin-top: var(--space-4);
+  font-weight: 700;
+}

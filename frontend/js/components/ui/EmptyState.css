@@ -1,2 +1,13 @@
 /* EmptyState — Owner: Dev 1 | UI-10
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.empty-state-root {
+  text-align: center;
+  color: var(--muted);
+  padding: var(--space-7);
+}
+.empty-state-root span {
+  font-size: 2rem;
+}
+.empty-state-root h3 {
+  color: var(--ink);
+}

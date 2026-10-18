@@ -6,9 +6,10 @@
  * Done when: สถานะ selected/disabled ชัดเจน
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .chip- ใน Chip.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function Chip(props = {}) {
-  // TODO(Dev 1): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('Chip', 1, 'UI-04');
+import { h } from '../../core/dom.js';
+export function Chip({ label = '', selected = false, disabled = false, onClick } = {}) {
+  return h('button', {
+    type: 'button', class: `chip-root${selected ? ' chip-root--selected' : ''}`, disabled,
+    'aria-pressed': String(selected), ...(onClick ? { onClick } : {})
+  }, label);
 }
