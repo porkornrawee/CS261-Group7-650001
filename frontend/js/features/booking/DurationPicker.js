@@ -8,7 +8,46 @@
  */
 import { todo } from '../../core/dom.js';
 
+import { h } from '../../core/dom.js';
+
 export function DurationPicker(props = {}) {
-  // TODO(Dev 2): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('DurationPicker', 2, 'BK-03');
+  const { startTime = '09:00', valueMin = 60, closeTime = '20:00', onChange } = props;
+  const durations = [30, 60, 90, 120, 180];
+
+  const toMinVal = (str) => {
+    const [h, m] = (str || '00:00').split(':').map(Number);
+    return (h || 0) * 60 + (m || 0);
+  };
+
+  const fromMinVal = (min) => {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  };
+
+  const startMin = toMinVal(startTime);
+  const closeMin = toMinVal(closeTime);
+
+  const container = h('div', { class: 'duration-picker' });
+
+  durations.forEach(min => {
+    const endMin = startMin + min;
+    const isDisabled = endMin > closeMin;
+    const isSelected = min === valueMin;
+
+    const btn = h('button', {
+      class: `duration-picker__chip ${isSelected ? 'is-selected' : ''}`,
+      type: 'button',
+      disabled: isDisabled,
+      onClick: () => {
+        if (!isDisabled && onChange) {
+          onChange(min, fromMinVal(endMin));
+        }
+      }
+    }, min >= 60 ? `${min / 60} ชม.` : `${min} นาที`);
+
+    container.appendChild(btn);
+  });
+
+  return container;
 }
