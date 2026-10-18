@@ -8,10 +8,6 @@
  */
 import { todo } from '../../core/dom.js';
 
-/**
- * ZoneBlock — กลุ่มช่องจอดของ 1 โซน + หัวโซน
- * Owner: Dev 3 | Ticket: BK-05 | Priority: P2
- */
 import { h } from '../../core/dom.js';
 import { SlotBay } from './SlotBay.js';
 
@@ -27,19 +23,39 @@ export function ZoneBlock(props = {}) {
     )
   );
 
-  const slotsContainer = h('div', { class: 'zone-block__slots' });
-  (zone.slots || []).forEach(slot => {
-    const slotInfo = slotsAvailability.find(s => s.id === slot.id) || { status: 'free' };
-    const isSelected = slot.id === selectedSlotId;
+  const slotsContainer = h('div', { class: 'zone-block__slots-container' });
+  
+  // แบ่งช่องจอดออกเป็น 2 แถวจำลอง (เช่น แถว A และ B สำหรับรถยนต์) เพื่อใส่เลนถนนคั่นกลาง
+  const midIndex = Math.ceil(zone.slots.length / 2);
+  const row1Slots = zone.slots.slice(0, midIndex);
+  const row2Slots = zone.slots.slice(midIndex);
 
-    const bay = SlotBay({
-      slot,
-      status: slotInfo.status,
-      selected: isSelected,
-      onSelect: (id) => onSelectSlot && onSelectSlot(id)
+  const renderRow = (slots) => {
+    const rowEl = h('div', { class: 'zone-block__slots-row' });
+    slots.forEach(slot => {
+      const slotInfo = slotsAvailability.find(s => s.id === slot.id) || { status: 'free' };
+      const isSelected = slot.id === selectedSlotId;
+
+      const bay = SlotBay({
+        slot,
+        status: slotInfo.status,
+        selected: isSelected,
+        onSelect: (id) => onSelectSlot && onSelectSlot(id)
+      });
+      rowEl.appendChild(bay);
     });
-    slotsContainer.appendChild(bay);
-  });
+    return rowEl;
+  };
+
+  slotsContainer.appendChild(renderRow(row1Slots));
+
+  if (row2Slots.length > 0) {
+    const laneDivider = h('div', { class: 'zone-block__lane' },
+      h('span', { class: 'zone-block__lane-text' }, 'ทางรถวิ่ง')
+    );
+    slotsContainer.appendChild(laneDivider);
+    slotsContainer.appendChild(renderRow(row2Slots));
+  }
 
   container.appendChild(slotsContainer);
   return container;
