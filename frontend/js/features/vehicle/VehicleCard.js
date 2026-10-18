@@ -6,9 +6,11 @@
  * Done when: แสดงทะเบียนแบบป้ายรถ อ่านง่าย
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .vehicle-card- ใน VehicleCard.css)
  */
-import { todo } from '../../core/dom.js';
-
-export function VehicleCard(props = {}) {
-  // TODO(Dev 2): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('VehicleCard', 2, 'VH-03');
+import { h } from '../../core/dom.js';
+export function VehicleCard({ vehicle = {} } = {}) {
+  return h('article', { class: 'vehicle-card-root' },
+    h('h2', null, 'ลงทะเบียนรถสำเร็จ'),
+    h('div', { class: 'vehicle-card-plate' }, h('strong', null, vehicle.plate || '—'),
+      h('span', null, vehicle.province || '')),
+    h('p', null, `รหัสนักศึกษา: ${vehicle.studentId || vehicle.student_id || '—'}`));
 }
