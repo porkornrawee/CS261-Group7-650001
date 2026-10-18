@@ -1,2 +1,39 @@
 /* SlotBay — Owner: Dev 3 | BK-06
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+
+   /* SlotBay.css — Owner: Dev 3 | BK-06 */
+.slot-bay {
+  width: 44px;
+  height: 80px;
+  border-radius: var(--radius-md, 8px);
+  border: 1.5px solid var(--border, #d5deea);
+  background-color: var(--surface, #ffffff);
+  color: var(--text-main, #0f2a4a);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.slot-bay--booked {
+  background-color: var(--bg-disabled, #f1f5f9);
+  border-color: var(--border, #cbd5e1);
+  color: var(--text-muted, #94a3b8);
+  cursor: not-allowed;
+}
+
+.slot-bay--partial {
+  border-style: dashed;
+  border-color: var(--primary, #1a6cf0);
+}
+
+.slot-bay.is-selected {
+  border-color: var(--tu-red, #b5121b);
+  background-color: rgba(181, 18, 27, 0.05);
+  color: var(--tu-red, #b5121b);
+  box-shadow: 0 0 0 2px var(--tu-red, #b5121b);
+}

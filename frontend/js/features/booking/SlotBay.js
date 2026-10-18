@@ -8,7 +8,20 @@
  */
 import { todo } from '../../core/dom.js';
 
+/**
+ * SlotBay — ช่องจอด 1 ช่อง (free / partial / booked)
+ * Owner: Dev 3 | Ticket: BK-06 | Priority: P0
+ */
+import { h } from '../../core/dom.js';
+
 export function SlotBay(props = {}) {
-  // TODO(Dev 3): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('SlotBay', 3, 'BK-06');
+  const { slot, status = 'free', selected = false, onSelect } = props;
+
+  return h('button', {
+    class: `slot-bay slot-bay--${status} ${selected ? 'is-selected' : ''}`,
+    type: 'button',
+    onClick: () => onSelect && onSelect(slot.id)
+  },
+    h('span', { class: 'slot-bay__label' }, slot.label)
+  );
 }
