@@ -1,2 +1,31 @@
 /* Stepper — Owner: Dev 1 | UI-08
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.stepper-root {
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+}
+.stepper-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--muted);
+}
+.stepper-item span {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--full-bg);
+}
+.stepper-item--current, .stepper-item--done {
+  color: var(--tu-red);
+  font-weight: 700;
+}
+.stepper-item--current span, .stepper-item--done span {
+  background: var(--tu-red);
+  color: var(--on-brand);
+}

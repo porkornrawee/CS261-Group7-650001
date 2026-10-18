@@ -1,2 +1,19 @@
 /* Alert — Owner: Dev 1 | UI-06
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.alert-root {
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: .9rem;
+}
+.alert-root--info {
+  background: var(--orange-50);
+  color: var(--muted);
+}
+.alert-root--error {
+  background: var(--danger-bg);
+  color: var(--danger-ink);
+}
+.alert-root--success {
+  background: var(--ok-bg);
+  color: var(--ok-ink);
+}

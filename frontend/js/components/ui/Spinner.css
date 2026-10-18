@@ -1,2 +1,20 @@
 /* Spinner — Owner: Dev 1 | UI-09
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.spinner-root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.spinner-circle {
+  width: 17px;
+  height: 17px;
+  border: 2px solid var(--orange-100);
+  border-top-color: var(--tu-red);
+  border-radius: 50%;
+  animation: spinner-spin .7s linear infinite;
+}
+@keyframes spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
