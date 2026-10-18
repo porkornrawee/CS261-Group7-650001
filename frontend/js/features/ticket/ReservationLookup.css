@@ -1,2 +1,64 @@
-/* ReservationLookup — Owner: Dev 4 | TK-02
+/*   — Owner: Dev 4 | TK-02
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+
+.reservation-lookup {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius-lg, 16px);
+  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reservation-lookup__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main, #0f2a4a);
+}
+
+.reservation-lookup__form {
+  display: flex;
+  gap: 8px;
+}
+
+.reservation-lookup__input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border, #cbd5e1);
+  font-size: 13px;
+  color: var(--text-main, #0f2a4a);
+  outline: none;
+}
+
+.reservation-lookup__input:focus {
+  border-color: var(--primary, #1a6cf0);
+}
+
+.reservation-lookup__btn {
+  white-space: nowrap;
+}
+
+.reservation-lookup__message {
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.reservation-lookup__message--error {
+  background: #fce8e6;
+  color: #b5121b;
+  border: 1px solid #f8d7da;
+}
+
+.reservation-lookup__message--success {
+  background: #e6f4ea;
+  color: #137333;
+  border: 1px solid #d4edda;
+}
