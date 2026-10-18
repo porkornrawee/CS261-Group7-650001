@@ -8,7 +8,42 @@
  */
 import { todo } from '../../core/dom.js';
 
+import { h } from '../../core/dom.js';
+import { ZoneBlock } from './ZoneBlock.js';
+
 export function ParkingLot(props = {}) {
-  // TODO(Dev 3): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('ParkingLot', 3, 'BK-04');
+  const { zones = [], availability = {}, selectedSlotId, onSelectSlot } = props;
+  const container = h('div', { class: 'parking-lot' },
+    h('h3', { class: 'parking-lot__main-title' }, 'ผังที่จอด')
+  );
+
+  // ส่วนแสดงคำอธิบายสถานะ (Legend)
+  const legendEl = h('div', { class: 'parking-lot__legend' },
+    h('div', { class: 'parking-lot__legend-item' },
+      h('span', { class: 'parking-lot__legend-box parking-lot__legend-box--free' }), 'ว่าง'
+    ),
+    h('div', { class: 'parking-lot__legend-item' },
+      h('span', { class: 'parking-lot__legend-box parking-lot__legend-box--booked' }), 'ไม่ว่าง'
+    ),
+    h('div', { class: 'parking-lot__legend-item' },
+      h('span', { class: 'parking-lot__legend-box parking-lot__legend-box--selected' }), 'ที่คุณเลือก'
+    )
+  );
+  container.appendChild(legendEl);
+
+  zones.forEach(zone => {
+    const zoneAvail = availability.zones?.find(z => z.id === zone.id) || { free: 0, total: zone.slots.length, full: false };
+    const zoneSlotsAvail = availability.slots || [];
+
+    const zoneEl = ZoneBlock({
+      zone,
+      zoneAvailability: zoneAvail,
+      slotsAvailability: zoneSlotsAvail,
+      selectedSlotId,
+      onSelectSlot
+    });
+    container.appendChild(zoneEl);
+  });
+
+  return container;
 }
