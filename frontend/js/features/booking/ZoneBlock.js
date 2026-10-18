@@ -8,7 +8,39 @@
  */
 import { todo } from '../../core/dom.js';
 
+/**
+ * ZoneBlock — กลุ่มช่องจอดของ 1 โซน + หัวโซน
+ * Owner: Dev 3 | Ticket: BK-05 | Priority: P2
+ */
+import { h } from '../../core/dom.js';
+import { SlotBay } from './SlotBay.js';
+
 export function ZoneBlock(props = {}) {
-  // TODO(Dev 3): แทนที่ด้วย implementation จริง (ลบ todo() ทิ้ง)
-  return todo('ZoneBlock', 3, 'BK-05');
+  const { zone, zoneAvailability = {}, slotsAvailability = [], selectedSlotId, onSelectSlot } = props;
+
+  const container = h('div', { class: 'zone-block' },
+    h('div', { class: 'zone-block__header' },
+      h('h4', { class: 'zone-block__title' }, zone.name),
+      h('span', { class: `zone-block__status ${zoneAvailability.full ? 'zone-block__status--full' : ''}` }, 
+        zoneAvailability.full ? 'เต็ม' : `ว่าง ${zoneAvailability.free}/${zoneAvailability.total}`
+      )
+    )
+  );
+
+  const slotsContainer = h('div', { class: 'zone-block__slots' });
+  (zone.slots || []).forEach(slot => {
+    const slotInfo = slotsAvailability.find(s => s.id === slot.id) || { status: 'free' };
+    const isSelected = slot.id === selectedSlotId;
+
+    const bay = SlotBay({
+      slot,
+      status: slotInfo.status,
+      selected: isSelected,
+      onSelect: (id) => onSelectSlot && onSelectSlot(id)
+    });
+    slotsContainer.appendChild(bay);
+  });
+
+  container.appendChild(slotsContainer);
+  return container;
 }
