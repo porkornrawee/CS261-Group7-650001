@@ -6,6 +6,20 @@
  * Page เท่านั้นที่คุยกับ js/api/* และ js/store.js ได้ (component ใน ui/ ห้ามรู้จัก api)
  */
 /** HomePage — PG-01 | หน้าแรกระบบ SmartPark TU */
+
+/**
+ * HomePage — หน้าแรก: การ์ดเมนู 3 ใบ
+ * (ลงทะเบียนรถ / จองที่จอด / ตรวจบัตรและประวัติ)
+ *
+ * Owner: Dev 1 | Ticket: PG-01 | Priority: P0 | Route: #/
+ *
+ * @param {{ params: Record<string, string> }} ctx
+ * @returns {HTMLElement}
+ *
+ * Page เท่านั้นที่คุยกับ js/api/* และ js/store.js ได้
+ * Component ใน ui/ ห้ามรู้จัก API
+ */
+
 import { h } from '../core/dom.js';
 import { AppFooter } from '../components/layout/AppFooter.js';
 
@@ -56,69 +70,148 @@ const parkingAreas = [
     full: true,
   },
 ];
-/** วาดอาคารด้วย SVG*/
-function createBuildingArtwork(type) {
-  if (type === 'library') {
-    return h('svg', {
-      class: 'home-art-svg',
-      viewBox: '0 0 220 126',
-      'aria-hidden': 'true',
-      focusable: 'false',
-    },
-      h('path', { d: 'M13 39 L110 9 L207 39 Z', fill: 'currentColor' }),
-      h('rect', { x: 31, y: 109, width: 158, height: 10, fill: 'currentColor' }),
-      h('rect', { x: 31, y: 42, width: 158, height: 8, fill: 'currentColor' }),
-      ...[47, 78, 109, 140, 171].map((x) =>
-        h('rect', {
-          x, y: 48, width: 13, height: 64, rx: 2,
+/**
+ * สร้าง SVG Element โดยไม่ต้องแก้ core/dom.js
+ * @param {string} tag
+ * @param {Object} attributes
+ * @param {...Node} children
+ * @returns {SVGElement}
+ */
+function createSvgElement(tag, attributes = {}, ...children) {
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+
+  const element = document.createElementNS(svgNamespace, tag);
+
+  for (const [attributeName, value] of Object.entries(attributes)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+
+    element.setAttribute(attributeName, String(value));
+  }
+
+  for (const child of children.flat(Infinity)) {
+    if (child === null || child === undefined || child === false) {
+      continue;
+    }
+
+    element.append(
+      child instanceof Node
+        ? child
+        : document.createTextNode(String(child))
+    );
+  }
+
+  return element;
+}
+
+// ==================================================
+// Building Artwork
+// ==================================================
+
+/** สร้างรูปอาคารด้วย SVG */
+function createBuildingArtwork(buildingType) {
+  if (buildingType === 'library') {
+    return createSvgElement(
+      'svg',
+      {
+        class: 'home-art-svg',
+        viewBox: '0 0 220 126',
+        'aria-hidden': 'true',
+        focusable: 'false',
+      },
+
+      createSvgElement('path', {
+        d: 'M13 39 L110 9 L207 39 Z',
+        fill: 'currentColor',
+      }),
+
+      createSvgElement('rect', {
+        x: 31,
+        y: 109,
+        width: 158,
+        height: 10,
+        fill: 'currentColor',
+      }),
+
+      createSvgElement('rect', {
+        x: 31,
+        y: 42,
+        width: 158,
+        height: 8,
+        fill: 'currentColor',
+      }),
+
+      ...[47, 78, 109, 140, 171].map((positionX) =>
+        createSvgElement('rect', {
+          x: positionX,
+          y: 48,
+          width: 13,
+          height: 64,
+          rx: 2,
           fill: 'currentColor',
         })
       )
     );
   }
-  // ขนาดอาคาร
-  const layouts = {
-    sc1: { cols: 4, rows: 3 },
-    sc2: { cols: 5, rows: 2 },
-    sc3: { cols: 3, rows: 3 },
+  const buildingLayouts = {
+    sc1: { columns: 4, rows: 3 },
+    sc2: { columns: 5, rows: 2 },
+    sc3: { columns: 3, rows: 3 },
+    school: { columns: 4, rows: 3 },
   };
-  const { cols, rows } = layouts[type] || layouts.sc1;
-  const width = cols === 5 ? 204 : cols === 3 ? 138 : 176;
-  const height = rows === 2 ? 86 : 116;
-  const x0 = (220 - width) / 2;
-  const y0 = 126 - height - 5;
+  const { columns, rows } =
+    buildingLayouts[buildingType] || buildingLayouts.sc1;
+  const buildingWidth =
+    columns === 5 ? 204 : columns === 3 ? 138 : 176;
+  const buildingHeight = rows === 2 ? 86 : 116;
+  const buildingX = (220 - buildingWidth) / 2;
+  const buildingY = 126 - buildingHeight - 5;
   const padding = 11;
-  const gap = 7;
-  const windowWidth = (width - padding * 2 - gap * (cols - 1)) / cols;
-  const windowHeight = (height - padding * 2 - gap * (rows - 1)) / rows;
-
+  const windowGap = 7;
+  const windowWidth = (buildingWidth - padding * 2 - windowGap * (columns - 1)) /columns;
+  const windowHeight =(buildingHeight - padding * 2 - windowGap * (rows - 1)) /rows;
   const windows = [];
   for (let row = 0; row < rows; row += 1) {
-    for (let col = 0; col < cols; col += 1) {
-      windows.push(h('rect', {
-        x: x0 + padding + col * (windowWidth + gap),
-        y: y0 + padding + row * (windowHeight + gap),
-        width: windowWidth,
-        height: windowHeight,
-        rx: 3,
-        fill: 'var(--bg)',
-      }));
+    for (let column = 0; column < columns; column += 1) {
+      const windowX =
+        buildingX + padding + column * (windowWidth + windowGap);
+      const windowY =
+        buildingY + padding + row * (windowHeight + windowGap);
+      windows.push(
+        createSvgElement('rect', {
+          x: windowX,
+          y: windowY,
+          width: windowWidth,
+          height: windowHeight,
+          rx: 3,
+          fill: 'var(--bg)',
+        })
+      );
     }
   }
+  return createSvgElement(
+    'svg',
+    {
+      class: 'home-art-svg',
+      viewBox: '0 0 220 126',
+      'aria-hidden': 'true',
+      focusable: 'false',
+    },
 
-  return h('svg', {
-    class: 'home-art-svg',
-    viewBox: '0 0 220 126',
-    'aria-hidden': 'true',
-    focusable: 'false',
-  },
-    h('rect', {
-      x: x0, y: y0, width, height, rx: 8,
+    createSvgElement('rect', {
+      x: buildingX,
+      y: buildingY,
+      width: buildingWidth,
+      height: buildingHeight,
+      rx: 8,
       fill: 'currentColor',
     }),
+
     ...windows
   );
 }
+/** SVG map pin */
 function createLocationPin() {
   return h('svg', {
     class: 'home-location-pin',
@@ -150,7 +243,6 @@ function createParkingCard(parkingArea) {
     fullButton.textContent = '🚫 ที่จอดเต็ม · ไม่สามารถจองได้';
     fullButton.setAttribute('aria-label', 'ห้ามจอง ที่จอดเต็มแล้ว');
   };
-
   const parkingArtwork = h('div', { class: `home-parking-art${parkingArea.full ? ' home-parking-art--full' : ''}` },
     h('span', { class: 'home-parking-badge' }, parkingArea.badge), createBuildingArtwork(parkingArea.art),
     parkingArea.full ? (fullOverlay = h('span', { class: 'home-full-overlay', 'aria-live': 'polite' }, 'ที่จอดเต็ม')) : null);
@@ -167,14 +259,36 @@ function createParkingCard(parkingArea) {
       parkingArea.full ? (fullButton = h('button', { type: 'button', class: 'home-full-action', onClick: showFullWarning }, '🔒 ที่จอดเต็ม · ไม่สามารถจองได้'))
         : h('a', { class: 'home-parking-action', href: '#/booking' }, 'เลือกช่องจอด ›')));
 }
-function createParkingSection(title, parkingAreas) {
-  const track = h('div', { class: 'home-parking-track', tabindex: '0', 'aria-label': title }, parkingAreas.map(createParkingCard));
-  const controls = h('div', { class: 'home-scroll-controls' },
-    h('button', { type: 'button', 'aria-label': `เลื่อน ${title} ไปทางซ้าย`, onClick: () => track.scrollBy({ left: -380, behavior: 'smooth' }) }, '❮'),
-    h('button', { type: 'button', 'aria-label': `เลื่อน ${title} ไปทางขวา`, onClick: () => track.scrollBy({ left: 380, behavior: 'smooth' }) }, '❯'));
+function createParkingSection(sectionTitle, parkingList) {
+  const canScroll = parkingList.length > 1;
+  const parkingTrack = h('div', {
+    class: `home-parking-track${canScroll ? '' : ' home-parking-track--static'}`,
+    ...(canScroll ? { tabindex: '0', 'aria-label': sectionTitle } : {}),
+  }, ...parkingList.map(createParkingCard));
+
+  const scrollControls = canScroll
+    ? h('div', { class: 'home-scroll-controls' },
+        h('button', {
+          type: 'button',
+          'aria-label': `เลื่อน ${sectionTitle} ไปทางซ้าย`,
+          onClick: () => parkingTrack.scrollBy({ left: -380, behavior: 'smooth' }),
+        }, '❮'),
+        h('button', {
+          type: 'button',
+          'aria-label': `เลื่อน ${sectionTitle} ไปทางขวา`,
+          onClick: () => parkingTrack.scrollBy({ left: 380, behavior: 'smooth' }),
+        }, '❯'))
+    : null;
   return h('section', { class: 'home-section' },
     h('div', { class: 'home-section-heading' },
-      h('div', null, h('h2', null, title), h('p', null, 'เลื่อนดูด้านข้างได้')), controls), track);
+      h('div', null,
+        h('h2', null, sectionTitle),
+        canScroll ? h('p', null, 'เลื่อนดูด้านข้างได้') : null
+      ),
+      scrollControls
+    ),
+    parkingTrack
+  );
 }
 export function HomePage() {
   return h('div', { class: 'home-root' },
