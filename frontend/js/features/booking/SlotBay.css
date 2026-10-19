@@ -1,2 +1,65 @@
 /* SlotBay — Owner: Dev 3 | BK-06
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.slot-bay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 76px;
+  height: 92px;
+  padding: 0;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, background .15s, border-color .15s;
+}
+.slot-bay:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.slot-bay:focus-visible { outline: 3px solid var(--info); outline-offset: 4px; }
+
+.slot-bay__icon { height: 22px; font-size: 18px; font-weight: 700; line-height: 22px; }
+.slot-bay__label { font-size: 19px; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.slot-bay__state { min-height: 1.2em; font-size: 12.5px; font-weight: 600; }
+
+/* 3 สถานะ: แยกด้วยสี + ไอคอน + ข้อความ (+ ลายขีดเฉียงสำหรับเต็ม) */
+.slot-bay--free { background: var(--ok-bg); border-color: var(--ok); color: var(--ok-ink); }
+.slot-bay--partial { background: var(--warn-bg); border-color: var(--warn); color: var(--warn-ink); }
+.slot-bay--booked {
+  background: repeating-linear-gradient(135deg, var(--full-bg) 0 6px, var(--surface) 6px 12px);
+  border-color: var(--full);
+  border-style: dashed;
+  color: var(--full-ink);
+}
+.slot-bay--free .slot-bay__label,
+.slot-bay--partial .slot-bay__label,
+.slot-bay--booked .slot-bay__label { color: inherit; }
+
+/* ช่องที่เลือกอยู่ */
+.slot-bay--selected {
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--info);
+}
+.slot-bay--selected::after {
+  content: "✓";
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--info);
+  color: var(--on-brand);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .slot-bay { width: 84px; height: 100px; }
+}
