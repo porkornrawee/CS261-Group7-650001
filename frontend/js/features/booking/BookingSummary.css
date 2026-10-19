@@ -1,2 +1,22 @@
 /* BookingSummary — Owner: Dev 3 | BK-07
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.booking-summary {
+  display: grid; gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface);
+}
+.booking-summary__list { display: grid; gap: var(--space-2); margin: 0; }
+.booking-summary__row { display: flex; justify-content: space-between; gap: var(--space-3); }
+.booking-summary__label { color: var(--muted); }
+.booking-summary__value { margin: 0; font-weight: 700; color: var(--ink); text-align: right; }
+
+.booking-summary__note {
+  margin: 0; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line); background: var(--orange-50); color: var(--muted); font-size: 14.5px;
+}
+.booking-summary__note--ok { background: var(--ok-bg); border-color: var(--ok); color: var(--ok-ink); }
+.booking-summary__note--warn { background: var(--warn-bg); border-color: var(--warn); color: var(--warn-ink); }
+.booking-summary__note--bad { background: var(--full-bg); border-color: var(--full); border-style: dashed; color: var(--full-ink); }
+
+.booking-summary__action .button-root { width: 100%; min-height: 48px; font-size: 17px; }
