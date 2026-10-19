@@ -1,2 +1,45 @@
 /* ParkingLot — Owner: Dev 3 | BK-04
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.parking-lot { display: grid; gap: var(--space-4); min-width: 0; }
+
+.parking-lot__zone {
+  background: linear-gradient(180deg, var(--orange-50), var(--surface));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+.parking-lot__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 14px;
+}
+.parking-lot__name {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0; font-size: 18px; font-weight: 700;
+}
+.parking-lot__name::before {
+  content: ""; width: 6px; height: 22px; border-radius: 3px;
+  background: linear-gradient(180deg, var(--orange), var(--tu-red));
+}
+.parking-lot__count { font-size: 13.5px; font-weight: 600; padding: 2px 12px; border-radius: var(--radius-pill); }
+.parking-lot__count--ok { background: var(--ok-bg); color: var(--ok-ink); }
+.parking-lot__count--full { background: var(--full-bg); color: var(--full-ink); border: 1px dashed var(--full); }
+
+.parking-lot__bays { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+.parking-lot__legend {
+  display: flex; flex-wrap: wrap; gap: var(--space-2) 10px;
+  margin: 0; padding: 0; list-style: none; font-size: 14px;
+}
+.parking-lot__legend-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding: 5px 12px 5px 10px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+}
+.parking-lot__n { color: var(--ink); font-variant-numeric: tabular-nums; }
+.parking-lot__dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.parking-lot__dot--free { background: var(--ok); }
+.parking-lot__dot--partial { background: var(--warn); }
+.parking-lot__dot--booked {
+  background: repeating-linear-gradient(135deg, var(--full) 0 2px, var(--full-bg) 2px 4px);
+  border: 1px solid var(--full);
+}
