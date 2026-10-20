@@ -10,7 +10,7 @@ import { h } from '../../core/dom.js';
 const links = [
   ['#/', 'หน้าแรก', '/'], ['#/vehicle', 'ลงทะเบียนรถ', '/vehicle'],
   ['#/booking', 'จองที่จอด', '/booking'],
-  ['#/ticket/PK-TEST2345', 'บัตรจอง', '/ticket'], ['#/history', 'ประวัติ', '/history'],
+  ['#/history', 'ประวัติ', '/history'],
 ];
 export function AppHeader({ activeRoute = '/' } = {}) {
   const nav = h('nav', { class: 'app-header-nav', 'aria-label': 'เมนูหลัก' });
