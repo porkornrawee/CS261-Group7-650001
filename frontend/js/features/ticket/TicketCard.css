@@ -1,2 +1,35 @@
 /* TicketCard — Owner: Dev 4 | TK-01
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+.ticket-card-root {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.ticket-card-code {
+  margin: 0 0 var(--space-3);
+  color: var(--tu-red);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+.ticket-card-qr {
+  width: 200px;
+  height: 200px;
+  image-rendering: pixelated;
+}
+.ticket-card-details { margin: var(--space-4) 0; text-align: left; }
+.ticket-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+.ticket-card-row dt { color: var(--muted); }
+.ticket-card-row dd { margin: 0; font-weight: 600; }
+.ticket-card-save { color: var(--orange-dark); font-weight: 600; }
