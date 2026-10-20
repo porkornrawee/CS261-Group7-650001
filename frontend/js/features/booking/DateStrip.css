@@ -33,7 +33,7 @@
   border-color: var(--primary);
 }
 .date-strip-day--selected {
-  background: var(--primary);
+  background: var(--tu-red);
   color: var(--on-brand);
   border-color: var(--primary);
 }
