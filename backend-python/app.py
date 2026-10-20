@@ -11,6 +11,7 @@ from flask import Flask, Response, g, jsonify, request
 
 import booking_service as service
 import qr_service
+import vehicle_service
 from db import connect, init_db
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +28,7 @@ def create_app(db_path=None, now_func=None):
     )
     app.config["NOW_FUNC"] = now_func or datetime.now
     init_db(app.config["DB_PATH"])
+    vehicles = {}  # ทะเบียนรถจำลอง (student_id -> รถ) อยู่ในหน่วยความจำ
 
     # --- จัดการ connection: 1 request = 1 connection -----------------------
 
@@ -58,6 +60,16 @@ def create_app(db_path=None, now_func=None):
         return app.send_static_file("index.html")
 
     # --- API ----------------------------------------------------------------
+
+    @app.post("/api/vehicles/verify")
+    def api_verify_student():
+        student = vehicle_service.verify_student(request.get_json(silent=True))
+        return jsonify({"ok": True, "student": student})
+
+    @app.post("/api/vehicles")
+    def api_save_vehicle():
+        vehicle = vehicle_service.save_vehicle(vehicles, request.get_json(silent=True))
+        return jsonify({"ok": True, "vehicle": vehicle}), 201
 
     @app.get("/api/zones")
     def api_zones():

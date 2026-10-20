@@ -13,10 +13,14 @@ export const ERROR_MESSAGES = {
   BUSY: 'ระบบกำลังประมวลผลหลายรายการ กรุณาลองใหม่',
   TU_NOT_FOUND: 'ไม่พบข้อมูลนักศึกษาในระบบ มธ. (Invalid user)',
   TU_UNAVAILABLE: 'ระบบตรวจสอบของ มธ. ไม่พร้อมใช้งานชั่วคราว',
+  NETWORK_ERROR: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้',
 };
 
-/** @param {{code?:string, message?:string}} error */
+/** @param {{code?:string, message?:string, name?:string}} error */
 export function messageFor(error) {
   // TODO(Dev 4): รองรับ network error (fetch ล้มเหลว) ด้วยข้อความ 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้'
+  if (!error || error.name === 'TypeError' || error.message?.includes('Failed to fetch') || error.code === 'NETWORK_ERROR') {
+    return ERROR_MESSAGES.NETWORK_ERROR;
+  }
   return ERROR_MESSAGES[error?.code] || error?.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
 }
