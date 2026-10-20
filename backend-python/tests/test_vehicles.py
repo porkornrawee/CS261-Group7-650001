@@ -35,6 +35,29 @@ class TestVehicles(ReservationTestCase):
         response = self.client.post("/api/vehicles/verify")
         self.assertRejected(response, 400, "VALIDATION_ERROR")
 
+    def test_verify_email_is_case_insensitive_and_trimmed(self):
+        response = self.verify(student_id=" 6410000001 ", email=" Somchai.J@DOME.TU.AC.TH ")
+        self.assertEqual(response.status_code, 200)
+        student = response.get_json()["student"]
+        self.assertEqual(student["student_id"], "6410000001")
+        self.assertEqual(student["email"], "somchai.j@dome.tu.ac.th")
+
+    def test_verify_rejects_domain_only_email(self):
+        self.assertRejected(self.verify(email="@dome.tu.ac.th"), 400, "VALIDATION_ERROR")
+
+    def test_verify_rejects_non_string_fields(self):
+        response = self.client.post(
+            "/api/vehicles/verify", json={"student_id": 6410000001, "email": ["a@dome.tu.ac.th"]}
+        )
+        self.assertRejected(response, 400, "VALIDATION_ERROR")
+
+    def test_save_rejects_bad_student_id(self):
+        response = self.client.post(
+            "/api/vehicles",
+            json={"student_id": "abc", "plate": "1กข 1234", "province": "กรุงเทพมหานคร"},
+        )
+        self.assertRejected(response, 400, "VALIDATION_ERROR")
+
     def test_save_vehicle(self):
         response = self.client.post(
             "/api/vehicles",
