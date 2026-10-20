@@ -31,7 +31,7 @@
   border-color: var(--primary);
 }
 .duration-picker-option--selected {
-  background: var(--primary);
+  background: var(--tu-red);
   border-color: var(--primary);
   color: var(--on-brand);
 }
