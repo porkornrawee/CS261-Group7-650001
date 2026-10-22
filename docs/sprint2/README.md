@@ -86,5 +86,5 @@ Dev 1: CORE-01 (schema + auth helper + error codes)   ← ทุกคนรอ 
 - [ ] PR ผ่านรีวิว 1 คน + ปอตรวจ · การ์ด Trello ลิงก์กับ Issue/PR
 
 ## ข้อสังเกตจาก Trello (ต้องยืนยันกับทีม)
-- การ์ด US2 มีทั้งป้าย Sprint 2 และ Sprint 3; US11 มีบรรทัด Trace เขียน Sprint 1 แต่ป้ายเป็น Sprint 2
+- US11 มีบรรทัด Trace เขียน Sprint 1 แต่ป้ายเป็น Sprint 2
 - Dev 4 รับงานเยอะสุด (US3 + US5 + US4 + QR) — ถ้าเวลาไม่พอให้เลื่อน US4 ก่อน
