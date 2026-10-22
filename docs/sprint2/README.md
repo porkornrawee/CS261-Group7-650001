@@ -59,6 +59,8 @@ Dev 1: CORE-01 (schema + auth helper + error codes)   ← ทุกคนรอ 
 | `CANCEL_DEADLINE_PASSED` | 422 | US3 |
 | `NOT_CANCELLABLE` | 409 | US3 (ยกเลิกไปแล้ว/ใช้ไปแล้ว) |
 | `EXTEND_CONFLICT` | 409 | US9 |
+| `MEMBER_DUPLICATE` | 409 | US2 |
+| `STUDENT_NOT_FOUND` | 404 | US2 |
 
 **สัญญา API ของแต่ละ US** (รูปแบบ response ละเอียดอยู่ในเอกสารของแต่ละ Dev — ใครแก้สัญญาต้องแจ้งในแชทก่อน)
 

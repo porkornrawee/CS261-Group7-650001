@@ -15,7 +15,7 @@
 | BE | ค่า config `CANCEL_DEADLINE_MIN / NOTIFY_BEFORE_MIN / NO_SHOW_GRACE_MIN` | `backend-python/config.py` |
 | BE | `auth.py`: `@login_required`, `g.student_id`, 401/403 | `backend-python/auth.py` (สร้างใหม่) |
 | BE | `create_reservation` รับ `student_id` จาก session และบันทึกลงตาราง | `backend-python/booking_service.py`, `app.py` |
-| FE | เพิ่มข้อความ error ใหม่ 6 code | `frontend/js/api/errors.js` (+ test ใน `frontend/tests/errors.test.mjs`) |
+| FE | เพิ่มข้อความ error ใหม่ 8 code (ตารางใน README) | `frontend/js/api/errors.js` (+ test ใน `frontend/tests/errors.test.mjs`) |
 | Test | trigger ไม่นับแถวที่ cancelled, migration รันซ้ำได้, 401 เมื่อไม่ล็อกอิน | `backend-python/tests/test_core_schema.py` |
 
 **ต้องรอ:** merge `be/feat-tu-api-sqlite` ของปอก่อน (มีตาราง `students`) — ถามปอถ้ายังไม่ merge

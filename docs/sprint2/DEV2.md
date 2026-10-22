@@ -31,9 +31,9 @@
 
 | ส่วน | งาน | ไฟล์ |
 |---|---|---|
-| DB | ตาราง `members(id, name, phone, email UNIQUE, member_type='external', created_at)`; `vehicles` เพิ่ม `vehicle_type` (`car|motorcycle`) และให้ผูกกับ member ได้ (เสนอ: ใช้ `student_id` เป็น key กลางโดยให้ member ได้ id แบบ `EXT-0001`) | `backend-python/db.py` |
-| BE | `POST /api/members` (validate, ซ้ำ → 409 `MEMBER_DUPLICATE`), บันทึกรถผ่าน `save_vehicle`; ขอตั้งรหัสผ่านร่วมกับ US11 (`accounts`) | `backend-python/member_service.py` (ใหม่), `app.py` |
-| FE | หน้า `#/register-external` + `MemberForm` + ลิงก์จากหน้า login/home | `frontend/js/pages/MemberRegisterPage.js`, `features/member/MemberForm.js`, `api/members.js` + mock, `router.js` |
-| Test | บันทึกสำเร็จ / ข้อมูลไม่ครบ / ซ้ำ / ประเภทรถผิด | `backend-python/tests/test_members.py`, `frontend/tests/` |
+| DB | `vehicles` เพิ่ม `vehicle_type` (`car|motorcycle`); **ไม่สร้างสมาชิกภายนอก/รหัส `EXT-xxxx` ในรอบนี้** — `student_id` ต้องมีอยู่ในตาราง `students` เท่านั้น (ไม่ทำให้ FK ของ `reservations.student_id` พัง); ตาราง `accounts` ของ US11 (Dev 1) เป็นเจ้าของ `password_hash` | `backend-python/db.py` |
+| BE | `POST /api/members` body `{student_id, name, phone, email, password, vehicle_type, plate, province}`: validate (รหัสผ่านขั้นต่ำ 8 ตัว, อีเมล/เบอร์รูปแบบถูก), `student_id` ไม่อยู่ใน `students` → 404 `STUDENT_NOT_FOUND`, มีบัญชีแล้ว/อีเมลซ้ำ → 409 `MEMBER_DUPLICATE`, เก็บรหัสผ่านเป็น hash (`werkzeug.security`) ลง `accounts` ผ่านฟังก์ชันที่ Dev 1 เปิดไว้ (ห้ามเก็บรหัสผ่านตรง ๆ, ห้ามส่ง hash กลับใน response), บันทึกรถผ่าน `save_vehicle` | `backend-python/member_service.py` (ใหม่), `app.py` |
+| FE | หน้า `#/register-external` + `MemberForm` (ช่องรหัสผ่าน + ยืนยันรหัสผ่าน, `type=password`, แสดง/ซ่อนได้) + ลิงก์จากหน้า login/home | `frontend/js/pages/MemberRegisterPage.js`, `features/member/MemberForm.js`, `api/members.js` + mock, `router.js` |
+| Test | บันทึกสำเร็จ / ข้อมูลไม่ครบ / ซ้ำ / ประเภทรถผิด / รหัสผ่านสั้นเกิน / ไม่พบ student_id / ล็อกอินได้หลังสมัคร | `backend-python/tests/test_members.py`, `frontend/tests/` |
 
-ประสานกับ Dev 1: ตาราง `accounts` ของ US11 ต้องรองรับ member ภายนอกด้วย
+ประสานกับ Dev 1: Dev 1 สร้างตาราง `accounts` + ฟังก์ชันสร้างบัญชี (hash) ใน US11 ก่อน แล้ว US2 เรียกใช้ — อย่าสร้างตารางรหัสผ่านซ้ำ
