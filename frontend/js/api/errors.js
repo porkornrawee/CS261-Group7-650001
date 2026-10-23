@@ -14,22 +14,13 @@ export const ERROR_MESSAGES = {
   TU_NOT_FOUND: 'ไม่พบข้อมูลนักศึกษาในระบบ มธ. (Invalid user)',
   TU_UNAVAILABLE: 'ระบบตรวจสอบของ มธ. ไม่พร้อมใช้งานชั่วคราว',
   NETWORK_ERROR: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้',
-  UNAUTHORIZED: 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
-  FORBIDDEN: 'คุณไม่มีสิทธิ์ดำเนินการนี้',
-  INVALID_CREDENTIALS: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
-  CANCEL_DEADLINE_PASSED: 'เลยกำหนดเวลายกเลิกการจองแล้ว',
-  NOT_CANCELLABLE: 'ไม่สามารถยกเลิกการจองนี้ได้',
-  EXTEND_CONFLICT: 'ไม่สามารถขยายเวลาจองได้ เนื่องจากช่วงเวลานี้มีการจองแล้ว',
 };
 
 /** @param {{code?:string, message?:string, name?:string}} error */
 export function messageFor(error) {
-  const message = error?.message || '';
-  const isNetworkError = !error
-    || error.code === 'NETWORK_ERROR'
-    || error.name === 'TypeError'
-    || /failed to fetch|networkerror|load failed/i.test(message);
-
-  if (isNetworkError) return ERROR_MESSAGES.NETWORK_ERROR;
+  // TODO(Dev 4): รองรับ network error (fetch ล้มเหลว) ด้วยข้อความ 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้'
+  if (!error || error.name === 'TypeError' || error.message?.includes('Failed to fetch') || error.code === 'NETWORK_ERROR') {
+    return ERROR_MESSAGES.NETWORK_ERROR;
+  }
   return ERROR_MESSAGES[error?.code] || error?.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่';
 }

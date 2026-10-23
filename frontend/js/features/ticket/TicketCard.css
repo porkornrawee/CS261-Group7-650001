@@ -1,141 +1,85 @@
-/* TicketCard — Owner: Dev 4 | TK-01 */
+/* TicketCard — Owner: Dev 4 | TK-01
+   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+
 .ticket-card {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   background: var(--surface, #ffffff);
   border: 1px solid var(--border, #e2e8f0);
   border-radius: var(--radius-lg, 16px);
+  padding: 20px;
+  max-width: 360px;
+  margin: 0 auto;
   box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .ticket-card__header {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 8px 16px;
-  padding-bottom: 12px;
   border-bottom: 1px solid var(--border, #e2e8f0);
+  padding-bottom: 12px;
 }
 
-.ticket-card__title,
-.ticket-card__code {
+.ticket-card__title {
   margin: 0;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-main, #0f2a4a);
 }
 
-.ticket-card__title { font-size: 18px; }
 .ticket-card__code {
-  color: var(--primary, #1a6cf0);
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: .04em;
-  overflow-wrap: anywhere;
+  color: var(--primary, #1a6cf0);
 }
 
 .ticket-card__body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
-.ticket-card__qr-frame {
-  box-sizing: border-box;
-  width: min(100%, 230px);
-  min-height: 210px;
-  padding: 10px;
-  display: grid;
-  place-items: center;
+.ticket-card__qr,
+.ticket-card__qr-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
   border: 1px solid var(--border, #cbd5e1);
-  border-radius: var(--radius-md, 8px);
-  background: var(--surface, #ffffff);
-}
-
-.ticket-card__qr {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: var(--text-muted, #7d8ba0);
+  font-size: 12px;
   object-fit: contain;
-  image-rendering: pixelated;
 }
 
-.ticket-card__qr-placeholder,
-.ticket-card__qr-error,
-.ticket-card__note {
-  margin: 0;
-  color: var(--text-muted, #64748b);
-  text-align: center;
-}
-.ticket-card__qr-error { color: var(--danger, #b5121b); }
-.ticket-card__note { font-size: 14px; }
-
-.ticket-card__meta {
-  box-sizing: border-box;
+.ticket-card__info {
   width: 100%;
-  margin: 12px 0 0;
-  padding-top: 16px;
-  display: grid;
-  grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
-  gap: 8px 16px;
-  border-top: 2px dashed var(--border, #cbd5e1);
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
 }
-.ticket-card__meta dt { color: var(--text-muted, #64748b); }
-.ticket-card__meta dd {
-  min-width: 0;
-  margin: 0;
+
+.ticket-card__row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted, #64748b);
+}
+
+.ticket-card__row strong {
   color: var(--text-main, #0f2a4a);
-  font-weight: 600;
-  overflow-wrap: anywhere;
 }
 
-.ticket-card__actions {
+.ticket-card__footer {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.ticket-card__actions > * { flex: 1 1 150px; text-align: center; }
-.ticket-card__download { text-decoration: none; }
-
-.ticket-page__body[aria-busy="true"] {
-  min-height: 120px;
-  display: grid;
-  place-items: center;
-}
-.ticket-page__error-title { margin: 0 0 12px; }
-.ticket-page__links {
-  margin-top: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  justify-content: stretch;
 }
 
-@media (min-width: 768px) {
-  .ticket-card { padding: 24px; }
-}
-
-@media print {
-  @page { margin: 12mm; }
-  #app-header,
-  .page-shell-heading,
-  .ticket-card__actions,
-  .ticket-page__links { display: none !important; }
-  #app { max-width: none; padding: 0; }
-  .page-shell-root,
-  .page-shell-content,
-  .ticket-page__body { margin: 0; padding: 0; }
-  .ticket-card {
-    max-width: none;
-    border: 0;
-    box-shadow: none;
-    break-inside: avoid;
-  }
+.ticket-card__btn {
+  width: 100%;
 }

@@ -9,10 +9,7 @@ from datetime import datetime
 
 from flask import Flask, Response, g, jsonify, request
 
-from auth import login_required, student_from_session
 import booking_service as service
-import history_service
-import notification_service
 import qr_service
 import vehicle_service
 from db import connect, init_db
@@ -24,7 +21,6 @@ def create_app(db_path=None, now_func=None):
     """สร้างแอป (รับ db_path และ now_func เพื่อให้ทดสอบแยกอิสระได้)"""
     app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"))
     app.json.ensure_ascii = False  # ให้ JSON แสดงภาษาไทยตรง ๆ ไม่เป็น \uXXXX
-    app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
     app.config["DB_PATH"] = (
         db_path
         or os.environ.get("PARKING_DB")
@@ -46,10 +42,6 @@ def create_app(db_path=None, now_func=None):
         conn = g.pop("conn", None)
         if conn is not None:
             conn.close()
-
-    @app.before_request
-    def bind_student_from_session():
-        student_from_session()
 
     # --- รูปแบบ error ให้เหมือนกันทุกเส้นทาง -------------------------------
 
@@ -97,8 +89,7 @@ def create_app(db_path=None, now_func=None):
     def api_create_reservation():
         payload = request.get_json(silent=True)
         reservation = service.create_reservation(
-            get_conn(), payload, app.config["NOW_FUNC"](),
-            student_id=getattr(g, "student_id", None),
+            get_conn(), payload, app.config["NOW_FUNC"]()
         )
         png = qr_service.make_qr_png(reservation["code"])
         body = {
@@ -113,73 +104,6 @@ def create_app(db_path=None, now_func=None):
     def api_list_reservations():
         limit = min(max(request.args.get("limit", default=20, type=int), 1), 100)
         return jsonify({"reservations": service.list_reservations(get_conn(), limit)})
-
-    @app.get("/api/me/reservations")
-    @login_required
-    def api_my_reservations():
-        status = request.args.get("status", "")
-        try:
-            reservations = history_service.list_my_reservations(
-                get_conn(), g.student_id, status, app.config["NOW_FUNC"]()
-            )
-        except ValueError:
-            return jsonify({
-                "ok": False,
-                "error": {"code": "VALIDATION_ERROR", "message": "สถานะประวัติไม่ถูกต้อง"},
-            }), 400
-        return jsonify({"ok": True, "reservations": reservations})
-
-    @app.get("/api/me/notifications")
-    @login_required
-    def api_my_notifications():
-        conn = get_conn()
-        now = app.config["NOW_FUNC"]()
-        notification_service.generate_due_notifications(conn, now)
-        rows = conn.execute(
-            """SELECT id, reservation_id, type, message, created_at, read_at
-               FROM notifications WHERE student_id = ?
-               ORDER BY created_at DESC, id DESC LIMIT 100""",
-            (g.student_id,),
-        ).fetchall()
-        notifications = [dict(row) for row in rows]
-        unread_count = conn.execute(
-            "SELECT COUNT(*) FROM notifications WHERE student_id = ? AND read_at IS NULL",
-            (g.student_id,),
-        ).fetchone()[0]
-        return jsonify({
-            "ok": True,
-            "notifications": notifications,
-            "unread_count": unread_count,
-        })
-
-    @app.post("/api/me/notifications/<int:notification_id>/read")
-    @login_required
-    def api_mark_notification_read(notification_id):
-        conn = get_conn()
-        row = conn.execute(
-            """SELECT id, student_id, reservation_id, type, message, created_at, read_at
-               FROM notifications WHERE id = ?""",
-            (notification_id,),
-        ).fetchone()
-        if row is None:
-            return not_found("ไม่พบการแจ้งเตือนนี้")
-        if row["student_id"] != g.student_id:
-            return jsonify({
-                "ok": False,
-                "error": {"code": "FORBIDDEN", "message": "คุณไม่มีสิทธิ์ดำเนินการนี้"},
-            }), 403
-
-        now = app.config["NOW_FUNC"]().isoformat(timespec="seconds")
-        conn.execute(
-            "UPDATE notifications SET read_at = COALESCE(read_at, ?) WHERE id = ?",
-            (now, notification_id),
-        )
-        row = conn.execute(
-            """SELECT id, reservation_id, type, message, created_at, read_at
-               FROM notifications WHERE id = ?""",
-            (notification_id,),
-        ).fetchone()
-        return jsonify({"ok": True, "notification": dict(row)})
 
     @app.get("/api/reservations/<code>")
     def api_get_reservation(code):

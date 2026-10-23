@@ -8,9 +8,6 @@
 OPEN_TIME = "08:00"
 CLOSE_TIME = "20:00"
 
-# Sprint 2 notification threshold, shared by near-start and near-expiry alerts.
-NOTIFY_BEFORE_MIN = 15
-
 # ข้อมูลโซนและช่องจอดตั้งต้น (แทนข้อมูลจาก US6 ในช่วง Sprint 1)
 # โซน B มีแค่ 2 ช่อง เพื่อให้สาธิตกรณี "โซนเต็ม" ได้เร็ว
 DEFAULT_ZONES = {
@@ -20,7 +17,3 @@ DEFAULT_ZONES = {
 
 MAX_NAME_LENGTH = 100
 BOOKING_CODE_PREFIX = "PK-"
-
-# Sprint 2 session and reservation lifecycle thresholds.
-CANCEL_DEADLINE_MIN = 30
-NO_SHOW_GRACE_MIN = 15

@@ -24,12 +24,6 @@ CREATE TABLE IF NOT EXISTS slots (
     label   TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS students (
-    student_id TEXT PRIMARY KEY,
-    name       TEXT,
-    email      TEXT UNIQUE
-);
-
 -- start_at / end_at เก็บเป็นข้อความ 'YYYY-MM-DDTHH:MM' เพื่อให้เปรียบเทียบตามตัวอักษรได้ถูกต้อง
 CREATE TABLE IF NOT EXISTS reservations (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,6 +38,20 @@ CREATE TABLE IF NOT EXISTS reservations (
 
 CREATE INDEX IF NOT EXISTS idx_reservations_slot_time
     ON reservations (slot_id, start_at, end_at);
+
+-- ด่านสุดท้ายของ NFR02: ห้ามมีช่วงเวลาซ้อนกันในช่องเดียวกัน
+-- (ช่วงที่ต่อกันพอดี เช่น 10:00-11:00 กับ 11:00-12:00 ไม่ถือว่าซ้อน)
+CREATE TRIGGER IF NOT EXISTS trg_no_overlapping_reservation
+BEFORE INSERT ON reservations
+WHEN EXISTS (
+    SELECT 1 FROM reservations r
+    WHERE r.slot_id = NEW.slot_id
+      AND r.start_at < NEW.end_at
+      AND r.end_at   > NEW.start_at
+)
+BEGIN
+    SELECT RAISE(ABORT, 'SLOT_CONFLICT');
+END;
 """
 
 
@@ -60,67 +68,11 @@ def connect(path):
 
 
 def init_db(path):
-    """Create the base schema and apply repeatable CORE-01 migrations."""
+    """สร้างตารางและใส่โซน/ช่องจอดตั้งต้น (ทำซ้ำได้ ไม่ทับข้อมูลเดิม)"""
     conn = connect(path)
     try:
         conn.execute("PRAGMA journal_mode = WAL")  # อ่านได้ระหว่างที่มีคนกำลังเขียน
         conn.executescript(SCHEMA)
-
-        reservation_columns = {
-            row["name"] for row in conn.execute("PRAGMA table_info(reservations)")
-        }
-        migrations = (
-            ("student_id", "TEXT REFERENCES students(student_id)"),
-            (
-                "status",
-                "TEXT NOT NULL DEFAULT 'active' CHECK (status IN "
-                "('active', 'checked_in', 'completed', 'cancelled', 'auto_cancelled'))",
-            ),
-            ("cancelled_at", "TEXT"),
-            ("checked_in_at", "TEXT"),
-        )
-        for column, definition in migrations:
-            if column not in reservation_columns:
-                conn.execute(
-                    f"ALTER TABLE reservations ADD COLUMN {column} {definition}"
-                )
-
-        conn.execute(
-            """CREATE INDEX IF NOT EXISTS idx_reservations_student_start
-               ON reservations (student_id, start_at DESC)"""
-        )
-        conn.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS notifications (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                student_id     TEXT NOT NULL REFERENCES students(student_id),
-                reservation_id INTEGER NOT NULL REFERENCES reservations(id),
-                type           TEXT NOT NULL CHECK (type IN (
-                    'near_start', 'near_expiry', 'cancelled', 'auto_cancelled', 'zone_full'
-                )),
-                message        TEXT NOT NULL,
-                created_at     TEXT NOT NULL,
-                read_at        TEXT,
-                UNIQUE (reservation_id, type)
-            );
-            CREATE INDEX IF NOT EXISTS idx_notifications_student_created
-                ON notifications (student_id, created_at DESC, id DESC);
-            DROP TRIGGER IF EXISTS trg_no_overlapping_reservation;
-            CREATE TRIGGER trg_no_overlapping_reservation
-            BEFORE INSERT ON reservations
-            WHEN COALESCE(NEW.status, 'active') NOT IN ('cancelled', 'auto_cancelled')
-             AND EXISTS (
-                SELECT 1 FROM reservations r
-                WHERE r.slot_id = NEW.slot_id
-                  AND COALESCE(r.status, 'active') NOT IN ('cancelled', 'auto_cancelled')
-                  AND r.start_at < NEW.end_at
-                  AND r.end_at > NEW.start_at
-             )
-            BEGIN
-                SELECT RAISE(ABORT, 'SLOT_CONFLICT');
-            END;
-            """
-        )
         if conn.execute("SELECT COUNT(*) FROM zones").fetchone()[0] == 0:
             for zone_name, labels in DEFAULT_ZONES.items():
                 zone_id = conn.execute(

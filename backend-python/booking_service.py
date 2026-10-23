@@ -115,7 +115,6 @@ def _free_slots_in_zone(conn, zone_id, start_at, end_at):
           AND NOT EXISTS (
               SELECT 1 FROM reservations r
               WHERE r.slot_id = s.id
-                AND COALESCE(r.status, 'active') NOT IN ('cancelled', 'auto_cancelled')
                 AND r.start_at < ? AND r.end_at > ?
           )
         """,
@@ -128,9 +127,7 @@ def _slot_is_booked(conn, slot_id, start_at, end_at):
         conn.execute(
             """
             SELECT 1 FROM reservations
-            WHERE slot_id = ?
-              AND COALESCE(status, 'active') NOT IN ('cancelled', 'auto_cancelled')
-              AND start_at < ? AND end_at > ?
+            WHERE slot_id = ? AND start_at < ? AND end_at > ?
             """,
             (slot_id, end_at, start_at),
         ).fetchone()
@@ -178,7 +175,7 @@ _RESERVATION_SELECT = """
 # งานหลัก: สร้างการจอง
 # ---------------------------------------------------------------------------
 
-def create_reservation(conn, payload, now, student_id=None):
+def create_reservation(conn, payload, now):
     """ตรวจเงื่อนไขทั้งหมดแล้วบันทึกการจอง คืนค่าเป็น dict ของการจอง
 
     now = เวลาปัจจุบัน (ส่งเข้ามาเพื่อให้ทดสอบได้ตรงเวลา)
@@ -230,8 +227,8 @@ def create_reservation(conn, payload, now, student_id=None):
         cursor = conn.execute(
             """
             INSERT INTO reservations
-                (code, slot_id, user_name, start_at, end_at, created_at, student_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                (code, slot_id, user_name, start_at, end_at, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 code,
@@ -240,7 +237,6 @@ def create_reservation(conn, payload, now, student_id=None):
                 start_at,
                 end_at,
                 now.isoformat(timespec="seconds"),
-                student_id,
             ),
         )
         reservation_id = cursor.lastrowid
@@ -322,7 +318,6 @@ def _slot_busy_ranges(conn, slot_id, start_at, end_at):
         """
         SELECT start_at, end_at FROM reservations
         WHERE slot_id = ? AND start_at < ? AND end_at > ?
-          AND COALESCE(status, 'active') NOT IN ('cancelled', 'auto_cancelled')
         ORDER BY start_at
         """,
         (slot_id, end_at, start_at),
