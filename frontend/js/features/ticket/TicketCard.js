@@ -1,41 +1,75 @@
 /**
- * TicketCard — บัตรจอง: รหัส PK-XXXXXXXX, QR, ช่อง/โซน/วัน/เวลา, ปุ่มบันทึกรูป
+ * TicketCard — บัตรจองพร้อม QR และรายละเอียดการจอด
  * Owner: Dev 4 | Ticket: TK-01 | Priority: P0
- * @param { {reservation:{code:string,slot:string,zone:string,date:string,start:string,end:string,user_name:string}, qrSrc:string} } props
+ * @param {{reservation:{code:string,slot:string,zone:string,date:string,start:string,end:string,user_name:string}, qrSrc?:string}} props
  * @returns {HTMLElement}
- * Done when: QR แสดงชัด พิมพ์/บันทึกรูปได้ (ดูโค้ดเดิม showTicket())
- * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .ticket-card- ใน TicketCard.css)
  */
-import { todo } from '../../core/dom.js';
-
 import { h } from '../../core/dom.js';
+import { thaiDate } from '../../core/time.js';
 
-export function TicketCard(props = {}) {
-  const { reservation = {}, qrSrc = '' } = props;
-  const { code = '-', slot = '-', zone = '-', date = '-', start = '-', end = '-', user_name = '-' } = reservation;
+export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
+  const {
+    code = 'PK-????????',
+    slot = '-',
+    zone = '-',
+    date = '-',
+    start = '-',
+    end = '-',
+    user_name = '-',
+  } = reservation;
+  const displayDate = date === '-' ? '-' : thaiDate(date);
+  const qrFrame = h('div', { class: 'ticket-card__qr-frame' });
+  let downloadLink = null;
 
-  return h('div', { class: 'ticket-card' },
-    h('div', { class: 'ticket-card__header' },
-      h('h3', { class: 'ticket-card__title' }, 'บัตรจอดรถ'),
-      h('span', { class: 'ticket-card__code' }, code)
+  if (qrSrc) {
+    qrFrame.append(h('img', {
+      class: 'ticket-card__qr',
+      src: qrSrc,
+      alt: 'QR Code รหัสการจอง ' + code,
+      onError: () => {
+        qrFrame.replaceChildren(h('p', {
+          class: 'ticket-card__qr-error',
+          role: 'alert',
+        }, 'โหลดภาพ QR ไม่สำเร็จ กรุณาลองใหม่'));
+        downloadLink?.remove();
+      },
+    }));
+    downloadLink = h('a', {
+      class: 'button-root button-root--secondary ticket-card__download',
+      href: qrSrc,
+      download: code + '.png',
+      'aria-label': 'บันทึก QR Code ' + code,
+    }, 'บันทึก QR Code');
+  } else {
+    qrFrame.append(h('p', {
+      class: 'ticket-card__qr-placeholder',
+      role: 'status',
+    }, 'ไม่มีภาพ QR สำหรับรายการนี้'));
+  }
+
+  return h('article', { class: 'ticket-card' },
+    h('header', { class: 'ticket-card__header' },
+      h('h2', { class: 'ticket-card__title' }, 'บัตรจองที่จอดรถ'),
+      h('p', { class: 'ticket-card__code' }, code)
     ),
     h('div', { class: 'ticket-card__body' },
-      qrSrc 
-        ? h('img', { class: 'ticket-card__qr', src: qrSrc, alt: `QR Code ${code}` }) 
-        : h('div', { class: 'ticket-card__qr-placeholder' }, '[ QR Code ]'),
-      h('div', { class: 'ticket-card__info' },
-        h('div', { class: 'ticket-card__row' }, h('span', {}, 'ผู้จอง:'), h('strong', {}, user_name)),
-        h('div', { class: 'ticket-card__row' }, h('span', {}, 'โซน / ช่อง:'), h('strong', {}, `${zone} / ${slot}`)),
-        h('div', { class: 'ticket-card__row' }, h('span', {}, 'วันที่:'), h('strong', {}, date)),
-        h('div', { class: 'ticket-card__row' }, h('span', {}, 'เวลา:'), h('strong', {}, `${start} - ${end} น.`))
+      qrFrame,
+      h('p', { class: 'ticket-card__note' }, 'แสดง QR นี้ที่ทางเข้า'),
+      h('dl', { class: 'ticket-card__meta' },
+        h('dt', {}, 'ผู้จอง'), h('dd', {}, user_name),
+        h('dt', {}, 'โซน'), h('dd', {}, zone),
+        h('dt', {}, 'ช่องจอด'), h('dd', {}, slot),
+        h('dt', {}, 'วันที่'), h('dd', {}, displayDate),
+        h('dt', {}, 'เวลา'), h('dd', {}, start + '–' + end + ' น.')
       )
     ),
-    h('div', { class: 'ticket-card__footer' },
+    h('div', { class: 'ticket-card__actions' },
+      downloadLink,
       h('button', {
-        class: 'btn btn--primary ticket-card__btn',
+        class: 'button-root button-root--primary ticket-card__print',
         type: 'button',
-        onClick: () => window.print()
-      }, 'บันทึก / พิมพ์รูป')
+        onClick: () => window.print(),
+      }, 'พิมพ์บัตร')
     )
   );
 }
