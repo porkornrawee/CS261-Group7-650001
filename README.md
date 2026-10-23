@@ -521,7 +521,8 @@ grep -rn "import" frontend/js/components frontend/js/features --include='*.js' |
 ---
 
 ## เอกสารอื่นที่ควรรู้
-- `docs/TASKS.md` — ใบงานครบทุกใบพร้อมระดับ P0/P1/P2
+- `docs/TASKS.md` — ใบงานครบทุกใบพร้อมระดับ P0/P1/P2 (Sprint 1)
+- `docs/sprint2/` — แบ่งงาน Sprint 2 ของ Dev 1–4 (README + DEV1..4.md)
 - `docs/CONVENTIONS.md` — กติกาเต็ม + ตารางว่าใครรีวิวใคร
 - `docs/ARCHITECTURE.md` — ภาพรวมระบบ, แผนระยะยาว (Spring Boot + PostgreSQL), ปัญหาที่ Senior จะทักในโค้ดเก่า
 - `backend-python/README.md` — รายละเอียด API ฝั่ง backend และกฎการจองทั้งหมด
