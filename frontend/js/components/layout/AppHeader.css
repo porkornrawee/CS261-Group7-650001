@@ -1,6 +1,7 @@
 /* AppHeader — Owner: Dev 1 | LY-01
    class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
 .app-header-root {
+  position: relative;
   min-height: var(--header-h);
   background: var(--tu-red);
   color: var(--on-brand);
@@ -46,12 +47,51 @@
   color: var(--on-brand);
   padding: var(--space-1) var(--space-3);
 }
+.app-header-notifications-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--on-brand);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-3);
+  background: var(--tu-red-dark);
+  color: var(--on-brand);
+  font: inherit;
+  cursor: pointer;
+}
+.app-header-notifications-toggle:hover {
+  background: var(--orange);
+}
+.app-header-notifications-toggle:focus-visible {
+  outline: 2px solid var(--on-brand);
+  outline-offset: 3px;
+}
+.app-header-notifications-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.app-header-notifications-count {
+  display: inline-grid;
+  min-width: 1.25rem;
+  min-height: 1.25rem;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  padding-inline: var(--space-1);
+  background: var(--orange);
+  color: var(--on-brand);
+  font-size: .75rem;
+  font-weight: 700;
+}
 @media (max-width: 720px) {
   .app-header-inner {
     flex-wrap: wrap;
   }
   .app-header-toggle {
     display: inline-flex;
+  }
+  .app-header-notifications-toggle {
+    margin-inline-start: auto;
   }
   .app-header-nav {
     display: none;

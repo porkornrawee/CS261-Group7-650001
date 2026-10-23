@@ -2,7 +2,7 @@
  * api/reservations.js — การจอง (create: Dev 3 | BK-08, lookup/list: Dev 4 | TK-03)
  * รูปแบบข้อมูลดู api/mock/reservation-created.json, reservations-list.json
  */
-import { request } from './client.js';
+import { isMock, request } from './client.js';
 
 /**
  * POST /api/reservations
@@ -17,6 +17,21 @@ export function createReservation(input) {
 /** GET /api/reservations?limit= -> { reservations: [...] }  (Dev 4) */
 export function listReservations(limit = 20) {
   return request(`/api/reservations?limit=${limit}`, { mockFile: 'reservations-list.json' });
+}
+
+/** GET /api/me/reservations?status= -> { ok: true, reservations: [...] } */
+export async function listMyReservations(status = '') {
+  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+  const data = await request(`/api/me/reservations${query}`, {
+    mockFile: 'my-reservations.json',
+  });
+  const reservations = data.reservations || [];
+  return {
+    ...data,
+    reservations: isMock() && status
+      ? reservations.filter((reservation) => reservation.status === status)
+      : reservations,
+  };
 }
 
 /** GET /api/reservations/<code> -> { ok:true, reservation }  ไม่พบ = ApiError NOT_FOUND (Dev 4) */

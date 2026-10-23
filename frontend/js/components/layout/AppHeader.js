@@ -12,7 +12,7 @@ const links = [
   ['#/booking', 'จองที่จอด', '/booking'],
   ['#/history', 'ประวัติ', '/history'],
 ];
-export function AppHeader({ activeRoute = '/' } = {}) {
+export function AppHeader({ activeRoute = '/', unreadCount = 0, notificationsOpen = false, onToggleNotifications = () => {} } = {}) {
   const nav = h('nav', { class: 'app-header-nav', 'aria-label': 'เมนูหลัก' });
   for (const [href, title, path] of links) {
     const active = path === '/' ? activeRoute === '/' : activeRoute.startsWith(path);
@@ -28,10 +28,23 @@ export function AppHeader({ activeRoute = '/' } = {}) {
       menuButton.setAttribute('aria-expanded', String(expanded));
     },
   }, '☰');
+  const count = Math.max(0, Number(unreadCount) || 0);
+  const notificationButton = h('button', {
+    type: 'button',
+    class: 'app-header-notifications-toggle',
+    'aria-label': `การแจ้งเตือน มีรายการที่ยังไม่อ่าน ${count} รายการ`,
+    'aria-expanded': String(notificationsOpen),
+    'aria-controls': 'header-notification-list',
+    onClick: onToggleNotifications,
+  },
+  h('span', { class: 'app-header-notifications-icon', 'aria-hidden': 'true' }, '🔔'),
+  h('span', { class: 'app-header-notifications-label' }, 'แจ้งเตือน'),
+  count > 0 ? h('span', { class: 'app-header-notifications-count', 'aria-hidden': 'true' }, count > 99 ? '99+' : count) : null,
+  );
   return h('div', { class: 'app-header-root' },
     h('div', { class: 'app-header-inner' },
       h('a', { class: 'app-header-brand', href: '#/' }, 'จองที่จอดรถ มธ.'),
-      menuButton, nav,
+      menuButton, notificationButton, nav,
     ),
   );
 }
