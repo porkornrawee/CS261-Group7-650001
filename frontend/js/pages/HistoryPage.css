@@ -1,0 +1,9 @@
+.history-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.history-page__results {
+  min-width: 0;
+}

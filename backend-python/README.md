@@ -63,10 +63,19 @@ python -m unittest discover -s tests -v
 | GET | `/api/availability?date=&start=&end=` | สถานะของแต่ละช่องในช่วงเวลานั้น (ใช้แสดงผลเท่านั้น) แต่ละช่องมี `booked` (เดิม), `status` = `free` ว่าง / `partial` ติดจองบางช่วง / `booked` ไม่ว่างเต็มช่วง และ `busy` = รายการช่วงเวลาที่ติดจอง |
 | POST | `/api/reservations` | จอง: ส่ง `user_name, slot_id, date (YYYY-MM-DD), start, end (HH:MM)` สำเร็จคืน 201 พร้อม `qr_data_uri` |
 | GET | `/api/reservations` | รายการจองล่าสุด |
+| GET | `/api/me/reservations?status=` | ประวัติของผู้ใช้ที่ล็อกอิน (`g.student_id` จาก session เท่านั้น); `status` เลือก `completed`, `cancelled` หรือ `auto_cancelled` ได้ |
+| GET | `/api/me/notifications` | สร้างการแจ้งเตือนที่ถึงกำหนดแบบ lazy และคืนเฉพาะของผู้ใช้ที่ล็อกอิน พร้อม `unread_count` |
+| POST | `/api/me/notifications/<id>/read` | ทำเครื่องหมายว่าอ่านแล้ว; เข้าถึงแจ้งเตือนของคนอื่นได้ `403 FORBIDDEN` |
 | GET | `/api/reservations/<code>` | ค้นการจองจากรหัส (ด่านสแกน QR) |
 | GET | `/api/reservations/<code>/qr.png` | ภาพ QR |
 
+สำหรับ API ที่ใช้ session ให้ตั้ง environment variable `FLASK_SECRET_KEY` เป็น secret ที่คงที่ก่อนเริ่ม Flask. `auth.login_required` อ่าน `student_id` จาก signed session แล้วตั้งค่า `g.student_id`; ระบบ login ที่สร้าง session อยู่ในขอบเขต US11.
+
 รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `SLOT_NOT_FOUND` 404 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `BUSY` 503
+
+`GET /api/me/reservations` คืน `{ "ok": true, "reservations": [...] }`, `401 UNAUTHORIZED` หากไม่มี session และ `400 VALIDATION_ERROR` หากส่งสถานะอื่นที่ไม่รองรับ ตัวกรอง `student_id` ใน query string จะไม่มีผล
+
+`GET /api/me/notifications` คืน `{ "ok": true, "notifications": [...], "unread_count": 0 }`; `POST /api/me/notifications/<id>/read` คืน `{ "ok": true, "notification": {...} }` หากไม่พบ ID ได้ `404 NOT_FOUND`. ทั้งสองเส้นทางใช้ session ผ่าน `@login_required`; ตั้งค่า `FLASK_SECRET_KEY` ก่อนเปิดใช้งาน session. `init_db()` เพิ่ม CORE-01 columns และ notifications table แบบ idempotent และเก็บรายการจองเดิมไว้.
 
 ## สมมติฐานที่ผมตัดสินใจเอง (ควรยืนยันกับทีม/อาจารย์)
 
