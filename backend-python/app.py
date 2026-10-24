@@ -11,6 +11,7 @@ from flask import Flask, Response, g, jsonify, request
 
 from auth import login_required, student_from_session
 import booking_service as service
+import cancel_service
 import history_service
 import notification_service
 import qr_service
@@ -78,6 +79,8 @@ def create_app(db_path=None, now_func=None):
     def api_save_vehicle():
         vehicle = vehicle_service.save_vehicle(vehicles, request.get_json(silent=True))
         return jsonify({"ok": True, "vehicle": vehicle}), 201
+
+    cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
 
     @app.get("/api/zones")
     def api_zones():

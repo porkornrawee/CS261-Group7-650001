@@ -104,6 +104,15 @@
 }
 .ticket-card__actions > * { flex: 1 1 150px; text-align: center; }
 .ticket-card__download { text-decoration: none; }
+.ticket-card__cancel {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--surface);
+}
+.ticket-card__cancel-note,
+.ticket-card__status { margin: 0; }
+.ticket-card__cancel-note { color: var(--danger-ink); font-size: .9rem; }
+.ticket-card__status { color: var(--danger-ink); font-weight: 700; }
 
 .ticket-page__body[aria-busy="true"] {
   min-height: 120px;

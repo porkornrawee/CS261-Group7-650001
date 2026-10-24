@@ -6,8 +6,9 @@
  */
 import { h } from '../../core/dom.js';
 import { thaiDate } from '../../core/time.js';
+import { CancelDialog } from './CancelDialog.js';
 
-export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
+export function TicketCard({ reservation = {}, qrSrc = '', onReservationChange } = {}) {
   const {
     code = 'PK-????????',
     slot = '-',
@@ -20,6 +21,42 @@ export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
   const displayDate = date === '-' ? '-' : thaiDate(date);
   const qrFrame = h('div', { class: 'ticket-card__qr-frame' });
   let downloadLink = null;
+  const status = reservation.status || 'active';
+  const startAt = date !== '-' && start !== '-'
+    ? new Date(`${date}T${start}:00`)
+    : null;
+  const deadlinePassed = !startAt || Number.isNaN(startAt.getTime())
+    || Date.now() > startAt.getTime() - 30 * 60 * 1000;
+  const canCancel = status === 'active' && !deadlinePassed;
+  const cancellationMessage = status !== 'active'
+    ? 'การจองนี้ไม่อยู่ในสถานะที่ยกเลิกได้'
+    : 'ยกเลิกไม่ได้ เนื่องจากเหลือน้อยกว่า 30 นาทีก่อนเวลาเริ่มจอง';
+  const statusMessage = h('p', {
+    class: 'ticket-card__status',
+    role: 'status',
+    hidden: status !== 'cancelled',
+  }, 'ยกเลิกแล้ว');
+  const cancelButton = h('button', {
+    class: 'button-root ticket-card__cancel',
+    type: 'button',
+    disabled: !canCancel,
+    hidden: status !== 'active',
+    onClick: () => cancelDialog.showModal(),
+  }, 'ยกเลิกการจอง');
+  const cancelNote = h('p', {
+    class: 'ticket-card__cancel-note',
+    hidden: canCancel || status === 'cancelled',
+  }, cancellationMessage);
+  const cancelDialog = CancelDialog({
+    code,
+    onSuccess: (updatedReservation) => {
+      statusMessage.hidden = false;
+      cancelButton.disabled = true;
+      cancelButton.hidden = true;
+      cancelNote.hidden = true;
+      onReservationChange?.({ ...reservation, ...updatedReservation });
+    },
+  });
 
   if (qrSrc) {
     qrFrame.append(h('img', {
@@ -69,7 +106,11 @@ export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
         class: 'button-root button-root--primary ticket-card__print',
         type: 'button',
         onClick: () => window.print(),
-      }, 'พิมพ์บัตร')
-    )
+      }, 'พิมพ์บัตร'),
+      cancelButton
+    ),
+    cancelNote,
+    statusMessage,
+    cancelDialog
   );
 }

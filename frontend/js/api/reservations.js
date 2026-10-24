@@ -39,6 +39,14 @@ export function getReservation(code) {
   return request(`/api/reservations/${encodeURIComponent(code)}`, { mockFile: 'reservation-created.json' });
 }
 
+/** POST /api/reservations/<code>/cancel -> { ok: true, reservation } */
+export function cancelReservation(code) {
+  return request(`/api/reservations/${encodeURIComponent(code)}/cancel`, {
+    method: 'POST',
+    mockFile: 'reservation-cancelled.json',
+  });
+}
+
 /** URL ภาพ QR สำหรับ <img src> (Dev 4) */
 export function qrUrl(code) {
   return `/api/reservations/${encodeURIComponent(code)}/qr.png`;
