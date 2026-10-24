@@ -23,6 +23,7 @@
 @import "../js/features/booking/SlotBay.css";
 @import "../js/features/booking/BookingSummary.css";
 @import "../js/features/ticket/TicketCard.css";
+@import "../js/features/ticket/CancelDialog.css";
 @import "../js/features/ticket/ReservationLookup.css";
 @import "../js/features/history/ReservationTable.css";
 @import "../js/features/notification/NotificationList.css";
