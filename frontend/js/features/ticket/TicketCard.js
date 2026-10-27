@@ -8,7 +8,7 @@ import { h } from '../../core/dom.js';
 import { thaiDate } from '../../core/time.js';
 import { CancelDialog } from './CancelDialog.js';
 
-export function TicketCard({ reservation = {}, qrSrc = '', onReservationChange } = {}) {
+export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
   const {
     code = 'PK-????????',
     slot = '-',
@@ -49,12 +49,12 @@ export function TicketCard({ reservation = {}, qrSrc = '', onReservationChange }
   }, cancellationMessage);
   const cancelDialog = CancelDialog({
     code,
-    onSuccess: (updatedReservation) => {
+    onSuccess: () => {
       statusMessage.hidden = false;
       cancelButton.disabled = true;
       cancelButton.hidden = true;
       cancelNote.hidden = true;
-      onReservationChange?.({ ...reservation, ...updatedReservation });
+
     },
   });
 

@@ -56,6 +56,12 @@ class ReservationCancellationTests(ReservationTestCase):
         self.assertEqual(notification["type"], "cancelled")
         self.assertIn("A1", notification["message"])
 
+        lookup = self.client.get(f"/api/reservations/{code}")
+        self.assertEqual(lookup.status_code, 200)
+        lookup_data = lookup.get_json()["reservation"]
+        self.assertEqual(lookup_data["status"], "cancelled")
+        self.assertEqual(lookup_data["cancelled_at"], reservation["cancelled_at"])
+
     def test_tc_us3_02_rejects_cancellation_ten_minutes_before_start(self):
         code = self.book_as("A")
         self.app = create_app(

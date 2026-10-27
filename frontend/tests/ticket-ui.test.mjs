@@ -28,6 +28,10 @@ class FakeNode {
     if (index >= 0) this.parent.children.splice(index, 1);
   }
   get textContent() { return this._text + this.children.map((child) => child.textContent).join(''); }
+  get hidden() { return 'hidden' in this.attributes; }
+  set hidden(v) { if (v) this.attributes.hidden = ''; else delete this.attributes.hidden; }
+  get disabled() { return 'disabled' in this.attributes; }
+  set disabled(v) { if (v) this.attributes.disabled = ''; else delete this.attributes.disabled; }
 }
 
 function attachParents(node) {
@@ -131,3 +135,38 @@ test('TicketPage ใช้ QR endpoint เมื่อ detail response ไม่
   );
 });
 
+
+test('TicketCard ซ่อนปุ่มยกเลิกและแสดงสถานะยกเลิกแล้วเมื่อ status เป็น cancelled', () => {
+  const cancelledReservation = { ...reservation, status: 'cancelled' };
+  const card = TicketCard({ reservation: cancelledReservation, qrSrc: '/api/reservations/PK-ABCD2345/qr.png' });
+  attachParents(card);
+
+  const statusMsg = byClass(card, 'ticket-card__status');
+  assert.ok(statusMsg);
+  assert.equal(statusMsg.hidden, false);
+  assert.match(statusMsg.textContent, /ยกเลิกแล้ว/);
+
+  const cancelButton = byClass(card, 'ticket-card__cancel');
+  assert.ok(cancelButton);
+  assert.equal(cancelButton.hidden, true);
+});
+
+test('TicketCard แสดงปุ่มยกเลิกการจองเมื่อ status เป็น active และยังไม่เลยเส้นตาย', () => {
+  const futureReservation = {
+    ...reservation,
+    status: 'active',
+    date: '2099-01-01',
+    start: '10:00',
+    end: '11:00',
+  };
+  const card = TicketCard({ reservation: futureReservation, qrSrc: '/api/reservations/PK-ABCD2345/qr.png' });
+  attachParents(card);
+
+  const cancelButton = byClass(card, 'ticket-card__cancel');
+  assert.ok(cancelButton);
+  assert.equal(cancelButton.hidden, false);
+  assert.equal(cancelButton.disabled, false);
+
+  const statusMsg = byClass(card, 'ticket-card__status');
+  assert.equal(statusMsg.hidden, true);
+});

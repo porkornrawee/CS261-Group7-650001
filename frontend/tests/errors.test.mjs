@@ -5,6 +5,10 @@ import { ERROR_MESSAGES, messageFor } from '../js/api/errors.js';
 test('messageFor แปลงรหัส error ที่รู้จักเป็นข้อความไทย', () => {
   assert.equal(messageFor({ code: 'SLOT_CONFLICT' }), ERROR_MESSAGES.SLOT_CONFLICT);
   assert.equal(messageFor({ code: 'TU_NOT_FOUND' }), ERROR_MESSAGES.TU_NOT_FOUND);
+  assert.equal(messageFor({ code: 'UNAUTHORIZED' }), ERROR_MESSAGES.UNAUTHORIZED);
+  assert.equal(messageFor({ code: 'FORBIDDEN' }), ERROR_MESSAGES.FORBIDDEN);
+  assert.equal(messageFor({ code: 'NOT_CANCELLABLE' }), ERROR_MESSAGES.NOT_CANCELLABLE);
+  assert.equal(messageFor({ code: 'CANCEL_DEADLINE_PASSED' }), ERROR_MESSAGES.CANCEL_DEADLINE_PASSED);
 });
 
 test('messageFor ใช้ข้อความจาก backend เมื่อไม่รู้จักรหัส', () => {

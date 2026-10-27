@@ -162,12 +162,14 @@ def _reservation_to_dict(row):
         "start": row["start_at"][11:16],
         "end": row["end_at"][11:16],
         "created_at": row["created_at"],
+        "status": row["status"] if "status" in (row.keys() if hasattr(row, "keys") else ()) and row["status"] else "active",
+        "cancelled_at": row["cancelled_at"] if "cancelled_at" in (row.keys() if hasattr(row, "keys") else ()) else None,
     }
 
 
 _RESERVATION_SELECT = """
     SELECT r.id, r.code, r.user_name, r.slot_id, r.start_at, r.end_at,
-           r.created_at, s.label AS slot_label, z.name AS zone_name
+           r.created_at, r.status, r.cancelled_at, s.label AS slot_label, z.name AS zone_name
     FROM reservations r
     JOIN slots s ON s.id = r.slot_id
     JOIN zones z ON z.id = s.zone_id
