@@ -1,4 +1,4 @@
-/* รวม CSS ของทุก component — PM สร้างให้ครบแล้ว Dev เติมในไฟล์ของตัวเอง ไม่ต้องแก้ไฟล์นี้ */
+/* รวม CSS ของทุก component */
 @import "../js/components/ui/Button.css";
 @import "../js/components/ui/Card.css";
 @import "../js/components/ui/Field.css";
@@ -9,6 +9,7 @@
 @import "../js/components/ui/Stepper.css";
 @import "../js/components/ui/Spinner.css";
 @import "../js/components/ui/EmptyState.css";
+@import "../js/components/ui/LoginModal.css";
 @import "../js/components/layout/AppHeader.css";
 @import "../js/components/layout/AppFooter.css";
 @import "../js/components/layout/PageShell.css";

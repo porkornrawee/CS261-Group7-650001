@@ -1,74 +1,47 @@
 {
   "slots": [
-    {
-      "id": 1,
-      "booked": false,
-      "status": "free",
-      "busy": []
-    },
-    {
-      "id": 2,
-      "booked": true,
-      "status": "partial",
-      "busy": [
-        {
-          "start": "09:00",
-          "end": "09:30"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "booked": true,
-      "status": "booked",
-      "busy": [
-        {
-          "start": "09:00",
-          "end": "10:00"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "booked": false,
-      "status": "free",
-      "busy": []
-    },
-    {
-      "id": 5,
-      "booked": true,
-      "status": "booked",
-      "busy": [
-        {
-          "start": "09:00",
-          "end": "10:00"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "booked": true,
-      "status": "booked",
-      "busy": [
-        {
-          "start": "09:00",
-          "end": "10:00"
-        }
-      ]
-    }
+    { "id": 1, "booked": false, "status": "free", "busy": [] },
+    { "id": 2, "booked": false, "status": "free", "busy": [] },
+    { "id": 3, "booked": true, "status": "booked", "busy": [{ "start": "09:00", "end": "10:00" }] },
+    { "id": 4, "booked": false, "status": "free", "busy": [] },
+    { "id": 5, "booked": true, "status": "booked", "busy": [{ "start": "09:00", "end": "10:00" }] },
+    { "id": 6, "booked": false, "status": "free", "busy": [] },
+    { "id": 7, "booked": true, "status": "partial", "busy": [{ "start": "09:00", "end": "09:30" }] },
+    { "id": 8, "booked": false, "status": "free", "busy": [] },
+    { "id": 9, "booked": false, "status": "free", "busy": [] },
+    { "id": 10, "booked": true, "status": "booked", "busy": [{ "start": "09:00", "end": "10:00" }] },
+    { "id": 11, "booked": false, "status": "free", "busy": [] },
+    { "id": 12, "booked": false, "status": "free", "busy": [] },
+    { "id": 13, "booked": false, "status": "free", "busy": [] },
+    { "id": 14, "booked": false, "status": "free", "busy": [] },
+    { "id": 15, "booked": false, "status": "free", "busy": [] },
+    { "id": 16, "booked": true, "status": "booked", "busy": [{ "start": "09:00", "end": "10:00" }] },
+    { "id": 17, "booked": false, "status": "free", "busy": [] },
+    { "id": 18, "booked": false, "status": "free", "busy": [] },
+    { "id": 19, "booked": false, "status": "free", "busy": [] },
+    { "id": 20, "booked": true, "status": "booked", "busy": [{ "start": "09:00", "end": "10:00" }] },
+    { "id": 21, "booked": false, "status": "free", "busy": [] },
+    { "id": 22, "booked": false, "status": "free", "busy": [] },
+    { "id": 23, "booked": false, "status": "free", "busy": [] },
+    { "id": 24, "booked": false, "status": "free", "busy": [] },
+    { "id": 25, "booked": false, "status": "free", "busy": [] },
+    { "id": 26, "booked": false, "status": "free", "busy": [] },
+    { "id": 27, "booked": false, "status": "free", "busy": [] },
+    { "id": 28, "booked": false, "status": "free", "busy": [] },
+    { "id": 29, "booked": true, "status": "booked", "busy": [{ "start": "09:00", "end": "10:00" }] },
+    { "id": 30, "booked": false, "status": "free", "busy": [] },
+    { "id": 31, "booked": false, "status": "free", "busy": [] },
+    { "id": 32, "booked": false, "status": "free", "busy": [] },
+    { "id": 33, "booked": false, "status": "free", "busy": [] },
+    { "id": 34, "booked": false, "status": "free", "busy": [] },
+    { "id": 35, "booked": false, "status": "free", "busy": [] },
+    { "id": 36, "booked": false, "status": "free", "busy": [] },
+    { "id": 37, "booked": false, "status": "free", "busy": [] },
+    { "id": 38, "booked": false, "status": "free", "busy": [] }
   ],
   "zones": [
-    {
-      "id": 1,
-      "free": 2,
-      "total": 4,
-      "full": false
-    },
-    {
-      "id": 2,
-      "free": 0,
-      "total": 2,
-      "full": true
-    }
+    { "id": 1, "free": 9, "total": 13, "full": false },
+    { "id": 2, "free": 11, "total": 13, "full": false },
+    { "id": 3, "free": 11, "total": 12, "full": false }
   ]
 }

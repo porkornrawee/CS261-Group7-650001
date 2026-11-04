@@ -1,4 +1,4 @@
-/** Dialog modal สำหรับยืนยันการยกเลิกการจอง (US3). */
+/** Dialog modal สำหรับยืนยันการยกเลิกการจอง (US3) พร้อม warning icon และรายละเอียดยืนยัน */
 import { h } from '../../core/dom.js';
 import { cancelReservation } from '../../api/reservations.js';
 import { messageFor } from '../../api/errors.js';
@@ -14,7 +14,7 @@ export function CancelDialog({ code, onSuccess } = {}) {
     type: 'button',
     onClick: async () => {
       confirm.disabled = true;
-      confirm.textContent = 'กำลังยกเลิก…';
+      confirm.textContent = 'กำลังยกเลิกการจอง…';
       error.hidden = true;
       try {
         const result = await cancelReservation(code);
@@ -25,26 +25,32 @@ export function CancelDialog({ code, onSuccess } = {}) {
         error.hidden = false;
       } finally {
         confirm.disabled = false;
-        confirm.textContent = 'ยืนยันยกเลิก';
+        confirm.textContent = 'ยืนยันยกเลิกการจอง';
       }
     },
-  }, 'ยืนยันยกเลิก');
+  }, 'ยืนยันยกเลิกการจอง');
+
   const dialog = h('dialog', {
     class: 'cancel-dialog',
     'aria-labelledby': 'cancel-dialog-title',
     onCancel: () => { error.hidden = true; },
   },
   h('section', { class: 'cancel-dialog__content' },
-    h('h2', { id: 'cancel-dialog-title', class: 'cancel-dialog__title' }, 'ยืนยันการยกเลิกการจอง'),
-    h('p', { class: 'cancel-dialog__message' }, `ต้องการยกเลิกการจอง ${code} ใช่หรือไม่?`),
+    h('div', { class: 'cancel-dialog__icon', 'aria-hidden': 'true' }, '⚠️'),
+    h('h2', { id: 'cancel-dialog-title', class: 'cancel-dialog__title' }, 'ยืนยันยกเลิกการจอง'),
+    h('p', { class: 'cancel-dialog__message' }, 'เมื่อกดยืนยัน ระบบจะคืนช่องจอดให้ผู้อื่นทันที และไม่สามารถเรียกคืนได้'),
+    h('div', { class: 'cancel-dialog__info-box' },
+      h('span', null, 'รหัสการจอง'),
+      h('strong', null, code)
+    ),
     error,
     h('div', { class: 'cancel-dialog__actions' },
+      confirm,
       h('button', {
-        class: 'button-root button-root--secondary',
+        class: 'button-root cancel-dialog__back',
         type: 'button',
         onClick: () => dialog.close(),
-      }, 'กลับ'),
-      confirm
+      }, 'ไม่ยกเลิก')
     )
   ));
   return dialog;

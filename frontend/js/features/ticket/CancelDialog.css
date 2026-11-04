@@ -1,33 +1,101 @@
+/* CancelDialog — Large rounded modal, warning icon, red solid confirm and outline cancel */
 .cancel-dialog {
   box-sizing: border-box;
-  width: min(92vw, 440px);
+  width: min(92vw, 460px);
   padding: 0;
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--surface);
   color: var(--ink);
-  box-shadow: var(--shadow-lg, var(--shadow));
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
-.cancel-dialog::backdrop { background: rgb(15 23 42 / 55%); }
+.cancel-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+}
 .cancel-dialog__content {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: var(--space-3);
   padding: var(--space-6);
 }
-.cancel-dialog__title,
-.cancel-dialog__message,
-.cancel-dialog__error { margin: 0; }
+.cancel-dialog__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 2rem;
+  margin-bottom: var(--space-2);
+}
+.cancel-dialog__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.cancel-dialog__message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.cancel-dialog__info-box {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9rem;
+  color: var(--ink);
+  display: flex;
+  justify-content: space-between;
+  margin: var(--space-2) 0;
+}
+.cancel-dialog__error {
+  margin: 0;
+  color: var(--danger-ink);
+  background: var(--danger-bg);
+  border: 1px solid #fecaca;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
 .cancel-dialog__actions {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  width: 100%;
+  flex-direction: column;
   gap: var(--space-3);
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 .cancel-dialog__confirm {
+  width: 100%;
+  min-height: 48px;
   border-color: var(--danger);
   background: var(--danger);
-  color: var(--surface);
+  color: #ffffff;
+  font-size: 1rem;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
-.cancel-dialog__error { color: var(--danger-ink); }
+.cancel-dialog__confirm:hover:not(:disabled) {
+  background: #dc2626;
+}
+.cancel-dialog__back {
+  width: 100%;
+  min-height: 48px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 1rem;
+  border-radius: var(--radius-pill);
+}
+.cancel-dialog__back:hover {
+  background: #f8fafc;
+  color: var(--ink);
+}

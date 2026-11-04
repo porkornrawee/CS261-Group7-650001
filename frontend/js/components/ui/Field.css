@@ -1,21 +1,29 @@
-/* Field — Owner: Dev 1 | UI-03
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* Field — Modern form fields with rounded borders */
 .field-root {
   display: grid;
   gap: var(--space-2);
   min-width: 0;
 }
 .field-label {
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.95rem;
 }
 .field-input {
   width: 100%;
   min-width: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-4);
   background: var(--surface);
   color: var(--ink);
+  font-size: 0.95rem;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.field-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-100);
 }
 .field-input--error {
   border-color: var(--danger);
@@ -24,4 +32,5 @@
   font-size: .85rem;
   margin: 0;
   color: var(--danger);
+  font-weight: 500;
 }

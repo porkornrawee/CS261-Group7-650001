@@ -1,68 +1,49 @@
-/* DurationPicker — Owner: Dev 2 | BK-03
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* DurationPicker — Duration selection pills */
 .duration-picker-root {
-  width: 100%;
-  min-width: 0;
-}
-.duration-picker-title {
-  margin: 0 0 var(--space-3);
-  font-size: 1rem;
-  font-weight: 700;
-}
-.duration-picker-options {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-3);
 }
+.duration-picker-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink);
+}
+.duration-picker-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
 .duration-picker-option {
-  min-height: 48px;
-  padding: var(--space-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
   background: var(--surface);
-  color: var(--text);
-  font: inherit;
+  color: var(--ink);
   font-weight: 600;
-  text-align: center;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: all .15s ease;
 }
 .duration-picker-option:hover:not(:disabled) {
-  border-color: var(--primary);
+  border-color: var(--primary-200);
+  background: var(--primary-50);
 }
 .duration-picker-option--selected {
-  background: var(--tu-red);
-  border-color: var(--primary);
+  background: var(--primary);
   color: var(--on-brand);
+  border-color: var(--primary);
+  box-shadow: 0 3px 10px rgba(26, 108, 240, 0.25);
 }
 .duration-picker-option:disabled {
-  opacity: 0.4;
+  opacity: .45;
   cursor: not-allowed;
-}
-.duration-picker-option:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  background: var(--full-bg);
+  border-color: var(--line);
 }
 .duration-picker-result {
-  margin: var(--space-3) 0 0;
-  color: var(--text);
+  margin: 0;
+  color: var(--muted);
   font-size: 0.9rem;
-  font-weight: 600;
-}
-/* Tablet */
-@media (max-width: 768px) {
-  .duration-picker-options {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-/* Mobile */
-@media (max-width: 480px) {
-  .duration-picker-options {
-    gap: var(--space-2);
-  }
-  .duration-picker-option {
-    min-height: 44px;
-    padding: var(--space-2);
-    font-size: 0.9rem;
-  }
+  font-weight: 500;
 }

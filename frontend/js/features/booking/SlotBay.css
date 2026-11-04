@@ -1,5 +1,4 @@
-/* SlotBay — Owner: Dev 3 | BK-06
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* SlotBay — White background/blue border for available, light gray for unavailable, solid blue for selected */
 .slot-bay {
   position: relative;
   display: flex;
@@ -10,56 +9,121 @@
   width: 76px;
   height: 92px;
   padding: 0;
-  border: 2px solid var(--line);
-  border-radius: var(--radius);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-md);
   background: var(--surface);
-  color: var(--muted);
+  color: var(--primary);
   font: inherit;
   cursor: pointer;
-  transition: transform .15s, box-shadow .15s, background .15s, border-color .15s;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
+  box-shadow: var(--shadow-sm);
 }
-.slot-bay:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.slot-bay:focus-visible { outline: 3px solid var(--info); outline-offset: 4px; }
 
-.slot-bay__icon { height: 22px; font-size: 18px; font-weight: 700; line-height: 22px; }
-.slot-bay__label { font-size: 19px; font-weight: 700; line-height: 1.2; color: var(--ink); }
-.slot-bay__state { min-height: 1.2em; font-size: 12.5px; font-weight: 600; }
+.slot-bay:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
 
-/* 3 สถานะ: แยกด้วยสี + ไอคอน + ข้อความ (+ ลายขีดเฉียงสำหรับเต็ม) */
-.slot-bay--free { background: var(--ok-bg); border-color: var(--ok); color: var(--ok-ink); }
-.slot-bay--partial { background: var(--warn-bg); border-color: var(--warn); color: var(--warn-ink); }
+.slot-bay:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.slot-bay__icon {
+  height: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.slot-bay__label {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.slot-bay__state {
+  min-height: 1.2em;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 1. Available (ว่าง): White background, blue border */
+.slot-bay--free {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.slot-bay--free .slot-bay__label {
+  color: var(--primary);
+}
+
+/* Partial: Warning tone */
+.slot-bay--partial {
+  background: var(--warn-bg);
+  border-color: var(--warn);
+  color: var(--warn-ink);
+}
+.slot-bay--partial .slot-bay__label {
+  color: var(--warn-ink);
+}
+
+/* 2. Unavailable (ไม่ว่าง): Solid light gray, text hidden or faded */
 .slot-bay--booked {
-  background: repeating-linear-gradient(135deg, var(--full-bg) 0 6px, var(--surface) 6px 12px);
-  border-color: var(--full);
-  border-style: dashed;
-  color: var(--full-ink);
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
-.slot-bay--free .slot-bay__label,
-.slot-bay--partial .slot-bay__label,
-.slot-bay--booked .slot-bay__label { color: inherit; }
+.slot-bay--booked .slot-bay__label {
+  color: #94a3b8;
+  opacity: 0.7;
+}
+.slot-bay--booked .slot-bay__icon,
+.slot-bay--booked .slot-bay__state {
+  opacity: 0.6;
+}
 
-/* ช่องที่เลือกอยู่ */
-.slot-bay--selected {
+/* 3. Selected (ที่คุณเลือก): Solid blue background, white text */
+.slot-bay--selected,
+.slot-bay--selected.slot-bay--free,
+.slot-bay--selected.slot-bay--partial,
+.slot-bay--selected.slot-bay--booked {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
   transform: translateY(-3px);
-  box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--info);
+  box-shadow: 0 4px 14px rgba(26, 108, 240, 0.4);
 }
+
+.slot-bay--selected .slot-bay__label,
+.slot-bay--selected .slot-bay__icon,
+.slot-bay--selected .slot-bay__state {
+  color: #ffffff !important;
+}
+
 .slot-bay--selected::after {
   content: "✓";
   position: absolute;
-  top: -9px;
-  right: -9px;
+  top: -8px;
+  right: -8px;
   width: 22px;
   height: 22px;
   display: grid;
   place-items: center;
   border: 2px solid var(--surface);
   border-radius: 50%;
-  background: var(--info);
-  color: var(--on-brand);
+  background: #0284c7;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 @media (min-width: 768px) {
-  .slot-bay { width: 84px; height: 100px; }
+  .slot-bay {
+    width: 82px;
+    height: 98px;
+  }
 }

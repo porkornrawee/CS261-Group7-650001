@@ -1,11 +1,10 @@
-/* AppFooter — Owner: Dev 1 | LY-02
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* AppFooter — Dark blue background & contact cards */
 .app-footer-root {
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  background: var(--tu-red-dark);
-  color: var(--on-brand);
+  background: #0b1a30;
+  color: #ffffff;
   margin-top: var(--space-7);
 }
 .app-footer-inner {
@@ -18,66 +17,77 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
 }
 .app-footer-brand strong {
   font-weight: 700;
+  color: #ffffff;
 }
 .app-footer-brand strong span {
-  color: var(--tu-gold);
+  color: #38bdf8;
 }
 .app-footer-logo {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  background: var(--orange);
-  color: var(--on-brand);
-  border-radius: var(--radius);
-  font-size: 1.8rem;
-  font-weight: 700;
+  width: 48px;
+  height: 48px;
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  font-size: 1.6rem;
+  font-weight: 800;
 }
 .app-footer-description {
-  margin: var(--space-4) 0;
+  margin: var(--space-3) 0 var(--space-4);
   line-height: 1.65;
-  color: var(--on-brand);
-  opacity: .86;
+  color: #94a3b8;
+  font-size: 1rem;
 }
 .app-footer-heading {
   margin: var(--space-6) 0 var(--space-2);
   font-size: 1.25rem;
+  color: #ffffff;
 }
 .app-footer-contacts {
   display: grid;
   gap: var(--space-3);
-  margin-top: var(--space-5);
+  margin-top: var(--space-4);
 }
 .app-footer-contact-item {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-1);
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--orange-100);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-lg);
-  background: var(--tu-red);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
   min-width: 0;
+  transition: background .2s ease, border-color .2s ease;
+}
+.app-footer-contact-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 .app-footer-contact-label {
-  color: var(--on-brand);
-  opacity: .75;
+  color: #94a3b8;
+  font-size: 0.85rem;
 }
 .app-footer-contact-value {
-  color: var(--on-brand);
+  color: #ffffff;
   font-weight: 700;
+  font-size: 1.05rem;
   overflow-wrap: anywhere;
   text-decoration: none;
 }
 .app-footer-contact-value[href]:hover {
+  color: #38bdf8;
   text-decoration: underline;
 }
 .app-footer-disclaimer {
-  margin: var(--space-5) 0 0;
-  opacity: .75;
-  font-size: .8rem;
+  margin: var(--space-6) 0 0;
+  color: #64748b;
+  font-size: .85rem;
+  text-align: center;
 }
 @media (min-width: 768px) {
   .app-footer-contacts {

@@ -1,34 +1,59 @@
-/* Button — Owner: Dev 1 | UI-01
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* Button — Large rounded corners, modern shadows & colors */
 .button-root {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  padding: 10px var(--space-5);
   font-weight: 700;
   cursor: pointer;
-  transition: opacity .15s ease;
+  transition: all .15s ease;
+  font-family: inherit;
+  font-size: 0.95rem;
 }
 .button-root:hover:not(:disabled) {
-  opacity: .88;
+  opacity: .92;
+  transform: translateY(-1px);
+}
+.button-root:active:not(:disabled) {
+  transform: translateY(0);
 }
 .button-root:disabled {
-  opacity: .55;
+  opacity: .5;
   cursor: not-allowed;
+  transform: none;
 }
 .button-root--primary {
-  background: var(--tu-red);
+  background: var(--primary);
   color: var(--on-brand);
+  box-shadow: 0 4px 12px rgba(26, 108, 240, 0.25);
+}
+.button-root--primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(26, 108, 240, 0.35);
 }
 .button-root--secondary {
-  background: var(--orange-50);
-  color: var(--tu-red);
-  border-color: var(--line);
+  background: var(--primary-50);
+  color: var(--primary);
+  border-color: var(--primary-100);
+}
+.button-root--secondary:hover:not(:disabled) {
+  background: var(--primary-100);
 }
 .button-root--ghost {
   background: transparent;
-  color: var(--tu-red);
+  color: var(--primary);
+}
+.button-root--ghost:hover:not(:disabled) {
+  background: var(--primary-50);
+}
+.button-root--danger {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: transparent;
+}
+.button-root--danger:hover:not(:disabled) {
+  background: #dc2626;
 }
