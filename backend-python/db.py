@@ -44,6 +44,15 @@ CREATE TABLE IF NOT EXISTS reservations (
 
 CREATE INDEX IF NOT EXISTS idx_reservations_slot_time
     ON reservations (slot_id, start_at, end_at);
+
+-- รถที่ลงทะเบียน: 1 นักศึกษา = 1 คัน (ลงซ้ำ = แทนที่ทะเบียนเดิม)
+CREATE TABLE IF NOT EXISTS vehicles (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id TEXT NOT NULL UNIQUE,
+    plate      TEXT NOT NULL,
+    province   TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
 """
 
 
@@ -84,6 +93,13 @@ def init_db(path):
                 conn.execute(
                     f"ALTER TABLE reservations ADD COLUMN {column} {definition}"
                 )
+
+        student_columns = {
+            row["name"] for row in conn.execute("PRAGMA table_info(students)")
+        }
+        for column in ("faculty", "verified_at"):
+            if column not in student_columns:
+                conn.execute(f"ALTER TABLE students ADD COLUMN {column} TEXT")
 
         conn.execute(
             """CREATE INDEX IF NOT EXISTS idx_reservations_student_start

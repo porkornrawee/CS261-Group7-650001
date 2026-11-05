@@ -24,3 +24,8 @@ BOOKING_CODE_PREFIX = "PK-"
 # Sprint 2 session and reservation lifecycle thresholds.
 CANCEL_DEADLINE_MIN = 30
 NO_SHOW_GRACE_MIN = 15
+
+# TU REST API (เรียกจาก backend เท่านั้น — ห้ามส่ง Application-Key ไปที่เบราว์เซอร์)
+# ถ้าไม่ตั้ง TU_API_KEY ระบบจะใช้ข้อมูลจำลอง (stub) เหมือนเดิม
+TU_API_URL = "https://restapi.tu.ac.th/api/v2/profile/std/info/"
+TU_API_TIMEOUT = 8  # วินาที

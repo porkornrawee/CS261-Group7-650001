@@ -17,11 +17,12 @@ import notification_service
 import qr_service
 import vehicle_service
 from db import connect, init_db
+from tu_client import create_tu_client
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def create_app(db_path=None, now_func=None):
+def create_app(db_path=None, now_func=None, tu_client=None):
     """สร้างแอป (รับ db_path และ now_func เพื่อให้ทดสอบแยกอิสระได้)"""
     app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"))
     app.json.ensure_ascii = False  # ให้ JSON แสดงภาษาไทยตรง ๆ ไม่เป็น \uXXXX
@@ -33,7 +34,7 @@ def create_app(db_path=None, now_func=None):
     )
     app.config["NOW_FUNC"] = now_func or datetime.now
     init_db(app.config["DB_PATH"])
-    vehicles = {}  # ทะเบียนรถจำลอง (student_id -> รถ) อยู่ในหน่วยความจำ
+    tu = tu_client or create_tu_client()  # None = ใช้ข้อมูลจำลอง (ไม่มี TU_API_KEY)
 
     # --- จัดการ connection: 1 request = 1 connection -----------------------
 
@@ -72,12 +73,16 @@ def create_app(db_path=None, now_func=None):
 
     @app.post("/api/vehicles/verify")
     def api_verify_student():
-        student = vehicle_service.verify_student(request.get_json(silent=True))
+        student = vehicle_service.verify_student(
+            get_conn(), request.get_json(silent=True), tu, app.config["NOW_FUNC"]()
+        )
         return jsonify({"ok": True, "student": student})
 
     @app.post("/api/vehicles")
     def api_save_vehicle():
-        vehicle = vehicle_service.save_vehicle(vehicles, request.get_json(silent=True))
+        vehicle = vehicle_service.save_vehicle(
+            get_conn(), request.get_json(silent=True), app.config["NOW_FUNC"]()
+        )
         return jsonify({"ok": True, "vehicle": vehicle}), 201
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])

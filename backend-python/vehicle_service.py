@@ -1,10 +1,11 @@
-"""ลงทะเบียนรถ (stub): ตอบข้อมูลจำลองให้หน้าเว็บใช้งานได้ ยังไม่เรียก TU REST API จริง
+"""ลงทะเบียนรถ: ตรวจนักศึกษากับ TU REST API (tu_client.py) แล้วเก็บลง SQLite
 
 สัญญา endpoint ตรงกับ frontend/js/api/vehicles.js
-เก็บทะเบียนรถไว้ในหน่วยความจำ (หายเมื่อรีสตาร์ท) จนกว่าจะมีตารางจริง
+ถ้าไม่ได้ตั้ง TU_API_KEY จะใช้ข้อมูลจำลอง (รหัสลงท้าย 0000 = ไม่พบใน มธ.) เพื่อให้พัฒนา/เทสได้
 """
 
 import re
+from datetime import datetime
 
 from booking_service import BookingError
 
@@ -18,26 +19,42 @@ def _text(payload, key):
     return value.strip() if isinstance(value, str) else ""
 
 
-def verify_student(payload):
-    """ตรวจรหัสนักศึกษา + อีเมล มธ. (จำลอง: รหัสลงท้าย 0000 = ไม่พบใน มธ.)"""
+def verify_student(conn, payload, tu_client=None, now=None):
+    """ตรวจรหัสนักศึกษา + อีเมล มธ. กับ TU แล้วบันทึกผลลงตาราง students"""
     student_id = _text(payload, "student_id")
     email = _text(payload, "email").lower()
     if not STUDENT_ID_RE.match(student_id):
         raise BookingError("VALIDATION_ERROR", "รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก", 400)
     if not email.endswith(EMAIL_SUFFIX) or len(email) <= len(EMAIL_SUFFIX):
         raise BookingError("VALIDATION_ERROR", f"อีเมลต้องลงท้ายด้วย {EMAIL_SUFFIX}", 400)
-    if student_id.endswith("0000"):
-        raise BookingError("TU_NOT_FOUND", "ไม่พบข้อมูลนักศึกษาในระบบ มธ. (Invalid user)", 404)
-    return {
+
+    if tu_client is None:
+        if student_id.endswith("0000"):
+            raise BookingError("TU_NOT_FOUND", "ไม่พบข้อมูลนักศึกษาในระบบ มธ. (Invalid user)", 404)
+        info = {"name": f"นักศึกษา {student_id[-4:]}", "faculty": FAKE_FACULTY, "email": email}
+    else:
+        info = tu_client.get_student(student_id)
+        if info["email"] and info["email"] != email:  # อีเมลไม่ตรงกับที่ มธ. มีอยู่
+            raise BookingError("TU_NOT_FOUND", "ไม่พบข้อมูลนักศึกษาในระบบ มธ. (Invalid user)", 404)
+
+    student = {
         "student_id": student_id,
-        "name": f"นักศึกษา {student_id[-4:]}",
-        "faculty": FAKE_FACULTY,
+        "name": info["name"],
+        "faculty": info["faculty"],
         "email": email,
     }
+    conn.execute(
+        "INSERT INTO students (student_id, name, faculty, email, verified_at) "
+        "VALUES (:student_id, :name, :faculty, :email, :verified_at) "
+        "ON CONFLICT(student_id) DO UPDATE SET name = excluded.name, "
+        "faculty = excluded.faculty, email = excluded.email, verified_at = excluded.verified_at",
+        {**student, "verified_at": (now or datetime.now()).isoformat(timespec="seconds")},
+    )
+    return student
 
 
-def save_vehicle(store, payload):
-    """บันทึกทะเบียนรถลง store (dict) คืนรถที่บันทึก; รหัสเดิมลงซ้ำ = แทนที่ข้อมูลเดิม"""
+def save_vehicle(conn, payload, now=None):
+    """บันทึกทะเบียนรถลง SQLite คืนรถที่บันทึก; นักศึกษาเดิมลงซ้ำ = แทนที่ข้อมูลเดิม (id คงเดิม)"""
     student_id = _text(payload, "student_id")
     plate = _text(payload, "plate")
     province = _text(payload, "province")
@@ -45,8 +62,14 @@ def save_vehicle(store, payload):
         raise BookingError("VALIDATION_ERROR", "รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก", 400)
     if not plate or not province:
         raise BookingError("VALIDATION_ERROR", "กรุณากรอกทะเบียนรถและจังหวัด", 400)
-    vehicle = store.get(student_id)
-    vehicle_id = vehicle["id"] if vehicle else len(store) + 1
-    vehicle = {"id": vehicle_id, "student_id": student_id, "plate": plate, "province": province}
-    store[student_id] = vehicle
-    return vehicle
+    conn.execute(
+        "INSERT INTO vehicles (student_id, plate, province, created_at) "
+        "VALUES (?, ?, ?, ?) "
+        "ON CONFLICT(student_id) DO UPDATE SET plate = excluded.plate, province = excluded.province",
+        (student_id, plate, province, (now or datetime.now()).isoformat(timespec="seconds")),
+    )
+    row = conn.execute(
+        "SELECT id, student_id, plate, province FROM vehicles WHERE student_id = ?",
+        (student_id,),
+    ).fetchone()
+    return dict(row)
