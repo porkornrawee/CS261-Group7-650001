@@ -1,10 +1,10 @@
-/* AppHeader — Owner: Dev 1 | LY-01
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* AppHeader — Modern Blue Header, Logo badge, rounded links & login button */
 .app-header-root {
   position: relative;
   min-height: var(--header-h);
-  background: var(--tu-red);
+  background: var(--primary);
   color: var(--on-brand);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
 }
 .app-header-inner {
   max-width: var(--page-max);
@@ -17,27 +17,49 @@
   justify-content: space-between;
 }
 .app-header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--on-brand);
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1.25rem;
   text-decoration: none;
   white-space: nowrap;
+}
+.app-header-brand-badge {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 .app-header-nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  justify-content: flex-end;
 }
 .app-header-link {
   color: var(--on-brand);
   text-decoration: none;
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 16px;
   border-radius: var(--radius-pill);
-  background: var(--tu-red-dark);
+  background: rgba(255, 255, 255, 0.12);
   white-space: nowrap;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all .15s ease;
 }
 .app-header-link:hover, .app-header-link--active {
-  background: var(--orange);
+  background: rgba(255, 255, 255, 0.28);
 }
 .app-header-toggle {
   display: none;
@@ -46,22 +68,27 @@
   background: transparent;
   color: var(--on-brand);
   padding: var(--space-1) var(--space-3);
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 .app-header-notifications-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  border: 1px solid var(--on-brand);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-pill);
-  padding: var(--space-2) var(--space-3);
-  background: var(--tu-red-dark);
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.15);
   color: var(--on-brand);
   font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all .15s ease;
 }
 .app-header-notifications-toggle:hover {
-  background: var(--orange);
+  background: rgba(255, 255, 255, 0.25);
 }
 .app-header-notifications-toggle:focus-visible {
   outline: 2px solid var(--on-brand);
@@ -78,26 +105,47 @@
   place-items: center;
   border-radius: var(--radius-pill);
   padding-inline: var(--space-1);
-  background: var(--orange);
+  background: var(--danger);
   color: var(--on-brand);
   font-size: .75rem;
   font-weight: 700;
 }
-@media (max-width: 720px) {
+
+.app-header-login-btn {
+  border: 0;
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
+  background: #ffffff;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all .15s ease;
+}
+.app-header-login-btn:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 820px) {
   .app-header-inner {
     flex-wrap: wrap;
   }
   .app-header-toggle {
     display: inline-flex;
   }
-  .app-header-notifications-toggle {
-    margin-inline-start: auto;
+  .app-header-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .app-header-nav {
     display: none;
+    order: 3;
     flex-basis: 100%;
     flex-direction: column;
     align-items: stretch;
+    margin-top: var(--space-2);
   }
   .app-header-nav--open {
     display: flex;

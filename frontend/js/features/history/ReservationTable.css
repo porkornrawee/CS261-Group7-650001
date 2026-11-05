@@ -1,10 +1,10 @@
-/* ReservationTable — colors and spacing come from design tokens. */
+/* ReservationTable — Cards with status badge, support for active/cancelled states and report action */
 .reservation-table {
   display: flex;
   width: 100%;
   min-width: 0;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 .reservation-table__list {
   display: flex;
@@ -17,11 +17,16 @@
   min-width: 0;
   flex-direction: column;
   gap: var(--space-3);
-  padding: var(--space-4);
+  padding: var(--space-5);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--surface);
   box-shadow: var(--shadow);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.reservation-table__card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 .reservation-table__header {
   display: flex;
@@ -29,10 +34,13 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
 }
 .reservation-table__location {
   color: var(--ink);
   font-weight: 700;
+  font-size: 1.1rem;
 }
 .reservation-table__body {
   display: flex;
@@ -46,6 +54,7 @@
   justify-content: space-between;
   gap: var(--space-3);
   color: var(--muted);
+  font-size: 0.95rem;
 }
 .reservation-table__row strong {
   min-width: 0;
@@ -55,34 +64,74 @@
 }
 .reservation-table__footer {
   display: flex;
-  margin-top: var(--space-1);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
 }
 .reservation-table__btn {
-  width: 100%;
-  min-height: 2.5rem;
-  border: 1px solid var(--tu-red);
+  flex: 1 1 140px;
+  min-height: 2.6rem;
+  border: 1px solid var(--primary);
   border-radius: var(--radius-pill);
   background: var(--surface);
-  color: var(--tu-red);
+  color: var(--primary);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition: all .15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-3);
+  font-size: 0.92rem;
 }
 .reservation-table__btn:hover {
-  background: var(--orange-50);
+  background: var(--primary-50);
 }
-.reservation-table__btn:focus-visible {
-  outline: 2px solid var(--info);
-  outline-offset: 2px;
+.reservation-table__btn--primary {
+  background: var(--primary);
+  color: #ffffff;
 }
+.reservation-table__btn--primary:hover {
+  background: var(--primary-hover);
+}
+.reservation-table__btn--danger {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: var(--surface);
+}
+.reservation-table__btn--danger:hover {
+  background: var(--danger-bg);
+}
+.reservation-table__btn--report {
+  flex-basis: 100%;
+  border-color: #cbd5e1;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: #f8fafc;
+}
+.reservation-table__btn--report:hover {
+  background: #f1f5f9;
+  color: var(--ink);
+}
+
 .reservation-table__empty {
-  padding: var(--space-6);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  padding: var(--space-7);
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius-xl);
   background: var(--surface);
   text-align: center;
 }
 .reservation-table__empty-text {
   margin: 0;
   color: var(--muted);
+  font-size: 1.05rem;
+}
+.reservation-table__empty-hint {
+  margin: var(--space-2) 0 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }

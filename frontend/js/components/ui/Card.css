@@ -1,13 +1,15 @@
-/* Card — Owner: Dev 1 | UI-02
-   class ทั้งหมดขึ้นต้นด้วยชื่อ component, ใช้สีจาก var(--...) ใน tokens.css เท่านั้น */
+/* Card — 16px to 24px radius, soft shadows */
 .card-root {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
   box-shadow: var(--shadow);
+  transition: box-shadow .2s ease;
 }
 .card-title {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  font-weight: 700;
   margin-bottom: var(--space-4);
+  color: var(--ink);
 }

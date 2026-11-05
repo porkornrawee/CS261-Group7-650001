@@ -1,38 +1,42 @@
-/* Base — reset + typography + โครงหน้า + กล่อง TODO ของ stub (ลบ .todo-box ได้เมื่อ stub หมด) */
+/* Base — reset + typography + layout */
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
   margin: 0;
   min-height: 100vh;
   color: var(--ink);
   background: var(--bg);
-  font: 16px/1.55 var(--font);
+  font: 16px/1.6 var(--font);
+  -webkit-font-smoothing: antialiased;
 }
-h1, h2, h3 { line-height: 1.25; margin: 0 0 var(--space-3); }
-a { color: var(--tu-red); }
+h1, h2, h3, h4 { line-height: 1.3; margin: 0 0 var(--space-3); font-weight: 700; color: var(--ink); }
+a { color: var(--primary); text-decoration: none; transition: color .15s ease; }
+a:hover { color: var(--primary-hover); }
 img { max-width: 100%; }
 button, input, select { font: inherit; }
-:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
 
-#app-header { min-height: var(--header-h); background: var(--tu-red); color: var(--on-brand); }
-#app { max-width: var(--page-max); margin: 0 auto; padding: var(--space-5) var(--space-4); }
+#app-header { min-height: var(--header-h); background: var(--primary); color: var(--on-brand); }
+#app { max-width: var(--page-max); margin: 0 auto; padding: var(--space-6) var(--space-4); }
 
-/* เมนูชั่วคราวของ PM ให้เดินดูทุกหน้าได้ — Dev 1 ลบเมื่อ AppHeader (LY-01) เสร็จ */
+/* Dev nav */
 #dev-nav { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-3) var(--space-4); align-items: center; }
-#dev-nav strong { margin-right: var(--space-3); }
-#dev-nav a { color: var(--on-brand); text-decoration: none; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: rgba(255, 255, 255, .16); }
-#dev-nav a:hover { background: var(--orange); }
+#dev-nav strong { margin-right: var(--space-3); font-weight: 700; }
+#dev-nav a { color: var(--on-brand); text-decoration: none; padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: rgba(255, 255, 255, .18); }
+#dev-nav a:hover { background: rgba(255, 255, 255, .32); }
 
 .todo-box {
-  border: 2px dashed var(--orange);
-  background: var(--orange-50);
+  border: 2px dashed var(--primary);
+  background: var(--primary-50);
   color: var(--ink);
   border-radius: var(--radius);
   padding: var(--space-4);
   margin: var(--space-3) 0;
 }
-.todo-box b { color: var(--tu-red); }
+.todo-box b { color: var(--primary); }
 .todo-box small { color: var(--muted); display: block; }
+
+/* Home Page Styles */
 .home-root {
   width: 100%;
 }
@@ -42,23 +46,39 @@ button, input, select { font: inherit; }
   margin: auto;
 }
 .home-hero {
-  background: linear-gradient(115deg, var(--tu-red), var(--orange));
+  background: linear-gradient(135deg, #1a6cf0 0%, #0284c7 100%);
   color: var(--on-brand);
-  border-radius: var(--radius-lg);
-  padding: clamp(24px, 4vw, 48px) var(--space-6);
+  border-radius: var(--radius-xl);
+  padding: clamp(32px, 5vw, 56px) var(--space-6);
   margin: 0 0 var(--space-7);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.home-hero strong {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
 }
 .home-hero h1 {
-  font-size: clamp(1.65rem, 3.3vw, 2.7rem);
+  color: var(--on-brand);
+  font-size: clamp(1.75rem, 3.8vw, 2.75rem);
   margin: var(--space-2) 0;
+  font-weight: 800;
 }
 .home-hero p {
-  margin: var(--space-2) 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.15rem;
+  max-width: 640px;
+  margin: var(--space-2) auto 0;
 }
 .home-hero small {
   display: block;
-  margin-top: var(--space-2);
-  opacity: .9;
+  margin-top: var(--space-3);
+  opacity: .85;
 }
 .home-section {
   margin-bottom: var(--space-7);
@@ -72,7 +92,7 @@ button, input, select { font: inherit; }
 }
 .home-section-heading h2 {
   margin: 0;
-  font-size: 1.55rem;
+  font-size: 1.6rem;
 }
 .home-section-heading p {
   color: var(--muted);
@@ -83,17 +103,27 @@ button, input, select { font: inherit; }
   gap: var(--space-2);
 }
 .home-scroll-controls button {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 1px solid var(--line);
   background: var(--surface);
-  color: var(--tu-red);
+  color: var(--primary);
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all .15s ease;
+  box-shadow: var(--shadow-sm);
+}
+.home-scroll-controls button:hover {
+  background: var(--primary-50);
+  border-color: var(--primary);
 }
 .home-parking-track {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-5);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   padding: var(--space-2) 0 var(--space-5);
@@ -108,26 +138,35 @@ button, input, select { font: inherit; }
   display: none;
 }
 .home-parking-card {
-  flex: 0 0 min(330px, 88vw);
+  flex: 0 0 min(340px, 88vw);
   min-width: 0;
   overflow: hidden;
   scroll-snap-align: start;
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--surface);
   box-shadow: var(--shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+  display: flex;
+  flex-direction: column;
+}
+.home-parking-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 .home-parking-art {
-  background: var(--orange-100);
+  background: linear-gradient(180deg, var(--primary-50) 0%, #e0f2fe 100%);
   position: relative;
-  height: 155px;
+  height: 160px;
   display: grid;
   place-items: center;
-  color: var(--tu-red);
+  color: var(--primary);
+  border-bottom: 1px solid var(--line);
 }
 .home-parking-art--full {
   background: var(--full-bg);
   color: var(--full);
+  filter: grayscale(85%);
 }
 .home-art-svg {
   display: block;
@@ -142,25 +181,33 @@ button, input, select { font: inherit; }
   top: var(--space-3);
   left: var(--space-3);
   background: var(--surface);
-  color: var(--tu-red);
-  padding: var(--space-1) var(--space-3);
+  color: var(--primary);
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
   font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-sm);
 }
 .home-full-overlay {
   position: absolute;
   border-radius: var(--radius-pill);
-  padding: var(--space-2) var(--space-3);
-  background: var(--full-ink);
+  padding: 6px 14px;
+  background: var(--danger);
   color: var(--on-brand);
   font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-sm);
 }
 .home-parking-body {
   padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 .home-parking-body h3 {
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   min-height: 2.4rem;
+  margin-bottom: var(--space-3);
 }
 .home-availability-list {
   display: grid;
@@ -170,24 +217,24 @@ button, input, select { font: inherit; }
 .home-availability {
   display: inline-flex;
   border-radius: var(--radius-pill);
-  padding: var(--space-2) var(--space-3);
-  background: var(--ok-bg);
-  color: var(--ok-ink);
+  padding: 6px 14px;
+  background: var(--primary-50);
+  color: var(--primary);
   font-weight: 700;
-  font-size: .9rem;
+  font-size: .92rem;
 }
 .home-availability--warning {
   background: var(--warn-bg);
   color: var(--warn-ink);
 }
 .home-availability--full {
-  background: var(--full-bg);
-  color: var(--full-ink);
+  background: var(--danger-bg);
+  color: var(--danger-ink);
 }
 .home-usage-track {
-  height: 5px;
+  height: 6px;
   border-radius: var(--radius-pill);
-  background: var(--orange-50);
+  background: #f1f5f9;
   overflow: hidden;
   margin-top: var(--space-4);
 }
@@ -195,27 +242,72 @@ button, input, select { font: inherit; }
   display: block;
   height: 100%;
   border-radius: var(--radius-pill);
-  background: var(--tu-red);
+  background: var(--primary);
 }
 .home-parking-action, .home-full-action {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   text-align: center;
-  padding: var(--space-3);
+  padding: 12px var(--space-4);
   border-radius: var(--radius-pill);
   text-decoration: none;
   font-weight: 700;
+  font-size: 1rem;
+  margin-top: var(--space-4);
+  transition: all .15s ease;
 }
 .home-parking-action {
-  background: var(--tu-red);
+  background: var(--primary);
   color: var(--on-brand);
 }
 .home-parking-action:hover {
-  background: var(--tu-red-dark);
+  background: var(--primary-hover);
+  color: var(--on-brand);
 }
 .home-full-action {
-  background: var(--full-bg);
-  color: var(--full-ink);
+  background: var(--primary-100);
+  color: var(--primary);
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+.home-full-action:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+.home-parking-card--full {
+  opacity: 0.92;
+}
+.home-full-overlay--blocked {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  font-size: 1.4rem;
+  line-height: 1.1;
+  background: var(--danger);
+  color: #fff;
+}
+.home-full-overlay--blocked span {
+  font-size: .85rem;
+}
+.home-location {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-2);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.home-location-pin {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--primary);
 }
 .home-shortcuts {
   margin-bottom: var(--space-7);
@@ -223,26 +315,37 @@ button, input, select { font: inherit; }
 .home-shortcut-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 .home-shortcut {
   display: grid;
   gap: var(--space-2);
-  padding: var(--space-4);
+  padding: var(--space-5);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-xl);
   color: var(--ink);
   background: var(--surface);
   text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.home-shortcut:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--primary-100);
 }
 .home-shortcut strong {
-  color: var(--tu-red);
+  color: var(--primary);
+  font-size: 1.1rem;
 }
 .home-shortcut span {
   font-size: .9rem;
+  color: var(--muted);
 }
 .home-shortcut span:last-child {
   font-weight: 700;
+  color: var(--primary);
+  font-size: 1.2rem;
 }
 .vehicle-page-status:empty, .vehicle-page-result:empty {
   display: none;
@@ -263,44 +366,6 @@ button, input, select { font: inherit; }
     padding: var(--space-5);
   }
   .home-section-heading h2 {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
   }
-}
-.home-parking-card--full {
-  cursor: not-allowed;
-}
-.home-full-action {
-  border: 0;
-  font: inherit;
-  font-weight: 700;
-  cursor: not-allowed;
-}
-.home-full-action:focus-visible {
-  outline: 3px solid var(--orange);
-  outline-offset: 3px;
-}
-.home-full-overlay--blocked {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-1);
-  font-size: 1.6rem;
-  line-height: 1.1;
-}
-.home-full-overlay--blocked span {
-  font-size: .85rem;
-}
-.home-location {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: var(--space-3) 0 var(--space-5);
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-.home-location-pin {
-  display: block;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  color: var(--muted);
 }

@@ -15,6 +15,8 @@ class TestReservationLookup(ReservationTestCase):
         body = response.get_json()
         self.assertTrue(body["ok"])
         self.assertEqual(body["reservation"]["code"], code)
+        self.assertEqual(body["reservation"]["status"], "active")
+        self.assertIsNone(body["reservation"]["cancelled_at"])
 
     def test_get_by_code_accepts_lowercase_and_padding(self):
         code = self.book("A1").get_json()["reservation"]["code"]

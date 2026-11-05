@@ -66,16 +66,19 @@ python -m unittest discover -s tests -v
 | GET | `/api/me/reservations?status=` | ประวัติของผู้ใช้ที่ล็อกอิน (`g.student_id` จาก session เท่านั้น); `status` เลือก `completed`, `cancelled` หรือ `auto_cancelled` ได้ |
 | GET | `/api/me/notifications` | สร้างการแจ้งเตือนที่ถึงกำหนดแบบ lazy และคืนเฉพาะของผู้ใช้ที่ล็อกอิน พร้อม `unread_count` |
 | POST | `/api/me/notifications/<id>/read` | ทำเครื่องหมายว่าอ่านแล้ว; เข้าถึงแจ้งเตือนของคนอื่นได้ `403 FORBIDDEN` |
-| GET | `/api/reservations/<code>` | ค้นการจองจากรหัส (ด่านสแกน QR) |
+| GET | `/api/reservations/<code>` | ค้นการจองจากรหัส (ด่านสแกน QR) คืนข้อมูลรวม `status` และ `cancelled_at` |
+| POST | `/api/reservations/<code>/cancel` | ยกเลิกการจองของผู้ใช้ที่ล็อกอิน (ก่อนเริ่ม >= 30 นาที) คืนสถานะ `cancelled` และปล่อยช่องจอดทันที |
 | GET | `/api/reservations/<code>/qr.png` | ภาพ QR |
 
 สำหรับ API ที่ใช้ session ให้ตั้ง environment variable `FLASK_SECRET_KEY` เป็น secret ที่คงที่ก่อนเริ่ม Flask. `auth.login_required` อ่าน `student_id` จาก signed session แล้วตั้งค่า `g.student_id`; ระบบ login ที่สร้าง session อยู่ในขอบเขต US11.
 
-รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `SLOT_NOT_FOUND` 404 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `BUSY` 503
+รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `UNAUTHORIZED` 401 · `FORBIDDEN` 403 · `SLOT_NOT_FOUND` 404 · `NOT_CANCELLABLE` 409 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `CANCEL_DEADLINE_PASSED` 422 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `BUSY` 503
 
 `GET /api/me/reservations` คืน `{ "ok": true, "reservations": [...] }`, `401 UNAUTHORIZED` หากไม่มี session และ `400 VALIDATION_ERROR` หากส่งสถานะอื่นที่ไม่รองรับ ตัวกรอง `student_id` ใน query string จะไม่มีผล
 
 `GET /api/me/notifications` คืน `{ "ok": true, "notifications": [...], "unread_count": 0 }`; `POST /api/me/notifications/<id>/read` คืน `{ "ok": true, "notification": {...} }` หากไม่พบ ID ได้ `404 NOT_FOUND`. ทั้งสองเส้นทางใช้ session ผ่าน `@login_required`; ตั้งค่า `FLASK_SECRET_KEY` ก่อนเปิดใช้งาน session. `init_db()` เพิ่ม CORE-01 columns และ notifications table แบบ idempotent และเก็บรายการจองเดิมไว้.
+
+`POST /api/reservations/<code>/cancel` คืน `{ "ok": true, "reservation": { "code": ..., "status": "cancelled", "cancelled_at": ... } }`. ต้องยืนยันตัวตนผ่าน `@login_required` (หากไม่มี session ได้ `401 UNAUTHORIZED`, ไม่ใช่เจ้าของได้ `403 FORBIDDEN`, ไม่พบรหัสได้ `404 NOT_FOUND`, สถานะไม่ใช่ active ได้ `409 NOT_CANCELLABLE`, เลยเส้นตายก่อนเริ่ม 30 นาที ได้ `422 CANCEL_DEADLINE_PASSED`). เมื่อยกเลิกสำเร็จ ระบบจะบันทึกแจ้งเตือนลงตาราง `notifications` (ประเภท `cancelled`) และ trigger จะปล่อยช่องจอดให้ผู้อื่นสามารถจองต่อได้ทันที.
 
 ## สมมติฐานที่ผมตัดสินใจเอง (ควรยืนยันกับทีม/อาจารย์)
 
