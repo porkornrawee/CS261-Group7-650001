@@ -73,3 +73,44 @@ def save_vehicle(conn, payload, now=None):
         (student_id,),
     ).fetchone()
     return dict(row)
+
+def update_vehicle(conn, vehicle_id, payload, current_student_id=None, now=None):
+    """อัปเดตข้อมูลทะเบียนรถ: ตรวจรูปแบบ, ห้ามซ้ำกับคนอื่น (409), และตรวจความเป็นเจ้าของ (403)"""
+    plate = _text(payload, "plate")
+    province = _text(payload, "province")
+
+    if not plate or not province:
+        raise BookingError("VALIDATION_ERROR", "กรุณากรอกทะเบียนรถและจังหวัด", 400)
+
+    row = conn.execute(
+        "SELECT id, student_id, plate, province FROM vehicles WHERE id = ?",
+        (vehicle_id,),
+    ).fetchone()
+
+    if not row:
+        raise BookingError("VEHICLE_NOT_FOUND", "ไม่พบข้อมูลรถในระบบ", 404)
+
+    vehicle = dict(row)
+
+    if current_student_id and vehicle["student_id"] != current_student_id:
+        raise BookingError("FORBIDDEN", "คุณไม่ใช่เจ้าของรถคันนี้", 403)
+
+    duplicate = conn.execute(
+        "SELECT id, student_id FROM vehicles WHERE plate = ? AND province = ? AND id != ?",
+        (plate, province, vehicle_id),
+    ).fetchone()
+
+    if duplicate:
+        raise BookingError("PLATE_DUPLICATE", "เลขทะเบียนนี้มีผู้ใช้งานอื่นลงทะเบียนแล้ว", 409)
+
+    conn.execute(
+        "UPDATE vehicles SET plate = ?, province = ? WHERE id = ?",
+        (plate, province, vehicle_id),
+    )
+
+    updated_row = conn.execute(
+        "SELECT id, student_id, plate, province FROM vehicles WHERE id = ?",
+        (vehicle_id,),
+    ).fetchone()
+
+    return dict(updated_row)
