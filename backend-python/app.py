@@ -85,6 +85,16 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         )
         return jsonify({"ok": True, "vehicle": vehicle}), 201
 
+@app.put("/api/vehicles/<int:vehicle_id>")
+    @login_required
+    def api_update_vehicle(vehicle_id):
+        """API สำหรับแก้ไขทะเบียนรถ (US1)"""
+        data = request.get_json(silent=True) or {}
+        updated_vehicle = vehicle_service.update_vehicle(
+            get_conn(), vehicle_id, data, g.student_id, app.config["NOW_FUNC"]()
+        )
+        return jsonify({"ok": True, "vehicle": updated_vehicle}), 200
+
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
 
     @app.get("/api/zones")
