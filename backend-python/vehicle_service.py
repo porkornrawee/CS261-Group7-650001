@@ -7,7 +7,7 @@
 import re
 from datetime import datetime
 
-from booking_service import BookingError
+from booking_service import BookingError, normalize_plate
 
 STUDENT_ID_RE = re.compile(r"^\d{10}$")
 EMAIL_SUFFIX = "@dome.tu.ac.th"
@@ -62,6 +62,7 @@ def save_vehicle(conn, payload, now=None):
         raise BookingError("VALIDATION_ERROR", "รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก", 400)
     if not plate or not province:
         raise BookingError("VALIDATION_ERROR", "กรุณากรอกทะเบียนรถและจังหวัด", 400)
+    plate = normalize_plate(plate)
     conn.execute(
         "INSERT INTO vehicles (student_id, plate, province, created_at) "
         "VALUES (?, ?, ?, ?) "
