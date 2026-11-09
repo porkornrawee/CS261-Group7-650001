@@ -5,6 +5,7 @@
 """
 
 import os
+import secrets
 from datetime import datetime
 
 from flask import Flask, Response, g, jsonify, request
@@ -26,7 +27,15 @@ def create_app(db_path=None, now_func=None, tu_client=None):
     """สร้างแอป (รับ db_path และ now_func เพื่อให้ทดสอบแยกอิสระได้)"""
     app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"))
     app.json.ensure_ascii = False  # ให้ JSON แสดงภาษาไทยตรง ๆ ไม่เป็น \uXXXX
-    app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+    # CORE-01: session ต้องมี secret คงที่ (ตั้ง env SECRET_KEY) ไม่งั้นรีสตาร์ตแล้วทุกคนหลุดล็อกอิน
+    # ถ้าไม่ได้ตั้ง จะสุ่มให้ต่อ process เพื่อให้รันเครื่องตัวเองได้ (ห้ามใช้แบบนี้บน production)
+    app.config["SECRET_KEY"] = (
+        os.environ.get("SECRET_KEY")
+        or os.environ.get("FLASK_SECRET_KEY")
+        or secrets.token_hex(32)
+    )
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["DB_PATH"] = (
         db_path
         or os.environ.get("PARKING_DB")
