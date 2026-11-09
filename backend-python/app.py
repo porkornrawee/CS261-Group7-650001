@@ -6,17 +6,19 @@
 
 import os
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
 
 from auth import login_required, student_from_session
+import auth_service
 import booking_service as service
 import cancel_service
 import history_service
 import notification_service
 import qr_service
 import vehicle_service
+from config import SESSION_LIFETIME_HOURS
 from db import connect, init_db
 from tu_client import create_tu_client
 
@@ -34,6 +36,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         or os.environ.get("FLASK_SECRET_KEY")
         or secrets.token_hex(32)
     )
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=SESSION_LIFETIME_HOURS)
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["DB_PATH"] = (
@@ -95,6 +98,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify({"ok": True, "vehicle": vehicle}), 201
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
+    auth_service.register_routes(app, get_conn)
 
     @app.get("/api/zones")
     def api_zones():
