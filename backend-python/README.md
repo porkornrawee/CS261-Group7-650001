@@ -69,10 +69,13 @@ python -m unittest discover -s tests -v
 | GET | `/api/reservations/<code>` | ค้นการจองจากรหัส (ด่านสแกน QR) คืนข้อมูลรวม `status` และ `cancelled_at` |
 | POST | `/api/reservations/<code>/cancel` | ยกเลิกการจองของผู้ใช้ที่ล็อกอิน (ก่อนเริ่ม >= 30 นาที) คืนสถานะ `cancelled` และปล่อยช่องจอดทันที |
 | GET | `/api/reservations/<code>/qr.png` | ภาพ QR |
+| POST | `/api/auth/login` | **US11** เข้าสู่ระบบ ดูรายละเอียดด้านล่าง |
+| POST | `/api/auth/logout` | **US11** ออกจากระบบ (ล้าง session) |
+| GET | `/api/auth/me` | **US11** ผู้ใช้ที่ล็อกอินอยู่ |
 
 สำหรับ API ที่ใช้ session ให้ตั้ง environment variable `FLASK_SECRET_KEY` เป็น secret ที่คงที่ก่อนเริ่ม Flask. `auth.login_required` อ่าน `student_id` จาก signed session แล้วตั้งค่า `g.student_id`; ระบบ login ที่สร้าง session อยู่ในขอบเขต US11.
 
-รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `UNAUTHORIZED` 401 · `FORBIDDEN` 403 · `SLOT_NOT_FOUND` 404 · `NOT_CANCELLABLE` 409 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `CANCEL_DEADLINE_PASSED` 422 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `BUSY` 503
+รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `UNAUTHORIZED` 401 · `INVALID_CREDENTIALS` 401 · `FORBIDDEN` 403 · `SLOT_NOT_FOUND` 404 · `NOT_FOUND` 404 · `NOT_CANCELLABLE` 409 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `CANCEL_DEADLINE_PASSED` 422 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `BUSY` 503
 
 `GET /api/me/reservations` คืน `{ "ok": true, "reservations": [...] }`, `401 UNAUTHORIZED` หากไม่มี session และ `400 VALIDATION_ERROR` หากส่งสถานะอื่นที่ไม่รองรับ ตัวกรอง `student_id` ใน query string จะไม่มีผล
 
@@ -101,3 +104,26 @@ config.py            เวลาเปิด-ปิด, รายการโ�
 static/                index.html (โครง HTML) + css/ (8 ไฟล์ตามส่วนของหน้า) + js/ (9 ไฟล์ โหลดตามลำดับใน index.html)
 tests/               Automated Test แยกไฟล์ละ TC (test_tc01..04) + us7_support.py (ตัวช่วยร่วม)
 ```
+
+## Sprint 2 — Dev 1 (CORE-01 · US11)
+### CORE-01: ใช้ `@login_required`
+
+```python
+from flask import g
+from auth import login_required, forbidden
+
+@app.get("/api/me/vehicles")
+@login_required                 # ไม่มี session -> 401 UNAUTHORIZED
+def my_vehicles():
+    ...  # ใช้ g.student_id เท่านั้น ห้ามรับ student_id จาก query/body
+    if row["student_id"] != g.student_id:
+        return forbidden()      # ของคนอื่น -> 403 FORBIDDEN
+```
+### US11: เข้าสู่ระบบ
+บัญชีทดสอบ: `6509650001` / `test1234` (seed อัตโนมัติ, เก็บรหัสเป็น hash, ห้ามใช้บน production)
+
+| เส้นทาง | request | response |
+|---|---|---|
+| `POST /api/auth/login` | `{"student_id", "password"}` | 200 `{"ok": true, "user": {...}}` · 400 `VALIDATION_ERROR` · 401 `INVALID_CREDENTIALS` |
+| `POST /api/auth/logout` | — | 200 `{"ok": true}` |
+| `GET /api/auth/me` | — | 200 `{"ok": true, "user": {...}}` · 401 `UNAUTHORIZED` |
