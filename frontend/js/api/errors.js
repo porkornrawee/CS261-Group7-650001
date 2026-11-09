@@ -16,10 +16,12 @@ export const ERROR_MESSAGES = {
   NETWORK_ERROR: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้',
   UNAUTHORIZED: 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
   FORBIDDEN: 'คุณไม่มีสิทธิ์ดำเนินการนี้',
-  INVALID_CREDENTIALS: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+  INVALID_CREDENTIALS: 'รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง',
   CANCEL_DEADLINE_PASSED: 'เลยกำหนดเวลายกเลิกการจองแล้ว',
   NOT_CANCELLABLE: 'ไม่สามารถยกเลิกการจองนี้ได้',
   EXTEND_CONFLICT: 'ไม่สามารถขยายเวลาจองได้ เนื่องจากช่วงเวลานี้มีการจองแล้ว',
+  MEMBER_DUPLICATE: 'มีสมาชิกหรือทะเบียนรถนี้ในระบบแล้ว',
+  STUDENT_NOT_FOUND: 'ไม่พบรหัสนักศึกษานี้ในระบบ',
 };
 
 /** @param {{code?:string, message?:string, name?:string}} error */
