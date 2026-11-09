@@ -5,6 +5,7 @@
 """
 
 import os
+import secrets
 from datetime import datetime
 
 from flask import Flask, Response, g, jsonify, request
@@ -25,7 +26,11 @@ def create_app(db_path=None, now_func=None):
     """สร้างแอป (รับ db_path และ now_func เพื่อให้ทดสอบแยกอิสระได้)"""
     app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"))
     app.json.ensure_ascii = False  # ให้ JSON แสดงภาษาไทยตรง ๆ ไม่เป็น \uXXXX
-    app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+    app.config["SECRET_KEY"] = (
+        os.environ.get("SECRET_KEY")
+        or os.environ.get("FLASK_SECRET_KEY")
+        or secrets.token_hex(32)  # ไม่ตั้งค่า -> สุ่มใหม่ทุกครั้งที่เปิดเซิร์ฟเวอร์
+    )
     app.config["DB_PATH"] = (
         db_path
         or os.environ.get("PARKING_DB")
