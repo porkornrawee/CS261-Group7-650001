@@ -4,6 +4,8 @@
     "id": 1,
     "code": "PK-MOCK2345",
     "user_name": "สมชาย ใจดี",
+    "plate": "1กข 1234",
+    "vehicle_type": "car",
     "slot_id": 1,
     "slot": "A1",
     "zone": "โซน A",

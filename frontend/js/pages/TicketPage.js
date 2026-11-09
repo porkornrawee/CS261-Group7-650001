@@ -9,7 +9,7 @@ import { PageShell } from '../components/layout/PageShell.js';
 import { Alert } from '../components/ui/Alert.js';
 import { Spinner } from '../components/ui/Spinner.js';
 import { TicketCard } from '../features/ticket/TicketCard.js';
-import { getReservation, qrUrl } from '../api/reservations.js';
+import { getReservation, qrUrl, takeCreated } from '../api/reservations.js';
 import { messageFor } from '../api/errors.js';
 
 export function TicketPage(ctx = { params: {} }) {
@@ -17,7 +17,9 @@ export function TicketPage(ctx = { params: {} }) {
   const body = h('div', { class: 'ticket-page__body', 'aria-busy': 'true' },
     Spinner({ label: 'กำลังโหลดบัตรจอง…' }));
 
-  getReservation(code)
+  // เพิ่งจองเสร็จ: ใช้ response จาก POST เลย (QR data URI ที่ backend สร้าง) ไม่งั้นโหลดจาก API
+  const created = takeCreated(code);
+  (created ? Promise.resolve(created) : getReservation(code))
     .then((data) => {
       const { reservation, qr_data_uri, qr_url } = data;
       const qrSrc = qr_data_uri || qr_url || qrUrl(reservation.code);

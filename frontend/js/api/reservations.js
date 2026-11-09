@@ -6,12 +6,27 @@ import { isMock, request } from './client.js';
 
 /**
  * POST /api/reservations
- * @param {{user_name:string, slot_id:number, date:string, start:string, end:string}} input
+ * @param {{user_name:string, slot_id:number, date:string, start:string, end:string, plate?:string, vehicle_type?:'car'|'motorcycle'|'ev'}} input
  * @returns {Promise<{ok:true, reservation:object, qr_data_uri:string, qr_url:string}>}
  * ผิดพลาด -> throw ApiError(code) ดู api/errors.js
  */
 export function createReservation(input) {
   return request('/api/reservations', { method: 'POST', body: input, mockFile: 'reservation-created.json' });
+}
+
+// response ล่าสุดจาก POST (ใช้ครั้งเดียว) ให้หน้าบัตรจองใช้ QR/รหัสจาก response โดยไม่ต้องโหลดซ้ำ
+let lastCreated = null;
+
+/** เก็บผลจาก createReservation ไว้ส่งต่อให้ TicketPage */
+export function rememberCreated(result) {
+  lastCreated = result?.reservation?.code ? result : null;
+}
+
+/** คืนผลการจองที่เพิ่งสร้าง ถ้ารหัสตรง (แล้วล้างทิ้ง) ไม่งั้นคืน null */
+export function takeCreated(code) {
+  const hit = lastCreated && lastCreated.reservation.code === code ? lastCreated : null;
+  lastCreated = null;
+  return hit;
 }
 
 /** GET /api/reservations?limit= -> { reservations: [...] }  (Dev 4) */
