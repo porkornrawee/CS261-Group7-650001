@@ -20,7 +20,7 @@
   background: var(--primary-50);
   color: var(--primary);
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(26, 108, 240, 0.15);
+  box-shadow: var(--shadow-sm);
 }
 .chip-root:disabled {
   cursor: not-allowed;

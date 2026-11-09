@@ -30,6 +30,26 @@ export function h(tag, props, ...kids) {
   return el;
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/**
+ * สร้าง element ของ SVG (ต้องใช้ namespace ของ SVG ไม่งั้นไอคอนจะไม่แสดง)
+ * ตัวอย่าง: s('svg', { viewBox: '0 0 24 24' }, s('path', { d: '...' }))
+ */
+export function s(tag, props, ...kids) {
+  const el = document.createElementNS ? document.createElementNS(SVG_NS, tag) : document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === undefined || value === null || value === false) continue;
+    if (key === 'class' || key === 'className') el.setAttribute('class', value);
+    else el.setAttribute(key, String(value));
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid === undefined || kid === null || kid === false) continue;
+    el.append(kid);
+  }
+  return el;
+}
+
 /** กล่องบอกว่า component/page นี้ยังเป็น stub — Dev ลบการเรียกนี้เมื่อทำจริง */
 export function todo(name, owner, ticket, params) {
   const extra = params && Object.keys(params).length ? ` params=${JSON.stringify(params)}` : '';

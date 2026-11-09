@@ -9,7 +9,6 @@
 @import "../js/components/ui/Stepper.css";
 @import "../js/components/ui/Spinner.css";
 @import "../js/components/ui/EmptyState.css";
-@import "../js/components/ui/LoginModal.css";
 @import "../js/components/layout/AppHeader.css";
 @import "../js/components/layout/AppFooter.css";
 @import "../js/components/layout/PageShell.css";
@@ -29,3 +28,5 @@
 @import "../js/features/history/ReservationTable.css";
 @import "../js/features/notification/NotificationList.css";
 @import "../js/pages/HistoryPage.css";
+@import "../js/pages/HomePage.css";
+@import "../js/pages/LoginPage.css";

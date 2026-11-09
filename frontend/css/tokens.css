@@ -1,61 +1,81 @@
-/* Design tokens — Modern SmartPark TU Blue Palette */
+/* Design tokens — Parking TU (ธีมแดงตาม Figma) · Owner: Dev 1
+   ทุก component ใช้สีจากไฟล์นี้เท่านั้น ห้าม hard-code สีในไฟล์อื่น */
 :root {
-  /* Brand Primary & Secondary Blue Palette */
-  --primary: #1a6cf0;
-  --primary-hover: #1558c7;
-  --primary-dark: #0f4094;
-  --primary-50: #eff6ff;
-  --primary-100: #dbeafe;
-  --primary-200: #bfdbfe;
-  --secondary: #0284c7;
+  /* Brand red (header / footer / ปุ่มหลัก) */
+  --primary: #c41e22;
+  --primary-hover: #a5171b;
+  --primary-dark: #8a1216;
+  --primary-50: #fdeef0;
+  --primary-100: #fad6da;
+  --primary-200: #f2aab1;
+  --secondary: #e0464b;
 
-  /* Legacy brand mappings redirected to modern Blue theme */
-  --tu-red: #1a6cf0;
-  --tu-red-dark: #0f4094;
-  --orange: #0284c7;
-  --orange-dark: #0369a1;
-  --orange-50: #eff6ff;
-  --orange-100: #dbeafe;
-  --tu-gold: #f59e0b;
+  /* ชื่อเดิมที่ component อื่นยังอ้างถึง — ชี้มาที่ธีมแดง */
+  --tu-red: var(--primary);
+  --tu-red-dark: var(--primary-dark);
+  --orange: var(--primary);
+  --orange-dark: var(--primary-dark);
+  --orange-50: var(--primary-50);
+  --orange-100: var(--primary-100);
+  --tu-gold: #f5c400;
 
-  /* Surfaces, Background & Ink */
-  --bg: #f8fafc;
+  /* สีเน้นเหลือง (hover เมนู, ปุ่มบันทึก QR, ชิปที่เลือก) */
+  --accent: #f5c400;
+  --accent-ink: #3a2f00;
+
+  /* พื้นหลังชมพูอ่อนไล่เฉด + พื้นผิวการ์ด */
+  --bg: #fbe9eb;
+  --bg-gradient: linear-gradient(180deg, #fcedef 0%, #f9e1e4 100%);
   --surface: #ffffff;
-  --surface-tint: #f0f7ff;
-  --line: #e2e8f0;
-  --border: #e2e8f0;
-  --ink: #0f172a;
-  --text-main: #0f172a;
-  --muted: #64748b;
-  --text-muted: #64748b;
+  --surface-tint: #fff6f7;
+  --surface-muted: #ececec;
+  --line: #d9d9d9;
+  --border: #d9d9d9;
+  --ink: #111111;
+  --text-main: #111111;
+  --muted: #6b6b6b;
+  --text-muted: #6b6b6b;
   --on-brand: #ffffff;
+  --on-brand-line: rgba(255, 255, 255, 0.85);
 
-  /* States: Available, Busy/Warning, Full/Danger */
-  --ok: #10b981;        --ok-bg: #ecfdf5;     --ok-ink: #065f46;
+  /* States */
+  --ok: #16a34a;        --ok-bg: #ecfdf3;     --ok-ink: #14532d;
   --warn: #f59e0b;      --warn-bg: #fffbeb;   --warn-ink: #92400e;
-  --full: #94a3b8;      --full-bg: #f1f5f9;   --full-ink: #475569;
-  --danger: #ef4444;    --danger-bg: #fef2f2; --danger-ink: #991b1b;
-  --info: #1a6cf0;      --info-bg: #eff6ff;   --info-ink: #1e40af;
+  --full: #9ca3af;      --full-bg: #f1f1f1;   --full-ink: #4b5563;
+  --danger: #c41e22;    --danger-bg: #fdeef0; --danger-ink: #8a1216;
+  --info: #2563eb;      --info-bg: #eff6ff;   --info-ink: #1e3a8a;
 
   /* Spacing */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 24px; --space-6: 32px; --space-7: 48px;
 
-  /* Large Rounded Corners */
+  /* Radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius: 16px;
   --radius-lg: 20px;
-  --radius-xl: 24px;
+  --radius-xl: 28px;
   --radius-pill: 999px;
 
-  /* Soft shadows */
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 20px 30px -10px rgba(15, 23, 42, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
+  /* Shadows (การ์ดใน Figma มีเงาเข้มเยื้องขวาล่าง) */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 8px 18px rgba(0, 0, 0, 0.22);
+  --shadow-card: 14px 18px 22px rgba(0, 0, 0, 0.55);
+  --shadow-photo: 0 6px 12px rgba(0, 0, 0, 0.35);
+  --shadow-header: 0 4px 6px rgba(0, 0, 0, 0.25);
+  --text-shadow: 0 3px 4px rgba(0, 0, 0, 0.3);
+  --shadow-marker: 2px 3px 3px rgba(0, 0, 0, 0.3);
+  --photo-overlay: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  --on-brand-divider: rgba(255, 255, 255, 0.2);
 
-  /* Modern Thai typography */
-  --font: "Noto Sans Thai", "Sarabun", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* สีโลโก้แบรนด์ของปุ่ม social (ห้ามเปลี่ยนตามธีม) */
+  --brand-google-red: #ea4335; --brand-google-blue: #4285f4;
+  --brand-google-yellow: #fbbc05; --brand-google-green: #34a853;
+  --brand-line: #06c755; --brand-facebook: #1877f2; --brand-apple: #111111;
+
+  /* Typography */
+  --font: "Prompt", "Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
   --page-max: 1120px;
-  --header-h: 68px;
+  --header-h: 76px;
 }
