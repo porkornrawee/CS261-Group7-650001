@@ -8,9 +8,16 @@
   ฐานข้อมูลก็ไม่ยอมให้บันทึกช่วงเวลาซ้อนกันในช่องเดียวกัน
 """
 
+import os
 import sqlite3
+from datetime import datetime
 
-from config import DEFAULT_ZONES
+from werkzeug.security import generate_password_hash
+
+from config import DEFAULT_ZONES, TEST_ACCOUNT
+
+# pbkdf2 ใช้ได้ทุกเวอร์ชันของ Python (scrypt ต้องมี OpenSSL ที่รองรับ)
+PASSWORD_HASH_METHOD = "pbkdf2:sha256"
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS zones (
@@ -44,6 +51,13 @@ CREATE TABLE IF NOT EXISTS reservations (
 
 CREATE INDEX IF NOT EXISTS idx_reservations_slot_time
     ON reservations (slot_id, start_at, end_at);
+
+-- US11: บัญชีเข้าสู่ระบบ (ยังไม่มีบัญชีจริงจาก reg) เก็บเฉพาะ hash ห้ามเก็บรหัสผ่านตรง ๆ
+CREATE TABLE IF NOT EXISTS accounts (
+    student_id    TEXT PRIMARY KEY REFERENCES students(student_id),
+    password_hash TEXT NOT NULL,
+    created_at    TEXT NOT NULL
+);
 
 -- รถที่ลงทะเบียน: 1 นักศึกษา = 1 คัน (ลงซ้ำ = แทนที่ทะเบียนเดิม)
 CREATE TABLE IF NOT EXISTS vehicles (
@@ -137,6 +151,7 @@ def init_db(path):
             END;
             """
         )
+        _seed_test_account(conn)
         if conn.execute("SELECT COUNT(*) FROM zones").fetchone()[0] == 0:
             for zone_name, labels in DEFAULT_ZONES.items():
                 zone_id = conn.execute(
@@ -149,3 +164,32 @@ def init_db(path):
                     )
     finally:
         conn.close()
+
+
+def create_account(conn, student_id, password, name=None, now=None):
+    """สร้าง/แทนที่บัญชี (ใช้ตอน seed และในเทส) — เก็บเฉพาะ password hash"""
+    created_at = (now or datetime.now()).isoformat(timespec="seconds")
+    conn.execute(
+        """INSERT INTO students (student_id, name) VALUES (?, ?)
+           ON CONFLICT(student_id) DO UPDATE SET name = COALESCE(students.name, excluded.name)""",
+        (student_id, name),
+    )
+    conn.execute(
+        """INSERT INTO accounts (student_id, password_hash, created_at) VALUES (?, ?, ?)
+           ON CONFLICT(student_id) DO UPDATE SET password_hash = excluded.password_hash""",
+        (student_id, generate_password_hash(password, method=PASSWORD_HASH_METHOD), created_at),
+    )
+
+
+def _seed_test_account(conn):
+    """US11: ใส่บัญชีทดสอบ 1 บัญชีเมื่อยังไม่มีบัญชีใดเลย (ปิดด้วย SEED_TEST_ACCOUNT=0)"""
+    if os.environ.get("SEED_TEST_ACCOUNT", "1") == "0":
+        return
+    if conn.execute("SELECT COUNT(*) FROM accounts").fetchone()[0]:
+        return
+    create_account(
+        conn,
+        TEST_ACCOUNT["student_id"],
+        TEST_ACCOUNT["password"],
+        TEST_ACCOUNT["name"],
+    )
