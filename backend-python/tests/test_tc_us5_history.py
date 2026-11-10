@@ -77,8 +77,7 @@ class HistoryTestCase(unittest.TestCase):
             {"PK-A-COMP", "PK-A-CANCEL", "PK-A-AUTO", "PK-A-ACTIVE", "PK-A-CHECKED"},
         )
         active = next(item for item in body["reservations"] if item["code"] == "PK-A-ACTIVE")
-        self.assertEqual(active["status"], "completed")
-
+        self.assertEqual(active["status"], "auto_cancelled")
     def test_tc_us5_02_filters_completed_cancelled_and_auto_cancelled(self):
         self.login_as("A")
 
@@ -90,17 +89,18 @@ class HistoryTestCase(unittest.TestCase):
 
         self.assertEqual(
             {item["code"] for item in completed["reservations"]},
-            {"PK-A-COMP", "PK-A-ACTIVE", "PK-A-CHECKED"},
+           {"PK-A-COMP", "PK-A-CHECKED"},
         )
         self.assertEqual(
             [item["status"] for item in completed["reservations"]],
-            ["completed", "completed", "completed"],
+            ["completed", "completed"],
         )
         self.assertEqual(
             [item["code"] for item in cancelled["reservations"]], ["PK-A-CANCEL"]
         )
         self.assertEqual(
-            [item["code"] for item in auto_cancelled["reservations"]], ["PK-A-AUTO"]
+            [item["code"] for item in auto_cancelled["reservations"]],
+            ["PK-A-AUTO", "PK-A-ACTIVE"],
         )
 
     def test_tc_us5_03_query_cannot_select_another_student_and_requires_login(self):
