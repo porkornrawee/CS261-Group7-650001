@@ -22,6 +22,8 @@ export const ERROR_MESSAGES = {
   EXTEND_CONFLICT: 'ไม่สามารถขยายเวลาจองได้ เนื่องจากช่วงเวลานี้มีการจองแล้ว',
   MEMBER_DUPLICATE: 'มีสมาชิกหรือทะเบียนรถนี้ในระบบแล้ว',
   STUDENT_NOT_FOUND: 'ไม่พบรหัสนักศึกษานี้ในระบบ',
+  NOT_IN_GRACE: 'ไม่อยู่ในช่วงเวลาที่เช็กอินได้',
+  NOT_ACTIVE: 'การจองนี้ไม่อยู่ในสถานะที่เช็กอินได้',
 };
 
 /** @param {{code?:string, message?:string, name?:string}} error */
