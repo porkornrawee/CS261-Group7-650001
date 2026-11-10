@@ -72,10 +72,11 @@ python -m unittest discover -s tests -v
 | POST | `/api/auth/login` | **US11** เข้าสู่ระบบ ดูรายละเอียดด้านล่าง |
 | POST | `/api/auth/logout` | **US11** ออกจากระบบ (ล้าง session) |
 | GET | `/api/auth/me` | **US11** ผู้ใช้ที่ล็อกอินอยู่ |
+| POST | `/api/reservations/<code>/check-in` | **US12** เช็กอิน (สแกน QR) ภายในช่วง grace |
 
 สำหรับ API ที่ใช้ session ให้ตั้ง environment variable `FLASK_SECRET_KEY` เป็น secret ที่คงที่ก่อนเริ่ม Flask. `auth.login_required` อ่าน `student_id` จาก signed session แล้วตั้งค่า `g.student_id`; ระบบ login ที่สร้าง session อยู่ในขอบเขต US11.
 
-รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `UNAUTHORIZED` 401 · `INVALID_CREDENTIALS` 401 · `FORBIDDEN` 403 · `SLOT_NOT_FOUND` 404 · `NOT_FOUND` 404 · `NOT_CANCELLABLE` 409 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `CANCEL_DEADLINE_PASSED` 422 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `BUSY` 503
+รหัสข้อผิดพลาด: `VALIDATION_ERROR` 400 · `UNAUTHORIZED` 401 · `INVALID_CREDENTIALS` 401 · `FORBIDDEN` 403 · `SLOT_NOT_FOUND` 404 · `NOT_FOUND` 404 · `NOT_CANCELLABLE` 409 · `NOT_ACTIVE` 409 · `ZONE_FULL` 409 · `SLOT_CONFLICT` 409 · `CANCEL_DEADLINE_PASSED` 422 · `NOT_IN_GRACE` 422 · `OUTSIDE_HOURS` 422 · `PAST_TIME` 422 · `BUSY` 503
 
 `GET /api/me/reservations` คืน `{ "ok": true, "reservations": [...] }`, `401 UNAUTHORIZED` หากไม่มี session และ `400 VALIDATION_ERROR` หากส่งสถานะอื่นที่ไม่รองรับ ตัวกรอง `student_id` ใน query string จะไม่มีผล
 
@@ -105,7 +106,7 @@ static/                index.html (โครง HTML) + css/ (8 ไฟล์ต�
 tests/               Automated Test แยกไฟล์ละ TC (test_tc01..04) + us7_support.py (ตัวช่วยร่วม)
 ```
 
-## Sprint 2 — Dev 1 (CORE-01 · US11)
+## Sprint 2 — Dev 1 (CORE-01 · US11 · US12)
 ### CORE-01: ใช้ `@login_required`
 
 ```python
@@ -127,3 +128,14 @@ def my_vehicles():
 | `POST /api/auth/login` | `{"student_id", "password"}` | 200 `{"ok": true, "user": {...}}` · 400 `VALIDATION_ERROR` · 401 `INVALID_CREDENTIALS` |
 | `POST /api/auth/logout` | — | 200 `{"ok": true}` |
 | `GET /api/auth/me` | — | 200 `{"ok": true, "user": {...}}` · 401 `UNAUTHORIZED` |
+### US12: ยกเลิกอัตโนมัติเมื่อไม่มา + เช็กอิน
+ถ้าจองแล้วไม่สแกน QR ภายใน `NO_SHOW_GRACE_MIN` (15) นาทีหลังเวลาเริ่ม การจองจะเปลี่ยนเป็น `auto_cancelled` คืนช่องให้คนอื่นจอง และส่งแจ้งเตือน (ไม่ต้องมี cron: `app.py` เรียก `sweep_no_shows` ก่อนทุก request ที่อ่านการจอง/ช่องจอด) · `GET /api/zones` มีฟิลด์ `grace_min` ให้หน้าเว็บแสดง
+
+| `POST /api/reservations/<code>/check-in` | HTTP | body |
+|---|---|---|
+| สำเร็จ (ตั้งแต่ 15 นาทีก่อนเริ่ม ถึง เริ่ม + 15 นาที) | 200 | `{"ok": true, "reservation": {"code", "status": "checked_in", "checked_in_at"}}` |
+| ไม่พบรหัส | 404 | `NOT_FOUND` |
+| ยกเลิกไปแล้ว / เช็กอินแล้ว | 409 | `NOT_ACTIVE` |
+| เร็วเกินไป หรือเลยเวลา | 422 | `NOT_IN_GRACE` |
+
+ยังไม่บังคับล็อกอินสำหรับ check-in (ด่านสแกน QR) · US14 ควรเพิ่มสิทธิ์ รปภ.
