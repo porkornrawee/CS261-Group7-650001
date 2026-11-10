@@ -6,6 +6,7 @@
 
 import os
 import secrets
+import sqlite3
 from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
@@ -14,11 +15,12 @@ from auth import login_required, student_from_session
 import auth_service
 import booking_service as service
 import cancel_service
+import no_show_service
 import history_service
 import notification_service
 import qr_service
 import vehicle_service
-from config import SESSION_LIFETIME_HOURS
+from config import NO_SHOW_GRACE_MIN, SESSION_LIFETIME_HOURS
 from db import connect, init_db
 from tu_client import create_tu_client
 
@@ -65,6 +67,20 @@ def create_app(db_path=None, now_func=None, tu_client=None):
     def bind_student_from_session():
         student_from_session()
 
+    # US12: ยกเลิกการจองที่ไม่มาตามเวลาแบบ lazy ก่อนทุก request ที่อ่านรายการจอง/ช่อง
+    SWEEP_PREFIXES = ("/api/zones", "/api/availability", "/api/reservations", "/api/me/")
+
+    @app.before_request
+    def sweep_no_shows_lazily():
+        path = request.path
+        if not path.startswith(SWEEP_PREFIXES) or path.endswith("/check-in"):
+            return
+        try:
+            no_show_service.sweep_no_shows(get_conn(), app.config["NOW_FUNC"]())
+        except sqlite3.OperationalError:
+            # ฐานข้อมูลไม่ว่าง: ข้ามรอบนี้ไป request ถัดไปจะ sweep ให้เอง ไม่ทำให้การอ่านล้ม
+            app.logger.warning("sweep_no_shows skipped: database busy")
+
     # --- รูปแบบ error ให้เหมือนกันทุกเส้นทาง -------------------------------
 
     @app.errorhandler(service.BookingError)
@@ -99,10 +115,13 @@ def create_app(db_path=None, now_func=None, tu_client=None):
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
     auth_service.register_routes(app, get_conn)
+    no_show_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
 
     @app.get("/api/zones")
     def api_zones():
-        return jsonify(service.get_layout(get_conn()))
+        layout = service.get_layout(get_conn())
+        layout["grace_min"] = NO_SHOW_GRACE_MIN  # US12: ให้หน้าเว็บแสดง "ต้องสแกนภายใน X นาที"
+        return jsonify(layout)
 
     @app.get("/api/availability")
     def api_availability():
