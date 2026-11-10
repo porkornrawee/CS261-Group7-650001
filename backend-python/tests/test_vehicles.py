@@ -82,3 +82,63 @@ class TestVehicles(ReservationTestCase):
             json={"student_id": "6410000001", "plate": "", "province": "กรุงเทพมหานคร"},
         )
         self.assertRejected(response, 400, "VALIDATION_ERROR")
+
+def test_update_vehicle_success(self):
+        with self.client.session_transaction() as sess:
+            sess["student_id"] = "6410000001"
+            
+        response = self.client.put(
+            "/api/vehicles/1",
+            json={"plate": "9กก 9999", "province": "ปทุมธานี"}
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.get_json()
+        self.assertTrue(body["ok"])
+        self.assertEqual(body["vehicle"]["plate"], "9กก 9999")
+
+def test_update_vehicle_forbidden(self):
+        with self.client.session_transaction() as sess:
+            sess["student_id"] = "6410000099" # คนละคนกับเจ้าของรถ
+            
+        response = self.client.put(
+            "/api/vehicles/1",
+            json={"plate": "1กก 1111", "province": "กรุงเทพมหานคร"}
+        )
+        self.assertRejected(response, 403, "FORBIDDEN")
+
+def test_update_vehicle_duplicate_plate(self):
+        with self.client.session_transaction() as sess:
+            sess["student_id"] = "6410000001"
+            
+        response = self.client.put(
+            "/api/vehicles/1",
+            json={"plate": "1กข 1234", "province": "กรุงเทพมหานคร"}
+        )
+        self.assertRejected(response, 409, "PLATE_DUPLICATE")
+
+def test_update_vehicle_not_found(self):
+        with self.client.session_transaction() as sess:
+            sess["student_id"] = "6410000001"
+            
+        response = self.client.put(
+            "/api/vehicles/99999",
+            json={"plate": "1กก 1111", "province": "กรุงเทพมหานคร"}
+        )
+        self.assertRejected(response, 404, "NOT_FOUND")
+
+def test_update_vehicle_validation_error(self):
+        with self.client.session_transaction() as sess:
+            sess["student_id"] = "6410000001"
+            
+        response = self.client.put(
+            "/api/vehicles/1",
+            json={"plate": "", "province": ""}
+        )
+        self.assertRejected(response, 400, "VALIDATION_ERROR")
+
+def test_update_vehicle_unauthorized(self):
+        response = self.client.put(
+            "/api/vehicles/1",
+            json={"plate": "1กก 1111", "province": "กรุงเทพมหานคร"}
+        )
+        self.assertIn(response.status_code, [401, 302])

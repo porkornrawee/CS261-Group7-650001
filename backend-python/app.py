@@ -85,7 +85,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         )
         return jsonify({"ok": True, "vehicle": vehicle}), 201
 
-@app.put("/api/vehicles/<int:vehicle_id>")
+    @app.put("/api/vehicles/<int:vehicle_id>")
     @login_required
     def api_update_vehicle(vehicle_id):
         """API สำหรับแก้ไขทะเบียนรถ (US1)"""
