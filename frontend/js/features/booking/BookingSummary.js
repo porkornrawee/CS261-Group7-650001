@@ -4,6 +4,7 @@
 import { h } from '../../core/dom.js';
 import { thaiDate, toMin, durationText } from '../../core/time.js';
 import { Button } from '../../components/ui/Button.js';
+import { GraceNotice } from '../reservation/GraceNotice.js';
 
 function pickNote({ slotLabel, slotStatus, slotBusy = [] }) {
   if (!slotLabel) return { tone: 'none', text: 'ยังไม่ได้เลือกช่องจอด กรุณาแตะเลือกช่องที่ต้องการในผัง' };
@@ -15,7 +16,7 @@ function pickNote({ slotLabel, slotStatus, slotBusy = [] }) {
 }
 
 export function BookingSummary({ summary = {}, busy = false, onConfirm = () => {} } = {}) {
-  const { date, start, end, slotLabel, zoneName, plate, vehicleType = 'รถยนต์' } = summary;
+  const { date, start, end, slotLabel, zoneName, plate, vehicleType = 'รถยนต์', graceMin = 15 } = summary;
   const ready = Boolean(date && start && end && slotLabel);
   const minutes = start && end ? toMin(end) - toMin(start) : 0;
 
@@ -37,7 +38,8 @@ export function BookingSummary({ summary = {}, busy = false, onConfirm = () => {
       row('ทะเบียนรถ', plate),
       row('ค่าบริการ', 'ฟรี (สิทธิ์นักศึกษา/บุคลากร)')
     ),
-    note ? h('p', { class: `booking-summary__note booking-summary__note--${note.tone}`, role: 'status' }, note.text) : null,
+        note ? h('p', { class: `booking-summary__note booking-summary__note--${note.tone}`, role: 'status' }, note.text) : null,
+    GraceNotice({ graceMin, start }),
     h('div', { class: 'booking-summary__action' },
       Button({ label: 'ยืนยันการจอง', disabled: !ready, loading: busy, onClick: () => onConfirm() })
     )

@@ -4,7 +4,8 @@
  */
 import { request } from './client.js';
 
-/** GET /api/zones -> { open_time, close_time, zones:[{id,name,slots:[{id,label}]}] } */
+/** GET /api/zones -> { open_time, close_time, grace_min, zones:[{id,name,slots:[{id,label}]}] }
+ *  grace_min (US12, Dev 1) = ต้องสแกน QR ภายในกี่นาทีหลังเวลาเริ่ม ไม่งั้นถูกยกเลิกอัตโนมัติ */
 export function getLayout() {
   return request('/api/zones', { mockFile: 'zones.json' });
 }

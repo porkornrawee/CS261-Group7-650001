@@ -1,6 +1,7 @@
 {
   "open_time": "08:00",
   "close_time": "20:00",
+  "grace_min": 15,
   "zones": [
     {
       "id": 1,
