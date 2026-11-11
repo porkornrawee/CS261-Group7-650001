@@ -83,62 +83,77 @@ class TestVehicles(ReservationTestCase):
         )
         self.assertRejected(response, 400, "VALIDATION_ERROR")
 
-def test_update_vehicle_success(self):
-        with self.client.session_transaction() as sess:
-            sess["student_id"] = "6410000001"
-            
-        response = self.client.put(
-            "/api/vehicles/1",
-            json={"plate": "9กก 9999", "province": "ปทุมธานี"}
+
+class TestUpdateVehicle(ReservationTestCase):
+    """PUT /api/vehicles/<id> (US1): แก้ทะเบียนรถของตัวเอง"""
+
+    OWNER = "6410000001"
+    OTHER = "6410000002"
+
+    def setUp(self):
+        super().setUp()
+        self.app.secret_key = "test-only-secret"
+        self.vehicle_id = self.save(self.OWNER, "กข 1111", "กรุงเทพมหานคร")["id"]
+        self.other_vehicle_id = self.save(self.OTHER, "1กข 1234", "กรุงเทพมหานคร")["id"]
+
+    def save(self, student_id, plate, province):
+        response = self.client.post(
+            "/api/vehicles",
+            json={"student_id": student_id, "plate": plate, "province": province},
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201, response.get_data(as_text=True))
+        return response.get_json()["vehicle"]
+
+    def login_as(self, student_id):
+        with self.client.session_transaction() as sess:
+            sess["student_id"] = student_id
+
+    def put(self, vehicle_id, plate, province):
+        return self.client.put(
+            f"/api/vehicles/{vehicle_id}", json={"plate": plate, "province": province}
+        )
+
+    def test_update_vehicle_success(self):
+        self.login_as(self.OWNER)
+        response = self.put(self.vehicle_id, "9กก 9999", "ปทุมธานี")
+        self.assertEqual(response.status_code, 200, response.get_data(as_text=True))
         body = response.get_json()
         self.assertTrue(body["ok"])
         self.assertEqual(body["vehicle"]["plate"], "9กก 9999")
+        self.assertEqual(body["vehicle"]["province"], "ปทุมธานี")
 
-def test_update_vehicle_forbidden(self):
-        with self.client.session_transaction() as sess:
-            sess["student_id"] = "6410000099" # คนละคนกับเจ้าของรถ
-            
-        response = self.client.put(
-            "/api/vehicles/1",
-            json={"plate": "1กก 1111", "province": "กรุงเทพมหานคร"}
+    def test_update_vehicle_keeps_own_plate(self):
+        self.login_as(self.OWNER)
+        response = self.put(self.vehicle_id, "กข 1111", "กรุงเทพมหานคร")
+        self.assertEqual(response.status_code, 200, response.get_data(as_text=True))
+
+    def test_update_vehicle_forbidden(self):
+        self.login_as(self.OTHER)  # คนละคนกับเจ้าของรถ
+        self.assertRejected(self.put(self.vehicle_id, "1กก 1111", "กรุงเทพมหานคร"), 403, "FORBIDDEN")
+
+    def test_update_vehicle_duplicate_plate(self):
+        self.login_as(self.OWNER)
+        self.assertRejected(
+            self.put(self.vehicle_id, "1กข 1234", "กรุงเทพมหานคร"), 409, "PLATE_DUPLICATE"
         )
-        self.assertRejected(response, 403, "FORBIDDEN")
 
-def test_update_vehicle_duplicate_plate(self):
-        with self.client.session_transaction() as sess:
-            sess["student_id"] = "6410000001"
-            
-        response = self.client.put(
-            "/api/vehicles/1",
-            json={"plate": "1กข 1234", "province": "กรุงเทพมหานคร"}
+    def test_update_vehicle_not_found(self):
+        self.login_as(self.OWNER)
+        self.assertRejected(self.put(99999, "1กก 1111", "กรุงเทพมหานคร"), 404, "VEHICLE_NOT_FOUND")
+
+    def test_update_vehicle_validation_error(self):
+        self.login_as(self.OWNER)
+        self.assertRejected(self.put(self.vehicle_id, "", ""), 400, "VALIDATION_ERROR")
+
+    def test_update_vehicle_unauthorized(self):
+        self.assertRejected(self.put(self.vehicle_id, "1กก 1111", "กรุงเทพมหานคร"), 401, "UNAUTHORIZED")
+
+    def test_save_rejects_plate_owned_by_another_student(self):
+        response = self.client.post(
+            "/api/vehicles",
+            json={"student_id": "6410000003", "plate": "1กข 1234", "province": "กรุงเทพมหานคร"},
         )
         self.assertRejected(response, 409, "PLATE_DUPLICATE")
 
-def test_update_vehicle_not_found(self):
-        with self.client.session_transaction() as sess:
-            sess["student_id"] = "6410000001"
-            
-        response = self.client.put(
-            "/api/vehicles/99999",
-            json={"plate": "1กก 1111", "province": "กรุงเทพมหานคร"}
-        )
-        self.assertRejected(response, 404, "NOT_FOUND")
-
-def test_update_vehicle_validation_error(self):
-        with self.client.session_transaction() as sess:
-            sess["student_id"] = "6410000001"
-            
-        response = self.client.put(
-            "/api/vehicles/1",
-            json={"plate": "", "province": ""}
-        )
-        self.assertRejected(response, 400, "VALIDATION_ERROR")
-
-def test_update_vehicle_unauthorized(self):
-        response = self.client.put(
-            "/api/vehicles/1",
-            json={"plate": "1กก 1111", "province": "กรุงเทพมหานคร"}
-        )
-        self.assertIn(response.status_code, [401, 302])
+    def test_save_same_student_can_reregister_own_plate(self):
+        self.save(self.OWNER, "กข 1111", "กรุงเทพมหานคร")

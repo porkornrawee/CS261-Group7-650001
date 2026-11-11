@@ -62,6 +62,7 @@ def save_vehicle(conn, payload, now=None):
         raise BookingError("VALIDATION_ERROR", "รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก", 400)
     if not plate or not province:
         raise BookingError("VALIDATION_ERROR", "กรุณากรอกทะเบียนรถและจังหวัด", 400)
+    _ensure_plate_not_taken(conn, plate, province, "student_id != ?", student_id)
     conn.execute(
         "INSERT INTO vehicles (student_id, plate, province, created_at) "
         "VALUES (?, ?, ?, ?) "
@@ -73,6 +74,17 @@ def save_vehicle(conn, payload, now=None):
         (student_id,),
     ).fetchone()
     return dict(row)
+
+
+def _ensure_plate_not_taken(conn, plate, province, exclude_sql, exclude_value):
+    """ทะเบียน+จังหวัดเดียวกันห้ามซ้ำกับรถของคนอื่น -> 409 PLATE_DUPLICATE"""
+    duplicate = conn.execute(
+        f"SELECT 1 FROM vehicles WHERE plate = ? AND province = ? AND {exclude_sql}",
+        (plate, province, exclude_value),
+    ).fetchone()
+    if duplicate:
+        raise BookingError("PLATE_DUPLICATE", "เลขทะเบียนนี้มีผู้ใช้งานอื่นลงทะเบียนแล้ว", 409)
+
 
 def update_vehicle(conn, vehicle_id, payload, current_student_id=None, now=None):
     """อัปเดตข้อมูลทะเบียนรถ: ตรวจรูปแบบ, ห้ามซ้ำกับคนอื่น (409), และตรวจความเป็นเจ้าของ (403)"""
@@ -92,16 +104,11 @@ def update_vehicle(conn, vehicle_id, payload, current_student_id=None, now=None)
 
     vehicle = dict(row)
 
-    if current_student_id and vehicle["student_id"] != current_student_id:
+    # ตรวจเจ้าของเสมอ (ไม่ส่ง student_id มา = ไม่ใช่เจ้าของ)
+    if not current_student_id or vehicle["student_id"] != current_student_id:
         raise BookingError("FORBIDDEN", "คุณไม่ใช่เจ้าของรถคันนี้", 403)
 
-    duplicate = conn.execute(
-        "SELECT id, student_id FROM vehicles WHERE plate = ? AND province = ? AND id != ?",
-        (plate, province, vehicle_id),
-    ).fetchone()
-
-    if duplicate:
-        raise BookingError("PLATE_DUPLICATE", "เลขทะเบียนนี้มีผู้ใช้งานอื่นลงทะเบียนแล้ว", 409)
+    _ensure_plate_not_taken(conn, plate, province, "id != ?", vehicle_id)
 
     conn.execute(
         "UPDATE vehicles SET plate = ?, province = ? WHERE id = ?",

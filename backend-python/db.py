@@ -102,11 +102,13 @@ def init_db(path):
             if column not in student_columns:
                 conn.execute(f"ALTER TABLE students ADD COLUMN {column} TEXT")
 
+        # DB เก่าที่มีทะเบียนซ้ำอยู่แล้วจะสร้าง unique index ไม่ได้ (IntegrityError)
+        # ข้ามไปก่อนให้เซิร์ฟเวอร์ยังเปิดได้ — vehicle_service ยังกันทะเบียนซ้ำที่ระดับแอปอยู่
         try:
             conn.execute(
                 "CREATE UNIQUE INDEX IF NOT EXISTS idx_vehicles_plate_province ON vehicles (plate, province)"
             )
-        except sqlite3.OperationalError:
+        except (sqlite3.OperationalError, sqlite3.IntegrityError):
             pass
 
         conn.execute(
