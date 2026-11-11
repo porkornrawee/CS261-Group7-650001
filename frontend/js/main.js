@@ -1,11 +1,15 @@
-/** Application entry point: render the header and poll the current user's alerts. */
+/** Application entry point: header/footer ทุกหน้า, สถานะล็อกอิน (US11) และ poll แจ้งเตือนของผู้ใช้ (US4) */
 import { AppHeader } from './components/layout/AppHeader.js';
+import { AppFooter } from './components/layout/AppFooter.js';
+import { getState, subscribe } from './store.js';
+import { ensureSession, signOut } from './features/auth/session.js';
 import { listNotifications, markNotificationRead } from './api/notifications.js';
 import { NotificationList } from './features/notification/NotificationList.js';
 import { showToast } from './components/ui/Toast.js';
 import { startRouter, currentPath } from './router.js';
 
 const header = document.querySelector('#app-header');
+document.querySelector('#app-footer')?.replaceChildren(AppFooter());
 let notifications = [];
 let unreadCount = 0;
 let notificationPanelOpen = false;
@@ -16,6 +20,12 @@ let polling = false;
 function renderHeader() {
   const el = AppHeader({
     activeRoute: currentPath(),
+    activeHash: window.location.hash,
+    user: getState().user,
+    onLogout: () => {
+      notificationPanelOpen = false;
+      signOut().catch(() => showToast('ออกจากระบบไม่สำเร็จ กรุณาลองใหม่', 'error'));
+    },
     unreadCount,
     notificationsOpen: notificationPanelOpen,
     onToggleNotifications: () => {
@@ -42,7 +52,7 @@ function renderHeader() {
 }
 
 async function pollNotifications() {
-  if (polling) return;
+  if (polling || !getState().user) return;
   polling = true;
   try {
     const response = await listNotifications();
@@ -67,8 +77,22 @@ async function pollNotifications() {
   }
 }
 
+let lastUserId = null;
+subscribe((state) => {
+  const userId = state.user?.student_id || null;
+  if (userId !== lastUserId) {
+    lastUserId = userId;
+    notifications = [];
+    unreadCount = 0;
+    knownNotificationIds.clear();
+    initialPollCompleted = false;
+    if (userId) pollNotifications();
+  }
+  renderHeader();
+});
+
 renderHeader();
 window.addEventListener('hashchange', renderHeader);
-pollNotifications();
+ensureSession();
 window.setInterval(pollNotifications, 45_000);
 startRouter(document.querySelector('#app'));

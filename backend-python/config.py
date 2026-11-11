@@ -23,7 +23,20 @@ BOOKING_CODE_PREFIX = "PK-"
 
 # Sprint 2 session and reservation lifecycle thresholds.
 CANCEL_DEADLINE_MIN = 30
+# US12: ต้องสแกน QR (check-in) ภายในกี่นาทีหลังเวลาเริ่ม ไม่งั้นยกเลิกอัตโนมัติ (ทีมยังต้องยืนยันค่า)
 NO_SHOW_GRACE_MIN = 15
+# US12: เช็กอินล่วงหน้าได้กี่นาทีก่อนเวลาเริ่ม
+CHECKIN_EARLY_MIN = 15
+
+# US11: session อยู่ได้นานเท่าไร (ชั่วโมง)
+SESSION_LIFETIME_HOURS = 12
+# US11: บัญชีทดสอบที่ seed ให้อัตโนมัติเมื่อตาราง accounts ว่าง (ปิดได้ด้วย env SEED_TEST_ACCOUNT=0)
+# ยังไม่มีบัญชีจริงจาก reg จึงใช้ตาราง accounts ในระบบไปก่อน — ห้ามใช้บัญชีนี้บน production
+TEST_ACCOUNT = {
+    "student_id": "6509650001",
+    "password": "test1234",
+    "name": "ทดสอบ ระบบจอด",
+}
 
 # TU REST API (เรียกจาก backend เท่านั้น — ห้ามส่ง Application-Key ไปที่เบราว์เซอร์)
 # ถ้าไม่ตั้ง TU_API_KEY ระบบจะใช้ข้อมูลจำลอง (stub) เหมือนเดิม

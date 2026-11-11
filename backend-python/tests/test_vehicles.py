@@ -145,6 +145,10 @@ class TestUpdateVehicle(ReservationTestCase):
         self.login_as(self.OWNER)
         self.assertRejected(self.put(self.vehicle_id, "", ""), 400, "VALIDATION_ERROR")
 
+    def test_update_vehicle_rejects_invalid_plate_format(self):
+        self.login_as(self.OWNER)
+        self.assertRejected(self.put(self.vehicle_id, "ABC 123", "กรุงเทพมหานคร"), 400, "INVALID_PLATE")
+
     def test_update_vehicle_unauthorized(self):
         self.assertRejected(self.put(self.vehicle_id, "1กก 1111", "กรุงเทพมหานคร"), 401, "UNAUTHORIZED")
 

@@ -1,5 +1,6 @@
 /**
- * BookingPage — หน้าจอง: เลือกวัน-เวลา (พร้อม toggle เช้า/บ่าย) → เลือกประเภทรถ → เลือกช่อง → สรุปและยืนยัน
+ * BookingPage — หน้าจอง: เลือกวัน-เวลา (พร้อม toggle เช้า/บ่าย) → เลือกประเภทรถ → เลือกช่อง → กรอกทะเบียน → ยืนยัน
+ * ข้อมูลทั้งหมดมาจาก API จริง (GET /api/zones, /api/availability, POST /api/reservations)
  */
 import { h } from '../core/dom.js';
 import { ymd, toMin, fromMin } from '../core/time.js';
@@ -30,6 +31,8 @@ export function BookingPage() {
     period: 'morning', // 'morning' (08:00-12:00) | 'afternoon' (12:00-20:00)
     vehicleType: 'car', // 'car' | 'motorcycle' | 'ev'
     userName: student?.name || '',
+    plate: vehicle?.plate || '',
+    plateError: '',
     layout: null,
     availability: null,
     selectedSlotId: null,
@@ -51,6 +54,17 @@ export function BookingPage() {
     { id: 'motorcycle', label: '🏍️ มอเตอร์ไซค์' },
     { id: 'ev', label: '⚡ รถไฟฟ้า EV' },
   ];
+
+  // ทะเบียนรถไทย: [เลข 1 หลัก] + พยัญชนะ 1-3 ตัว + [เว้นวรรค] + ตัวเลข 1-4 หลัก เช่น กข 1234, 1กข 1234
+  // ตรวจฝั่งหน้าเว็บก่อนส่ง; ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
+  const PLATE_RE = /^[0-9]?[ก-ฮ]{1,3} ?[0-9]{1,4}$/;
+  const normalizePlate = (value) => value.replace(/\s+/g, ' ').trim();
+  const plateErrorFor = (value) => {
+    const plate = normalizePlate(value);
+    if (!plate) return 'กรุณากรอกทะเบียนรถ';
+    if (!PLATE_RE.test(plate)) return 'รูปแบบทะเบียนรถไม่ถูกต้อง (ตัวอย่าง: กข 1234 หรือ 1กข 1234)';
+    return '';
+  };
 
   const findSlot = (id) => {
     for (const zone of state.layout?.zones || []) {
@@ -175,6 +189,15 @@ export function BookingPage() {
         placeholder: 'เช่น สมชาย ใจดี',
         onInput: (v) => { state.userName = v; }
       }),
+      Field({
+        id: 'booking-plate',
+        label: 'ทะเบียนรถ',
+        value: state.plate,
+        maxLength: 20,
+        placeholder: 'เช่น กข 1234 หรือ 1กข 1234',
+        error: state.plateError,
+        onInput: (v) => { state.plate = v; }
+      }),
       BookingSummary({
         summary: {
           date: state.date,
@@ -182,10 +205,11 @@ export function BookingPage() {
           end: state.end,
           slotLabel: picked?.slot.label,
           zoneName: picked?.zone.name,
-          plate: vehicle?.plate || 'กข 1234 กทม.',
+          plate: normalizePlate(state.plate),
           vehicleType: vehicleTypeLabel,
           slotStatus: slotState?.status,
           slotBusy: slotState?.busy,
+          graceMin: state.layout?.grace_min,
         },
         busy: state.submitting,
         onConfirm: submit,
@@ -219,8 +243,15 @@ export function BookingPage() {
 
   async function submit() {
     if (state.submitting || !state.selectedSlotId) return;
-    state.submitting = true;
     submitAlert.replaceChildren();
+    state.plateError = plateErrorFor(state.plate);
+    if (state.plateError) {
+      renderSummary();
+      document.getElementById('booking-plate')?.focus();
+      return;
+    }
+    state.plate = normalizePlate(state.plate);
+    state.submitting = true;
     renderSummary();
     try {
       const result = await createReservation({
@@ -229,9 +260,12 @@ export function BookingPage() {
         date: state.date,
         start: state.start,
         end: state.end,
+        plate: state.plate,
+        vehicle_type: state.vehicleType,
       });
       window.location.hash = `#/ticket/${encodeURIComponent(result.reservation.code)}`;
     } catch (error) {
+      if (error?.code === 'INVALID_PLATE') state.plateError = messageFor(error);
       submitAlert.replaceChildren(Alert({ tone: 'error', message: messageFor(error) }));
       refreshAvailability();
     } finally {

@@ -1,14 +1,15 @@
 /**
  * TicketCard — บัตรจองพร้อม QR และรายละเอียดการจอด
  * Owner: Dev 4 | Ticket: TK-01 | Priority: P0
- * @param {{reservation:{code:string,slot:string,zone:string,date:string,start:string,end:string,user_name:string}, qrSrc?:string}} props
+ * @param {{reservation:{code:string,slot:string,zone:string,date:string,start:string,end:string,user_name:string,plate?:string|null}, qrSrc?:string}} props
  * @returns {HTMLElement}
  */
 import { h } from '../../core/dom.js';
 import { thaiDate } from '../../core/time.js';
 import { CancelDialog } from './CancelDialog.js';
+import { GraceNotice, STATUS_TEXT } from '../reservation/GraceNotice.js';
 
-export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
+export function TicketCard({ reservation = {}, qrSrc = '', graceMin = 15 } = {}) {
   const {
     code = 'PK-????????',
     slot = '-',
@@ -32,10 +33,10 @@ export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
     ? 'การจองนี้ไม่อยู่ในสถานะที่ยกเลิกได้'
     : 'ยกเลิกไม่ได้ เนื่องจากเหลือน้อยกว่า 30 นาทีก่อนเวลาเริ่มจอง';
   const statusMessage = h('p', {
-    class: 'ticket-card__status',
+    class: `ticket-card__status ticket-card__status--${status}`,
     role: 'status',
-    hidden: status !== 'cancelled',
-  }, 'ยกเลิกแล้ว');
+    hidden: !STATUS_TEXT[status],
+  }, STATUS_TEXT[status] || 'ยกเลิกแล้ว');
   const cancelButton = h('button', {
     class: 'button-root ticket-card__cancel',
     type: 'button',
@@ -45,11 +46,12 @@ export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
   }, 'ยกเลิกการจอง');
   const cancelNote = h('p', {
     class: 'ticket-card__cancel-note',
-    hidden: canCancel || status === 'cancelled',
+    hidden: canCancel || Boolean(STATUS_TEXT[status]),
   }, cancellationMessage);
   const cancelDialog = CancelDialog({
     code,
     onSuccess: () => {
+      statusMessage.textContent = STATUS_TEXT.cancelled;
       statusMessage.hidden = false;
       cancelButton.disabled = true;
       cancelButton.hidden = true;
@@ -92,10 +94,12 @@ export function TicketCard({ reservation = {}, qrSrc = '' } = {}) {
     h('div', { class: 'ticket-card__body' },
       qrFrame,
       h('p', { class: 'ticket-card__note' }, 'แสดง QR นี้ที่ทางเข้า'),
+      status === 'active' ? GraceNotice({ graceMin, start: start === '-' ? '' : start }) : null,
       h('dl', { class: 'ticket-card__meta' },
         h('dt', {}, 'ผู้จอง'), h('dd', {}, user_name),
         h('dt', {}, 'โซน'), h('dd', {}, zone),
         h('dt', {}, 'ช่องจอด'), h('dd', {}, slot),
+        reservation.plate ? [h('dt', {}, 'ทะเบียนรถ'), h('dd', {}, reservation.plate)] : null,
         h('dt', {}, 'วันที่'), h('dd', {}, displayDate),
         h('dt', {}, 'เวลา'), h('dd', {}, start + '–' + end + ' น.')
       )

@@ -5,17 +5,22 @@
 """
 
 import os
-from datetime import datetime
+import secrets
+import sqlite3
+from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
 
 from auth import login_required, student_from_session
+import auth_service
 import booking_service as service
 import cancel_service
+import no_show_service
 import history_service
 import notification_service
 import qr_service
 import vehicle_service
+from config import NO_SHOW_GRACE_MIN, SESSION_LIFETIME_HOURS
 from db import connect, init_db
 from tu_client import create_tu_client
 
@@ -26,7 +31,16 @@ def create_app(db_path=None, now_func=None, tu_client=None):
     """สร้างแอป (รับ db_path และ now_func เพื่อให้ทดสอบแยกอิสระได้)"""
     app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"))
     app.json.ensure_ascii = False  # ให้ JSON แสดงภาษาไทยตรง ๆ ไม่เป็น \uXXXX
-    app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY")
+    # CORE-01: session ต้องมี secret คงที่ (ตั้ง env SECRET_KEY) ไม่งั้นรีสตาร์ตแล้วทุกคนหลุดล็อกอิน
+    # ถ้าไม่ได้ตั้ง จะสุ่มให้ต่อ process เพื่อให้รันเครื่องตัวเองได้ (ห้ามใช้แบบนี้บน production)
+    app.config["SECRET_KEY"] = (
+        os.environ.get("SECRET_KEY")
+        or os.environ.get("FLASK_SECRET_KEY")
+        or secrets.token_hex(32)
+    )
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=SESSION_LIFETIME_HOURS)
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["DB_PATH"] = (
         db_path
         or os.environ.get("PARKING_DB")
@@ -52,6 +66,20 @@ def create_app(db_path=None, now_func=None, tu_client=None):
     @app.before_request
     def bind_student_from_session():
         student_from_session()
+
+    # US12: ยกเลิกการจองที่ไม่มาตามเวลาแบบ lazy ก่อนทุก request ที่อ่านรายการจอง/ช่อง
+    SWEEP_PREFIXES = ("/api/zones", "/api/availability", "/api/reservations", "/api/me/")
+
+    @app.before_request
+    def sweep_no_shows_lazily():
+        path = request.path
+        if not path.startswith(SWEEP_PREFIXES) or path.endswith("/check-in"):
+            return
+        try:
+            no_show_service.sweep_no_shows(get_conn(), app.config["NOW_FUNC"]())
+        except sqlite3.OperationalError:
+            # ฐานข้อมูลไม่ว่าง: ข้ามรอบนี้ไป request ถัดไปจะ sweep ให้เอง ไม่ทำให้การอ่านล้ม
+            app.logger.warning("sweep_no_shows skipped: database busy")
 
     # --- รูปแบบ error ให้เหมือนกันทุกเส้นทาง -------------------------------
 
@@ -96,10 +124,14 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify({"ok": True, "vehicle": updated_vehicle}), 200
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
+    auth_service.register_routes(app, get_conn)
+    no_show_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
 
     @app.get("/api/zones")
     def api_zones():
-        return jsonify(service.get_layout(get_conn()))
+        layout = service.get_layout(get_conn())
+        layout["grace_min"] = NO_SHOW_GRACE_MIN  # US12: ให้หน้าเว็บแสดง "ต้องสแกนภายใน X นาที"
+        return jsonify(layout)
 
     @app.get("/api/availability")
     def api_availability():

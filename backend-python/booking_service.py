@@ -1,7 +1,7 @@
 """ตรรกะธุรกิจของการจองที่จอดรถ (US7)
 
 ลำดับการตรวจใน create_reservation (หยุดที่ข้อแรกที่ไม่ผ่าน)
-  1. ตรวจข้อมูลที่ส่งมา               -> VALIDATION_ERROR (400)
+  1. ตรวจข้อมูลที่ส่งมา (รวมทะเบียนรถ) -> VALIDATION_ERROR (400)
   2. ช่องจอดต้องมีอยู่จริง            -> SLOT_NOT_FOUND   (404)
   3. C04 ต้องอยู่ในเวลาเปิดทำการ      -> OUTSIDE_HOURS    (422)
   4. ต้องจองล่วงหน้า (ไม่ย้อนหลัง)     -> PAST_TIME        (422)
@@ -11,6 +11,7 @@
   7. บันทึกลงฐานข้อมูล แล้วคืนรหัสจอง
 """
 
+import re
 import secrets
 import sqlite3
 from datetime import datetime, time
@@ -28,6 +29,25 @@ STORE_FORMAT = "%Y-%m-%dT%H:%M"
 
 # ตัดตัวที่อ่านสับสน (0/O, 1/I) ออก เพื่อให้พิมพ์รหัสด้วยมือได้ถ้า QR สแกนไม่ติด
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+# ทะเบียนรถไทย: [เลขนำหน้า 1 หลัก] + พยัญชนะ 1-3 ตัว + [เว้นวรรค] + ตัวเลข 1-4 หลัก
+# เช่น "กข 1234", "1กข 1234", "ขค123"
+PLATE_RE = re.compile(r"^[0-9]?[ก-ฮ]{1,3} ?[0-9]{1,4}$")
+VEHICLE_TYPES = ("car", "motorcycle", "ev")
+
+
+def normalize_plate(value):
+    """ตัดช่องว่างซ้ำ/หัวท้าย แล้วตรวจรูปแบบทะเบียน คืนทะเบียนที่จัดรูปแล้ว"""
+    plate = re.sub(r"\s+", " ", value).strip() if isinstance(value, str) else ""
+    if not plate:
+        raise BookingError("VALIDATION_ERROR", "กรุณากรอกทะเบียนรถ", 400)
+    if not PLATE_RE.match(plate):
+        raise BookingError(
+            "INVALID_PLATE",
+            "รูปแบบทะเบียนรถไม่ถูกต้อง (ตัวอย่าง: กข 1234 หรือ 1กข 1234)",
+            400,
+        )
+    return plate
 
 
 class BookingError(Exception):
@@ -84,10 +104,19 @@ def _validate_payload(payload):
     if isinstance(slot_id, bool) or not isinstance(slot_id, int):
         raise BookingError("VALIDATION_ERROR", "กรุณาเลือกช่องจอด", 400)
 
+    # ทะเบียน/ประเภทรถ: ไม่ส่งมา = ไม่บังคับ (รองรับ client เก่า) แต่ถ้าส่งมาต้องถูกต้อง
+    plate = None
+    if "plate" in payload and payload.get("plate") is not None:
+        plate = normalize_plate(payload.get("plate"))
+
+    vehicle_type = payload.get("vehicle_type")
+    if vehicle_type is not None and vehicle_type not in VEHICLE_TYPES:
+        raise BookingError("VALIDATION_ERROR", "ประเภทพาหนะไม่ถูกต้อง", 400)
+
     start, end = parse_interval(
         payload.get("date"), payload.get("start"), payload.get("end")
     )
-    return user_name, slot_id, start, end
+    return user_name, slot_id, start, end, plate, vehicle_type
 
 
 def _check_opening_hours(start, end):
@@ -164,12 +193,15 @@ def _reservation_to_dict(row):
         "created_at": row["created_at"],
         "status": row["status"] if "status" in (row.keys() if hasattr(row, "keys") else ()) and row["status"] else "active",
         "cancelled_at": row["cancelled_at"] if "cancelled_at" in (row.keys() if hasattr(row, "keys") else ()) else None,
+        "plate": row["plate"] if "plate" in (row.keys() if hasattr(row, "keys") else ()) else None,
+        "vehicle_type": row["vehicle_type"] if "vehicle_type" in (row.keys() if hasattr(row, "keys") else ()) else None,
     }
 
 
 _RESERVATION_SELECT = """
     SELECT r.id, r.code, r.user_name, r.slot_id, r.start_at, r.end_at,
-           r.created_at, r.status, r.cancelled_at, s.label AS slot_label, z.name AS zone_name
+           r.created_at, r.status, r.cancelled_at, r.plate, r.vehicle_type,
+           s.label AS slot_label, z.name AS zone_name
     FROM reservations r
     JOIN slots s ON s.id = r.slot_id
     JOIN zones z ON z.id = s.zone_id
@@ -185,7 +217,7 @@ def create_reservation(conn, payload, now, student_id=None):
 
     now = เวลาปัจจุบัน (ส่งเข้ามาเพื่อให้ทดสอบได้ตรงเวลา)
     """
-    user_name, slot_id, start, end = _validate_payload(payload)
+    user_name, slot_id, start, end, plate, vehicle_type = _validate_payload(payload)
 
     slot = conn.execute(
         """
@@ -232,8 +264,9 @@ def create_reservation(conn, payload, now, student_id=None):
         cursor = conn.execute(
             """
             INSERT INTO reservations
-                (code, slot_id, user_name, start_at, end_at, created_at, student_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                (code, slot_id, user_name, start_at, end_at, created_at, student_id,
+                 plate, vehicle_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 code,
@@ -243,6 +276,8 @@ def create_reservation(conn, payload, now, student_id=None):
                 end_at,
                 now.isoformat(timespec="seconds"),
                 student_id,
+                plate,
+                vehicle_type,
             ),
         )
         reservation_id = cursor.lastrowid

@@ -5,6 +5,7 @@
  */
 export const ERROR_MESSAGES = {
   VALIDATION_ERROR: 'ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง',
+  INVALID_PLATE: 'รูปแบบทะเบียนรถไม่ถูกต้อง (ตัวอย่าง: กข 1234 หรือ 1กข 1234)',
   SLOT_NOT_FOUND: 'ไม่พบช่องจอดที่เลือก',
   OUTSIDE_HOURS: 'อยู่นอกเวลาเปิดทำการ',
   PAST_TIME: 'ไม่สามารถจองย้อนหลังได้',
@@ -16,10 +17,14 @@ export const ERROR_MESSAGES = {
   NETWORK_ERROR: 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้',
   UNAUTHORIZED: 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
   FORBIDDEN: 'คุณไม่มีสิทธิ์ดำเนินการนี้',
-  INVALID_CREDENTIALS: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+  INVALID_CREDENTIALS: 'รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง',
   CANCEL_DEADLINE_PASSED: 'เลยกำหนดเวลายกเลิกการจองแล้ว',
   NOT_CANCELLABLE: 'ไม่สามารถยกเลิกการจองนี้ได้',
   EXTEND_CONFLICT: 'ไม่สามารถขยายเวลาจองได้ เนื่องจากช่วงเวลานี้มีการจองแล้ว',
+  MEMBER_DUPLICATE: 'มีสมาชิกหรือทะเบียนรถนี้ในระบบแล้ว',
+  STUDENT_NOT_FOUND: 'ไม่พบรหัสนักศึกษานี้ในระบบ',
+  NOT_IN_GRACE: 'ไม่อยู่ในช่วงเวลาที่เช็กอินได้',
+  NOT_ACTIVE: 'การจองนี้ไม่อยู่ในสถานะที่เช็กอินได้',
 };
 
 /** @param {{code?:string, message?:string, name?:string}} error */
