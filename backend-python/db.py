@@ -61,11 +61,12 @@ CREATE TABLE IF NOT EXISTS accounts (
 
 -- รถที่ลงทะเบียน: 1 นักศึกษา = 1 คัน (ลงซ้ำ = แทนที่ทะเบียนเดิม)
 CREATE TABLE IF NOT EXISTS vehicles (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    student_id TEXT NOT NULL UNIQUE,
-    plate      TEXT NOT NULL,
-    province   TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id  TEXT NOT NULL UNIQUE,
+    plate       TEXT NOT NULL,
+    province    TEXT NOT NULL,
+    created_at  TEXT NOT NULL,
+    UNIQUE(plate, province)
 );
 """
 
@@ -116,6 +117,15 @@ def init_db(path):
         for column in ("faculty", "verified_at"):
             if column not in student_columns:
                 conn.execute(f"ALTER TABLE students ADD COLUMN {column} TEXT")
+
+        # DB เก่าที่มีทะเบียนซ้ำอยู่แล้วจะสร้าง unique index ไม่ได้ (IntegrityError)
+        # ข้ามไปก่อนให้เซิร์ฟเวอร์ยังเปิดได้ — vehicle_service ยังกันทะเบียนซ้ำที่ระดับแอปอยู่
+        try:
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_vehicles_plate_province ON vehicles (plate, province)"
+            )
+        except (sqlite3.OperationalError, sqlite3.IntegrityError):
+            pass
 
         conn.execute(
             """CREATE INDEX IF NOT EXISTS idx_reservations_student_start
