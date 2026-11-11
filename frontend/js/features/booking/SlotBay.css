@@ -1,129 +1,100 @@
-/* SlotBay — White background/blue border for available, light gray for unavailable, solid blue for selected */
+/* SlotBay — ช่องจอดมองจากด้านบน: เส้นขาวตีช่อง + เลขช่องทาสีบนพื้น + รถเมื่อมีคนจอง */
 .slot-bay {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  width: 76px;
-  height: 92px;
-  padding: 0;
-  border: 2px solid var(--primary);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--primary);
-  font: inherit;
-  cursor: pointer;
-  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, border-color .15s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.slot-bay:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-.slot-bay:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 3px;
-}
-
-.slot-bay__icon {
-  height: 20px;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 20px;
-}
-
-.slot-bay__label {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--ink);
-}
-
-.slot-bay__state {
-  min-height: 1.2em;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* 1. Available (ว่าง): White background, blue border */
-.slot-bay--free {
-  background: var(--surface);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-.slot-bay--free .slot-bay__label {
-  color: var(--primary);
-}
-
-/* Partial: Warning tone */
-.slot-bay--partial {
-  background: var(--warn-bg);
-  border-color: var(--warn);
-  color: var(--warn-ink);
-}
-.slot-bay--partial .slot-bay__label {
-  color: var(--warn-ink);
-}
-
-/* 2. Unavailable (ไม่ว่าง): Solid light gray, text hidden or faded */
-.slot-bay--booked {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-  color: #94a3b8;
-  cursor: not-allowed;
-}
-.slot-bay--booked .slot-bay__label {
-  color: #94a3b8;
-  opacity: 0.7;
-}
-.slot-bay--booked .slot-bay__icon,
-.slot-bay--booked .slot-bay__state {
-  opacity: 0.6;
-}
-
-/* 3. Selected (ที่คุณเลือก): Solid blue background, white text */
-.slot-bay--selected,
-.slot-bay--selected.slot-bay--free,
-.slot-bay--selected.slot-bay--partial,
-.slot-bay--selected.slot-bay--booked {
-  background: var(--primary) !important;
-  border-color: var(--primary) !important;
-  color: #ffffff !important;
-  transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(26, 108, 240, 0.4);
-}
-
-.slot-bay--selected .slot-bay__label,
-.slot-bay--selected .slot-bay__icon,
-.slot-bay--selected .slot-bay__state {
-  color: #ffffff !important;
-}
-
-.slot-bay--selected::after {
-  content: "✓";
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 22px;
-  height: 22px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--surface);
-  border-radius: 50%;
-  background: #0284c7;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  min-width: 0;
+  aspect-ratio: 5 / 8;
+  padding: 0;
+  border: 0;
+  /* เส้นแบ่งช่องด้านซ้าย (ช่องสุดท้ายมีเส้นขวาด้วย ดูด้านล่าง) */
+  border-left: 2px solid var(--lot-paint);
+  background: transparent;
+  color: var(--lot-paint);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color .15s ease;
+}
+.slot-bay:last-child { border-right: 2px solid var(--lot-paint); }
+.slot-bay--moto { aspect-ratio: 3 / 7; }
+
+.slot-bay:hover { background: var(--lot-hover); }
+.slot-bay:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  z-index: 1;
 }
 
-@media (min-width: 768px) {
-  .slot-bay {
-    width: 82px;
-    height: 98px;
-  }
+/* เลขช่องทาสีบนพื้น ฝั่งท้ายช่อง (ไกลจากทางวิ่ง) */
+.slot-bay__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: clamp(0.62rem, 2.4vw, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--lot-paint);
+  opacity: 0.9;
+  pointer-events: none;
 }
+/* เลขช่องอยู่ฝั่งทางวิ่ง (ปากช่อง) ให้อ่านได้แม้มีรถจอด */
+.slot-bay--facing-down .slot-bay__label { bottom: 5%; }
+.slot-bay--facing-up .slot-bay__label { top: 5%; }
+
+/* รถ: จอดชิดท้ายช่อง หันหัวออกทางวิ่ง */
+.slot-bay__vehicle {
+  position: absolute;
+  left: 50%;
+  width: auto;
+  height: 68%;
+  max-width: 78%;
+  filter: drop-shadow(0 3px 3px var(--car-shadow));
+  pointer-events: none;
+}
+.slot-bay--facing-down .slot-bay__vehicle { top: 6%; transform: translateX(-50%); }
+.slot-bay--facing-up .slot-bay__vehicle { bottom: 6%; transform: translateX(-50%) rotate(180deg); }
+
+.slot-bay__body { fill: var(--car-booked); }
+.slot-bay__roof { fill: var(--car-booked-roof); }
+.slot-bay__glass { fill: var(--car-glass); }
+.slot-bay__mirror { fill: var(--car-booked-roof); }
+.slot-bay__tyre { fill: var(--car-tyre); }
+.slot-bay__light { fill: var(--car-light); }
+
+/* ช่องที่มีรถ: ซ่อนเลขไว้ใต้รถ ให้เห็นเลขแบบจาง */
+
+/* ติดจองบางช่วง: รถจางลง + ป้าย ! */
+.slot-bay--partial .slot-bay__vehicle { opacity: 0.55; }
+
+/* เต็มตลอดช่วง: ยังกดได้ (Backend ตัดสิน) แต่ cursor บอกใบ้ */
+.slot-bay--booked { cursor: not-allowed; }
+
+/* ที่เลือก: รถสีแดง + พื้นช่องเรือง */
+.slot-bay--selected {
+  background: var(--lot-selected);
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+.slot-bay--selected .slot-bay__vehicle { opacity: 1; }
+.slot-bay--selected .slot-bay__body { fill: var(--primary); }
+.slot-bay--selected .slot-bay__roof,
+.slot-bay--selected .slot-bay__mirror { fill: var(--primary-dark); }
+
+.slot-bay__badge {
+  position: absolute;
+  top: 3%;
+  right: 6%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+}
+.slot-bay--facing-up .slot-bay__badge { top: auto; bottom: 3%; }
+.slot-bay__badge--partial { background: var(--warn); color: var(--accent-ink); }
+.slot-bay__badge--selected { background: var(--accent); color: var(--accent-ink); }

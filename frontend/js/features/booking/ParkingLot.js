@@ -1,28 +1,50 @@
 /**
- * ParkingLot — ผังลานจอดทั้งหมด วาดทุกโซนในตัวเอง (ไม่ต้องทำ ZoneBlock แยก)
+ * ParkingLot — ผังลานจอดแบบมองจากด้านบน วาดทุกโซนในตัวเอง (ไม่ต้องทำ ZoneBlock แยก)
  * Owner: Dev 3 | Ticket: BK-04 | Priority: P0
  * @param { {zones:Array<{id:number,name:string,slots:Array<{id:number,label:string}>}>, availability:{slots:Array<{id:number,status:string,busy:Array<{start:string,end:string}>}>, zones:Array<{id:number,free:number,total:number,full:boolean}>}, selectedSlotId?:number|null, onSelectSlot:(slotId:number)=>void} } props
  * @returns {HTMLElement}
- * Done when: แต่ละโซนมีหัวโซน (ชื่อ + 'ว่าง x/y' หรือป้าย 'เต็ม') ตามโค้ดเก่า parking-lot.js บรรทัด 9-13 และ 77-81; รูปแบบข้อมูลตรงกับ GET /api/zones และ /api/availability (ดู api/mock/*.json)
+ * Done when: แต่ละโซนมีหัวโซน (ชื่อ + 'ว่าง x/y' หรือป้าย 'เต็ม'); รูปแบบข้อมูลตรงกับ GET /api/zones และ /api/availability (ดู api/mock/*.json)
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .parking-lot- ใน ParkingLot.css)
  * หมายเหตุ: availability เป็น null ได้ (ระหว่างโหลด/เวลาไม่ถูกต้อง) ช่องจะแสดงแบบไม่มีสถานะ
  *   ตัวนับกันคำตอบเก่าทับของใหม่ (availabilityRequest เดิม) อยู่ที่ BookingPage เพราะ component นี้ไม่ fetch เอง
+ *
+ * ผัง 1 โซน: ทางเท้า → แถวช่องจอด (หันหัวลง) → ทางวิ่งรถ + ป้ายทางเข้า → แถวช่องจอด (หันหัวขึ้น)
+ * ถ้าช่องเยอะเกิน 2 แถว จะต่อเป็นชุดใหม่คั่นด้วยเกาะกลาง
  */
 import { h } from '../../core/dom.js';
 import { SlotBay } from './SlotBay.js';
 
+const MAX_PER_ROW = 8;
+
 const LEGEND = [
   { key: 'free', text: 'ว่าง' },
-  { key: 'partial', text: 'ติดจอง (บางช่วง)' },
-  { key: 'booked', text: 'เต็ม (ตลอดช่วง)' },
+  { key: 'partial', text: 'ติดจองบางช่วง' },
+  { key: 'booked', text: 'เต็มตลอดช่วง' },
+  { key: 'selected', text: 'ที่คุณเลือก' },
 ];
+
+function isMotoZone(zone) {
+  return /มอเตอร์ไซค์|จักรยานยนต์|motor/i.test(zone.name || '');
+}
+
+function chunk(list, size) {
+  const out = [];
+  for (let i = 0; i < list.length; i += size) out.push(list.slice(i, i + size));
+  return out;
+}
+
+function lane(withEntrance) {
+  return h('div', { class: 'parking-lot__lane', 'aria-hidden': 'true' },
+    withEntrance ? h('span', { class: 'parking-lot__entrance' }, 'ทางเข้า') : null,
+    h('span', { class: 'parking-lot__arrow' }, '➜'),
+    h('span', { class: 'parking-lot__arrow' }, '➜'));
+}
 
 export function ParkingLot({ zones = [], availability = null, selectedSlotId = null, onSelectSlot = () => {} } = {}) {
   const slotState = new Map((availability?.slots || []).map((s) => [s.id, s]));
   const zoneState = new Map((availability?.zones || []).map((z) => [z.id, z]));
 
-  // นับจำนวนแต่ละสถานะสำหรับแถบสัญลักษณ์ (โค้ดเก่าบรรทัด 57, 67, 75)
-  const totals = { free: 0, partial: 0, booked: 0 };
+  const totals = { free: 0, partial: 0, booked: 0, selected: selectedSlotId ? 1 : 0 };
   for (const s of slotState.values()) {
     // เผื่อ API รุ่นเก่าที่ยังไม่มี status: booked = ไม่ว่าง
     const status = s.status || (s.booked ? 'booked' : 'free');
@@ -31,32 +53,55 @@ export function ParkingLot({ zones = [], availability = null, selectedSlotId = n
 
   const zoneEls = zones.map((zone) => {
     const state = zoneState.get(zone.id);
+    const kind = isMotoZone(zone) ? 'moto' : 'car';
     const count = state
       ? h('span', { class: `parking-lot__count parking-lot__count--${state.full ? 'full' : 'ok'}` },
           state.full ? 'เต็ม' : `ว่าง ${state.free}/${state.total}`)
       : null;
 
-    return h('section', { class: 'parking-lot__zone', 'data-zone': zone.id, role: 'group', 'aria-label': zone.name },
+    const bay = (slot, facing) => {
+      const s = slotState.get(slot.id);
+      return SlotBay({
+        slot,
+        kind,
+        facing,
+        status: s ? s.status || (s.booked ? 'booked' : 'free') : undefined,
+        busy: s?.busy || [],
+        selected: slot.id === selectedSlotId,
+        onSelect: onSelectSlot,
+      });
+    };
+
+    const perRow = Math.min(MAX_PER_ROW, Math.max(1, Math.ceil(zone.slots.length / 2)));
+    const rows = chunk(zone.slots, perRow);
+    const blocks = [];
+    for (let i = 0; i < rows.length; i += 2) {
+      if (i > 0) blocks.push(h('div', { class: 'parking-lot__median', 'aria-hidden': 'true' }));
+      blocks.push(
+        h('div', { class: 'parking-lot__row parking-lot__row--top', style: `--cols:${perRow}` },
+          rows[i].map((slot) => bay(slot, 'down'))),
+        lane(i === 0),
+      );
+      if (rows[i + 1]) {
+        blocks.push(h('div', { class: 'parking-lot__row parking-lot__row--bottom', style: `--cols:${perRow}` },
+          rows[i + 1].map((slot) => bay(slot, 'up'))));
+      }
+    }
+
+    return h('section', { class: `parking-lot__zone parking-lot__zone--${kind}`, 'data-zone': zone.id, role: 'group', 'aria-label': zone.name },
       h('div', { class: 'parking-lot__head' },
         h('h3', { class: 'parking-lot__name' }, zone.name),
         count),
-      h('div', { class: 'parking-lot__bays' }, zone.slots.map((slot) => {
-        const s = slotState.get(slot.id);
-        return SlotBay({
-          slot,
-          status: s ? s.status || (s.booked ? 'booked' : 'free') : undefined,
-          busy: s?.busy || [],
-          selected: slot.id === selectedSlotId,
-          onSelect: onSelectSlot,
-        });
-      })));
+      h('div', { class: 'parking-lot__site' },
+        h('div', { class: 'parking-lot__walkway', 'aria-hidden': 'true' }, h('span', null, 'ทางเท้าคนเดิน')),
+        blocks));
   });
 
   const legend = h('ul', { class: 'parking-lot__legend', 'aria-label': 'สัญลักษณ์' },
     LEGEND.map(({ key, text }) => h('li', { class: 'parking-lot__legend-item' },
-      h('span', { class: `parking-lot__dot parking-lot__dot--${key}`, 'aria-hidden': 'true' }),
+      h('span', { class: `parking-lot__swatch parking-lot__swatch--${key}`, 'aria-hidden': 'true' }),
       text,
-      h('b', { class: 'parking-lot__n' }, availability ? totals[key] : '–'))));
+      h('b', { class: 'parking-lot__n' }, availability || key === 'selected' ? totals[key] : '–'))));
 
-  return h('div', { class: 'parking-lot' }, zoneEls, legend);
+  return h('div', { class: 'parking-lot' }, legend, zoneEls);
 }

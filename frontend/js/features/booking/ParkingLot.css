@@ -1,98 +1,72 @@
-/* ParkingLot — Grouped slots, modern cards & clean legend */
+/* ParkingLot — ผังลานจอดมองจากด้านบน (พื้นยางมะตอย, เส้นขาว, ทางเท้า, ทางวิ่ง, ป้ายทางเข้า) */
 .parking-lot {
   display: grid;
   gap: var(--space-5);
   min-width: 0;
 }
 
+/* --- สัญลักษณ์ --- */
 .parking-lot__legend {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0 0 var(--space-2);
-  padding: var(--space-3) var(--space-4);
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
   list-style: none;
-  font-size: 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  font-size: 0.85rem;
 }
-
 .parking-lot__legend-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
+  padding: 5px 12px;
   border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
   background: var(--surface);
   color: var(--muted);
-  font-weight: 500;
 }
-
 .parking-lot__n {
   color: var(--ink);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  margin-left: 2px;
 }
-
-.parking-lot__dot {
+.parking-lot__swatch {
   width: 14px;
-  height: 14px;
-  border-radius: 4px;
+  height: 18px;
   flex: none;
+  border-radius: 3px;
+  background: var(--lot-asphalt);
+  box-shadow: inset 0 0 0 1.5px var(--lot-paint-soft);
 }
+.parking-lot__swatch--partial { box-shadow: inset 0 0 0 4px var(--warn); }
+.parking-lot__swatch--booked { background: var(--car-booked); box-shadow: none; }
+.parking-lot__swatch--selected { background: var(--primary); box-shadow: 0 0 0 2px var(--accent); }
 
-.parking-lot__dot--free {
-  background: #ffffff;
-  border: 2px solid var(--primary);
-}
-
-.parking-lot__dot--partial {
-  background: var(--warn-bg);
-  border: 1.5px solid var(--warn);
-}
-
-.parking-lot__dot--booked {
-  background: var(--full);
-  opacity: 0.6;
-}
-
-.parking-lot__dot--selected {
-  background: var(--primary);
-}
-
+/* --- โซน --- */
 .parking-lot__zone {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
   background: var(--surface);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5);
   box-shadow: var(--shadow-sm);
 }
-
 .parking-lot__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--line);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
 }
-
 .parking-lot__name {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--ink);
 }
-
 .parking-lot__name::before {
   content: "";
   width: 5px;
@@ -100,26 +74,95 @@
   border-radius: var(--radius-pill);
   background: var(--primary);
 }
-
 .parking-lot__count {
-  font-size: 13.5px;
-  font-weight: 700;
-  padding: 4px 14px;
+  flex: none;
+  padding: 4px 12px;
   border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.parking-lot__count--ok { background: var(--ok-bg); color: var(--ok-ink); }
+.parking-lot__count--full { background: var(--danger-bg); color: var(--danger-ink); }
+
+/* --- พื้นลานจอด --- */
+.parking-lot__site {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--lot-asphalt);
+  box-shadow: inset 0 0 0 4px var(--lot-curb);
+  padding: 4px;
 }
 
-.parking-lot__count--ok {
-  background: var(--primary-50);
-  color: var(--primary);
+.parking-lot__walkway {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  background: repeating-linear-gradient(90deg, var(--lot-walkway) 0 14px, var(--lot-walkway-stripe) 14px 28px);
+  border-bottom: 3px solid var(--lot-curb);
+}
+.parking-lot__walkway span {
+  padding: 1px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--lot-walkway);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
-.parking-lot__count--full {
-  background: var(--danger-bg);
-  color: var(--danger-ink);
+/* แถวช่องจอด: จำนวนคอลัมน์มาจาก --cols (ตั้งใน ParkingLot.js) กว้างสูงสุดช่องละ 76px */
+.parking-lot__row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  max-width: calc(var(--cols) * 76px);
+  margin: 0 auto;
+  padding: 0 var(--space-3);
 }
+.parking-lot__zone--moto .parking-lot__row { max-width: calc(var(--cols) * 48px); }
+/* เส้นขาวท้ายช่อง (ฝั่งไกลจากทางวิ่ง) */
+.parking-lot__row--top { border-top: 2px solid var(--lot-paint); margin-top: var(--space-3); }
+.parking-lot__row--bottom { border-bottom: 2px solid var(--lot-paint); margin-bottom: var(--space-3); }
 
-.parking-lot__bays {
+/* ทางวิ่งรถ: เส้นประกลางถนน + ลูกศรทิศทาง */
+.parking-lot__lane {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-around;
+  height: clamp(44px, 9vw, 64px);
+  background:
+    repeating-linear-gradient(90deg, var(--lot-paint-soft) 0 18px, transparent 18px 34px)
+    center / 100% 2px no-repeat;
+}
+.parking-lot__arrow {
+  color: var(--lot-paint-soft);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.parking-lot__entrance {
+  position: absolute;
+  left: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+/* เกาะกลางคั่นระหว่างชุดแถว */
+.parking-lot__median {
+  height: 14px;
+  margin: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--lot-median);
+  box-shadow: inset 0 0 0 2px var(--lot-curb);
+}
+
+@media (max-width: 560px) {
+  .parking-lot__zone { padding: var(--space-3); }
+  .parking-lot__row { padding: 0 var(--space-1); }
+  .parking-lot__entrance { font-size: 0.65rem; padding: 2px 6px; }
 }
