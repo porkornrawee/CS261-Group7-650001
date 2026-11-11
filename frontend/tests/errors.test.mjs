@@ -10,15 +10,25 @@ test('messageFor แปลงรหัส error ที่รู้จักเ�
   assert.equal(messageFor({ code: 'NOT_CANCELLABLE' }), ERROR_MESSAGES.NOT_CANCELLABLE);
   assert.equal(messageFor({ code: 'CANCEL_DEADLINE_PASSED' }), ERROR_MESSAGES.CANCEL_DEADLINE_PASSED);
 });
-
+test('CORE-01: มีข้อความไทยครบทั้ง 8 error code ใหม่', () => {
+  for (const code of [
+    'UNAUTHORIZED', 'FORBIDDEN', 'INVALID_CREDENTIALS', 'CANCEL_DEADLINE_PASSED',
+    'NOT_CANCELLABLE', 'EXTEND_CONFLICT', 'MEMBER_DUPLICATE', 'STUDENT_NOT_FOUND',
+  ]) {
+    assert.ok(ERROR_MESSAGES[code], `ขาดข้อความของ ${code}`);
+    assert.equal(messageFor({ code }), ERROR_MESSAGES[code]);
+  }
+});
+test('US11: ข้อความล็อกอินผิดไม่บอกว่าผิดช่องไหน', () => {
+  const text = messageFor({ code: 'INVALID_CREDENTIALS' });
+  assert.match(text, /รหัสนักศึกษาหรือรหัสผ่าน/);
+});
 test('messageFor ใช้ข้อความจาก backend เมื่อไม่รู้จักรหัส', () => {
   assert.equal(messageFor({ code: 'WHATEVER', message: 'ข้อความจากเซิร์ฟเวอร์' }), 'ข้อความจากเซิร์ฟเวอร์');
 });
-
 test('messageFor มีข้อความสำรองเมื่อไม่มีทั้งรหัสและข้อความ', () => {
   assert.equal(messageFor({ code: 'X' }), 'เกิดข้อผิดพลาด กรุณาลองใหม่');
 });
-
 test('messageFor ตรวจจับ network error', () => {
   assert.equal(messageFor(new TypeError('Failed to fetch')), ERROR_MESSAGES.NETWORK_ERROR);
   assert.equal(messageFor({ code: 'NETWORK_ERROR' }), ERROR_MESSAGES.NETWORK_ERROR);
