@@ -1,7 +1,7 @@
 /**
  * TicketCard — บัตรจองพร้อม QR และรายละเอียดการจอด
  * Owner: Dev 4 | Ticket: TK-01 | Priority: P0
- * @param {{reservation:{code:string,slot:string,zone:string,date:string,start:string,end:string,user_name:string}, qrSrc?:string}} props
+ * @param {{reservation:{code:string,slot:string,zone:string,date:string,start:string,end:string,user_name:string,plate?:string|null}, qrSrc?:string}} props
  * @returns {HTMLElement}
  */
 import { h } from '../../core/dom.js';
@@ -99,6 +99,7 @@ export function TicketCard({ reservation = {}, qrSrc = '', graceMin = 15 } = {})
         h('dt', {}, 'ผู้จอง'), h('dd', {}, user_name),
         h('dt', {}, 'โซน'), h('dd', {}, zone),
         h('dt', {}, 'ช่องจอด'), h('dd', {}, slot),
+        reservation.plate ? [h('dt', {}, 'ทะเบียนรถ'), h('dd', {}, reservation.plate)] : null,
         h('dt', {}, 'วันที่'), h('dd', {}, displayDate),
         h('dt', {}, 'เวลา'), h('dd', {}, start + '–' + end + ' น.')
       )
