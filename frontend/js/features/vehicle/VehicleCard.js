@@ -8,9 +8,24 @@
  */
 import { h } from '../../core/dom.js';
 export function VehicleCard({ vehicle = {} } = {}) {
+  const handleEditClick = () => {
+    if (typeof onEdit === 'function') {
+      onEdit(vehicle);
+    }
+  };
+
   return h('article', { class: 'vehicle-card-root' },
-    h('h2', null, 'ลงทะเบียนรถสำเร็จ'),
-    h('div', { class: 'vehicle-card-plate' }, h('strong', null, vehicle.plate || '—'),
-      h('span', null, vehicle.province || '')),
+    h('div', { class: 'vehicle-card-header' },
+      h('h2', null, 'ข้อมูลรถที่ลงทะเบียน'),
+      h('button', { 
+        class: 'vehicle-card-edit-btn', 
+        type: 'button',
+        on: { click: handleEditClick } 
+      }, 'แก้ไข')
+    ),
+    h('div', { class: 'vehicle-card-plate' }, 
+      h('strong', null, vehicle.plate || '—'),
+      h('span', null, vehicle.province || '')
+    ),
     h('p', null, `รหัสนักศึกษา: ${vehicle.studentId || vehicle.student_id || '—'}`));
 }
