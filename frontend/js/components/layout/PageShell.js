@@ -10,7 +10,7 @@ import { h } from '../../core/dom.js';
 export function PageShell({ title, subtitle = '', children = [] } = {}) {
   return h('section', { class: 'page-shell-root' },
     h('header', { class: 'page-shell-heading' },
-      h('p', { class: 'page-shell-eyebrow' }, 'SmartPark TU'),
+      h('p', { class: 'page-shell-eyebrow' }, 'Parking'),
       title ? h('h1', { class: 'page-shell-title' }, title) : null,
       subtitle ? h('p', { class: 'page-shell-subtitle' }, subtitle) : null,
     ),

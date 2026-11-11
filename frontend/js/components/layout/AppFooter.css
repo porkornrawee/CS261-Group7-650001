@@ -1,96 +1,161 @@
-/* AppFooter — Dark blue background & contact cards */
+/* AppFooter — Owner: Dev 1 | LY-02 · ท้ายเว็บสีแดงเข้ม (ขอบซ้าย-ขวาตรงกับ header) */
 .app-footer-root {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  background: #0b1a30;
-  color: #ffffff;
-  margin-top: var(--space-7);
+  background: var(--primary-dark);
+  color: var(--on-brand);
+  border-top: 4px solid var(--primary);
 }
 .app-footer-inner {
-  width: 100%;
-  max-width: var(--page-max);
+  /* ความกว้างและระยะขอบเท่ากับ .app-header-inner */
+  max-width: 1240px;
   margin: 0 auto;
-  padding: var(--space-7) var(--space-4);
+  padding: var(--space-7) clamp(var(--space-4), 7vw, 120px) 0;
 }
-.app-footer-brand {
-  display: flex;
+
+.app-footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: var(--space-6);
+  padding-bottom: var(--space-6);
+}
+
+/* --- แบรนด์ --- */
+.app-footer-logo {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-3);
-  font-size: 1.6rem;
-}
-.app-footer-brand strong {
-  font-weight: 700;
-  color: #ffffff;
-}
-.app-footer-brand strong span {
-  color: #38bdf8;
-}
-.app-footer-logo {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  background: var(--primary);
-  color: #ffffff;
-  border-radius: var(--radius-md);
-  font-size: 1.6rem;
-  font-weight: 800;
-}
-.app-footer-description {
-  margin: var(--space-3) 0 var(--space-4);
-  line-height: 1.65;
-  color: #94a3b8;
-  font-size: 1rem;
-}
-.app-footer-heading {
-  margin: var(--space-6) 0 var(--space-2);
-  font-size: 1.25rem;
-  color: #ffffff;
-}
-.app-footer-contacts {
-  display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
-.app-footer-contact-item {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(8px);
-  min-width: 0;
-  transition: background .2s ease, border-color .2s ease;
-}
-.app-footer-contact-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-.app-footer-contact-label {
-  color: #94a3b8;
-  font-size: 0.85rem;
-}
-.app-footer-contact-value {
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 1.05rem;
-  overflow-wrap: anywhere;
+  color: var(--on-brand);
   text-decoration: none;
 }
-.app-footer-contact-value[href]:hover {
-  color: #38bdf8;
-  text-decoration: underline;
+.app-footer-logo-badge {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--on-brand);
+  color: var(--primary);
+  font-size: 1.35rem;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
 }
-.app-footer-disclaimer {
-  margin: var(--space-6) 0 0;
-  color: #64748b;
-  font-size: .85rem;
-  text-align: center;
+.app-footer-logo-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
-@media (min-width: 768px) {
-  .app-footer-contacts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.app-footer-tagline {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.app-footer-desc {
+  margin: 0 0 var(--space-5);
+  color: var(--on-brand-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.app-footer-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  background: var(--on-brand);
+  color: var(--primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.app-footer-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+
+/* --- คอลัมน์ลิงก์ / ข้อมูล --- */
+.app-footer-heading {
+  margin: 0 0 var(--space-4);
+  color: var(--on-brand);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.app-footer-heading::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 3px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+.app-footer-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.app-footer-link {
+  color: var(--on-brand-muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.app-footer-link:hover,
+.app-footer-link:focus-visible { color: var(--on-brand); text-decoration: underline; text-underline-offset: 4px; }
+
+.app-footer-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--on-brand-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.app-footer-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--on-brand);
+}
+
+/* --- แถบล่าง --- */
+.app-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--on-brand-divider);
+}
+.app-footer-copy {
+  margin: 0;
+  color: var(--on-brand-muted);
+  font-size: 0.82rem;
+}
+.app-footer-top {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 14px;
+  border: 1px solid var(--on-brand-divider);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--on-brand);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.app-footer-top:hover { background: var(--on-brand-divider); }
+.app-footer-top .app-footer-icon { width: 14px; height: 14px; margin: 0; }
+
+@media (max-width: 960px) {
+  .app-footer-grid { grid-template-columns: 1fr 1fr; }
+  .app-footer-brand { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+  .app-footer-inner { padding-top: var(--space-6); }
+  .app-footer-grid { gap: var(--space-5); }
+  .app-footer-col:last-child { grid-column: 1 / -1; }
+  .app-footer-bottom { flex-direction: column; align-items: flex-start; }
 }

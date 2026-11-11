@@ -28,11 +28,11 @@
 .button-root--primary {
   background: var(--primary);
   color: var(--on-brand);
-  box-shadow: 0 4px 12px rgba(26, 108, 240, 0.25);
+  box-shadow: var(--shadow);
 }
 .button-root--primary:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: 0 6px 16px rgba(26, 108, 240, 0.35);
+  box-shadow: var(--shadow-lg);
 }
 .button-root--secondary {
   background: var(--primary-50);
@@ -51,9 +51,9 @@
 }
 .button-root--danger {
   background: var(--danger);
-  color: #ffffff;
+  color: var(--on-brand);
   border-color: transparent;
 }
 .button-root--danger:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--primary-hover);
 }

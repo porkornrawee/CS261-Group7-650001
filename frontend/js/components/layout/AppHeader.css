@@ -1,153 +1,161 @@
-/* AppHeader — Modern Blue Header, Logo badge, rounded links & login button */
+/* AppHeader — Owner: Dev 1 | LY-01 · แถบแดง "Parking" ตาม Figma */
 .app-header-root {
   position: relative;
   min-height: var(--header-h);
   background: var(--primary);
   color: var(--on-brand);
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-header);
 }
 .app-header-inner {
-  max-width: var(--page-max);
+  max-width: 1240px;
   min-height: var(--header-h);
-  padding: var(--space-3) var(--space-4);
-  margin: auto;
+  margin: 0 auto;
+  padding: var(--space-2) clamp(var(--space-4), 7vw, 120px);
   display: flex;
-  gap: var(--space-4);
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-5);
 }
 .app-header-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   color: var(--on-brand);
-  font-weight: 800;
-  font-size: 1.25rem;
-  text-decoration: none;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow: var(--text-shadow);
   white-space: nowrap;
 }
-.app-header-brand-badge {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
-  font-size: 1.1rem;
-  font-weight: 800;
-}
+.app-header-brand:hover { color: var(--on-brand); }
+
 .app-header-right {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: clamp(var(--space-4), 3vw, var(--space-6));
 }
 .app-header-nav {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  gap: clamp(var(--space-5), 6vw, 88px);
 }
 .app-header-link {
   color: var(--on-brand);
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.12);
+  font-size: 1.05rem;
+  font-weight: 700;
   white-space: nowrap;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: all .15s ease;
+  text-shadow: var(--text-shadow);
+  transition: color .15s ease;
 }
-.app-header-link:hover, .app-header-link--active {
-  background: rgba(255, 255, 255, 0.28);
+.app-header-link:hover,
+.app-header-link:focus-visible,
+.app-header-link--active {
+  color: var(--accent);
 }
-.app-header-toggle {
-  display: none;
-  border: 1px solid var(--on-brand);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--on-brand);
-  padding: var(--space-1) var(--space-3);
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-.app-header-notifications-toggle {
-  position: relative;
+
+/* ไอคอนผู้ใช้ + ลูกศร */
+.app-header-user-wrap { position: relative; }
+.app-header-user {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--radius-pill);
-  padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.15);
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--on-brand);
-  font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: all .15s ease;
 }
-.app-header-notifications-toggle:hover {
-  background: rgba(255, 255, 255, 0.25);
+.app-header-user-icon { width: 44px; height: 44px; display: block; }
+.app-header-chevron {
+  width: 26px;
+  height: 26px;
+  transform: rotate(180deg);
+  transition: transform .2s ease;
 }
-.app-header-notifications-toggle:focus-visible {
-  outline: 2px solid var(--on-brand);
-  outline-offset: 3px;
-}
-.app-header-notifications-icon {
-  font-size: 1.1rem;
-  line-height: 1;
-}
-.app-header-notifications-count {
-  display: inline-grid;
-  min-width: 1.25rem;
-  min-height: 1.25rem;
-  place-items: center;
-  border-radius: var(--radius-pill);
-  padding-inline: var(--space-1);
-  background: var(--danger);
-  color: var(--on-brand);
-  font-size: .75rem;
-  font-weight: 700;
-}
+.app-header-user--open .app-header-chevron { transform: rotate(0deg); }
 
-.app-header-login-btn {
+.app-header-user-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 40;
+  min-width: 210px;
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+.app-header-user-menu[hidden] { display: none; }
+.app-header-user-name { margin: 0; font-weight: 700; }
+.app-header-user-id { margin: 0 0 var(--space-3); color: var(--muted); font-size: 0.85rem; }
+.app-header-logout {
+  width: 100%;
+  min-height: 36px;
   border: 0;
   border-radius: var(--radius-pill);
-  padding: 8px 18px;
-  background: #ffffff;
-  color: var(--primary);
+  background: var(--primary);
+  color: var(--on-brand);
   font-weight: 700;
-  font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  transition: all .15s ease;
 }
-.app-header-login-btn:hover {
-  background: #f1f5f9;
-  transform: translateY(-1px);
+.app-header-logout:hover { background: var(--primary-hover); }
+
+/* กระดิ่งแจ้งเตือน (Dev 4 ใช้ class เหล่านี้ใน main.js) */
+.app-header-notifications-toggle {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--on-brand);
+  cursor: pointer;
+}
+.app-header-notifications-toggle:hover { color: var(--accent); }
+.app-header-notifications-count {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding-inline: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
-@media (max-width: 820px) {
-  .app-header-inner {
-    flex-wrap: wrap;
-  }
-  .app-header-toggle {
-    display: inline-flex;
-  }
-  .app-header-right {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
+.app-header-toggle {
+  display: none;
+  border: 1px solid var(--on-brand-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--on-brand);
+  padding: 2px var(--space-3);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .app-header-inner { flex-wrap: wrap; gap: var(--space-3); }
+  .app-header-toggle { display: inline-flex; margin-left: auto; }
+  .app-header-right { gap: var(--space-3); }
   .app-header-nav {
     display: none;
     order: 3;
     flex-basis: 100%;
     flex-direction: column;
     align-items: stretch;
-    margin-top: var(--space-2);
+    gap: 0;
+    padding-bottom: var(--space-2);
   }
-  .app-header-nav--open {
-    display: flex;
-  }
+  .app-header-nav--open { display: flex; }
+  .app-header-right { flex-wrap: wrap; flex-basis: 100%; justify-content: flex-end; }
+  .app-header-right:has(.app-header-nav:not(.app-header-nav--open)) { flex-basis: auto; }
+  .app-header-link { padding: var(--space-2) 0; border-top: 1px solid var(--on-brand-divider); }
+  .app-header-user-icon { width: 36px; height: 36px; }
 }

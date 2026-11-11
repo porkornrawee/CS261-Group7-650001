@@ -24,8 +24,9 @@ class CoreSchemaContractTests(ReservationTestCase):
         init_db(self.db_path)
         with closing(connect(self.db_path)) as conn:
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM reservations").fetchone()[0], 1)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM accounts").fetchone()[0], 1)
             tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-            self.assertTrue({"reservations", "notifications", "students"} <= tables)
+            self.assertTrue({"reservations", "notifications", "accounts", "students"} <= tables)
 
     def test_trigger_ignores_cancelled_and_auto_cancelled_rows(self):
         with closing(connect(self.db_path)) as conn:
@@ -47,6 +48,7 @@ class CoreSchemaContractTests(ReservationTestCase):
         for method, path in (
             ("get", "/api/me/reservations"),
             ("get", "/api/me/notifications"),
+            ("get", "/api/auth/me"),
             ("post", "/api/reservations/PK-ANY/cancel"),
         ):
             with self.subTest(path=path):
