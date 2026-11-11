@@ -101,6 +101,8 @@ def init_db(path):
             ),
             ("cancelled_at", "TEXT"),
             ("checked_in_at", "TEXT"),
+            ("plate", "TEXT"),
+            ("vehicle_type", "TEXT"),
         )
         for column, definition in migrations:
             if column not in reservation_columns:
