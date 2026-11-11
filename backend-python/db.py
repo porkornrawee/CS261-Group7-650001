@@ -102,6 +102,13 @@ def init_db(path):
             if column not in student_columns:
                 conn.execute(f"ALTER TABLE students ADD COLUMN {column} TEXT")
 
+        try:
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_vehicles_plate_province ON vehicles (plate, province)"
+            )
+        except sqlite3.OperationalError:
+            pass
+
         conn.execute(
             """CREATE INDEX IF NOT EXISTS idx_reservations_student_start
                ON reservations (student_id, start_at DESC)"""
