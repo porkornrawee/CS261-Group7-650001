@@ -23,7 +23,10 @@ BOOKING_CODE_PREFIX = "PK-"
 
 # Sprint 2 session and reservation lifecycle thresholds.
 CANCEL_DEADLINE_MIN = 30
+# US12: ต้องสแกน QR (check-in) ภายในกี่นาทีหลังเวลาเริ่ม ไม่งั้นยกเลิกอัตโนมัติ (ทีมยังต้องยืนยันค่า)
 NO_SHOW_GRACE_MIN = 15
+# US12: เช็กอินล่วงหน้าได้กี่นาทีก่อนเวลาเริ่ม
+CHECKIN_EARLY_MIN = 15
 
 # US11: session อยู่ได้นานเท่าไร (ชั่วโมง)
 SESSION_LIFETIME_HOURS = 12

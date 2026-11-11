@@ -17,6 +17,7 @@ globalThis.fetch = async () => ({
 
 const { login, logout, me } = await import('../js/api/auth.js');
 const { safeNext, loginRedirect, nextFromHash } = await import('../js/features/auth/session.js');
+const { graceText } = await import('../js/features/reservation/GraceNotice.js');
 
 test('TC-US11-01 ล็อกอินสำเร็จแล้ว /me คืนผู้ใช้', async () => {
   const res = await login({ studentId: '6509650001', password: 'test1234' });
@@ -43,4 +44,9 @@ test('next หลังล็อกอินรับเฉพาะ path ภา
   assert.equal(safeNext('https://evil.example'), '/');
   assert.equal(safeNext('/login'), '/');
   assert.equal(nextFromHash('#/login?next=%2Fticket%2FPK-1'), '/ticket/PK-1');
+});
+test('US12 ข้อความ grace period บอกจำนวนนาทีและเวลาสุดท้าย', () => {
+  assert.match(graceText(15, '08:00'), /15 นาที/);
+  assert.match(graceText(15, '08:00'), /08:15/);
+  assert.match(graceText(undefined, ''), /15 นาที/);
 });

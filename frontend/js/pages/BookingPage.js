@@ -186,6 +186,7 @@ export function BookingPage() {
           vehicleType: vehicleTypeLabel,
           slotStatus: slotState?.status,
           slotBusy: slotState?.busy,
+          graceMin: state.layout?.grace_min,
         },
         busy: state.submitting,
         onConfirm: submit,
