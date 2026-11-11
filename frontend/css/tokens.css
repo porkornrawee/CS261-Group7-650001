@@ -37,6 +37,24 @@
   --text-muted: #6b6b6b;
   --on-brand: #ffffff;
   --on-brand-line: rgba(255, 255, 255, 0.85);
+  --on-brand-muted: rgba(255, 255, 255, 0.78);
+
+  /* ผังลานจอด (ParkingLot / SlotBay): พื้นยางมะตอย เส้นทาสี ทางเท้า และรถมองจากด้านบน */
+  --lot-asphalt: #43474e;
+  --lot-curb: #2f3237;
+  --lot-paint: rgba(255, 255, 255, 0.92);
+  --lot-paint-soft: rgba(255, 255, 255, 0.5);
+  --lot-hover: rgba(255, 255, 255, 0.08);
+  --lot-selected: rgba(245, 196, 0, 0.16);
+  --lot-walkway: #e4ded4;
+  --lot-walkway-stripe: #d2cabd;
+  --lot-median: #7aa35a;
+  --car-booked: #a3a9b2;
+  --car-booked-roof: #8a919b;
+  --car-glass: rgba(20, 26, 34, 0.6);
+  --car-tyre: #1c1e22;
+  --car-light: #fff4c2;
+  --car-shadow: rgba(0, 0, 0, 0.45);
 
   /* States */
   --ok: #16a34a;        --ok-bg: #ecfdf3;     --ok-ink: #14532d;
