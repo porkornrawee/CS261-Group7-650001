@@ -1,11 +1,11 @@
 /**
- * api/client.js — จุดเดียวที่เรียก fetch ของทั้งโปรเจกต์ (Owner: Dev 1 | Ticket: CO-03)
+ * api/client.js — จุดเดียวที่เรียก fetch ของทั้งโปรเจกต์ (Owner: Dev 1 / Dev 2 | Ticket: CO-03 / #40)
  *
  * โหมด mock: เปิดด้วย ?mock=1 ใน URL — ไฟล์ api/*.js ทุกตัวต้องเรียก request() ตัวนี้
  * แล้วส่ง mockFile เข้ามา เพื่อให้ทำ UI ได้โดยไม่ต้องรัน backend
  *
  * request(path, { method, body, mockFile }) -> Promise<object>
- *   - ปกติ: fetch(path) แล้วคืน JSON
+ *   - ปกติ: fetch(path, { credentials: 'same-origin' }) แล้วคืน JSON
  *   - mock : โหลด ./mock/<mockFile> (หน่วงเล็กน้อยให้เห็น loading)
  *   - ถ้า response.ok=false หรือ HTTP ไม่ผ่าน -> throw ApiError(code, message, status)
  */
@@ -34,6 +34,7 @@ export async function request(path, { method = 'GET', body, mockFile } = {}) {
   } else {
     const res = await fetch(path, {
       method,
+      credentials: 'same-origin',
       headers: body ? { 'Content-Type': 'application/json' } : undefined,
       body: body ? JSON.stringify(body) : undefined,
     });
