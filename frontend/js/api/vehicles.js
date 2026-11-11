@@ -37,3 +37,14 @@ export function verifyStudent({ student_id, email }) {
 export function saveVehicle({ student_id, plate, province }) {
   return request('/api/vehicles', { method: 'POST', body: { student_id, plate, province }, mockFile: 'vehicle-saved.json' });
 }
+/**
+ * PUT /api/vehicles/<id>  { plate, province }
+ * -> { ok:true, vehicle:{id,student_id,plate,province} }  (mock: vehicle-updated.json)
+ */
+export function updateVehicle(id, { plate, province }) {
+  return request(`/api/vehicles/${id}`, { 
+    method: 'PUT', 
+    body: { plate, province }, 
+    mockFile: 'vehicle-updated.json' 
+  });
+}
