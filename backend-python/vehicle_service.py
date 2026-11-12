@@ -56,10 +56,13 @@ def verify_student(conn, payload, tu_client=None, now=None):
 def save_vehicle(conn, payload, now=None):
     """บันทึกทะเบียนรถลง SQLite คืนรถที่บันทึก; นักศึกษาเดิมลงซ้ำ = แทนที่ข้อมูลเดิม (id คงเดิม)"""
     student_id = _text(payload, "student_id")
+    vehicle_type = _text(payload, "vehicle_type") or "car"
     plate = _text(payload, "plate")
     province = _text(payload, "province")
     if not STUDENT_ID_RE.match(student_id):
         raise BookingError("VALIDATION_ERROR", "รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก", 400)
+    if vehicle_type not in ("car", "motorcycle"):
+        raise BookingError("VALIDATION_ERROR", "ประเภทรถต้องเป็น car หรือ motorcycle เท่านั้น", 400)
     if not plate or not province:
         raise BookingError("VALIDATION_ERROR", "กรุณากรอกทะเบียนรถและจังหวัด", 400)
     plate = normalize_plate(plate)
