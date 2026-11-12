@@ -63,21 +63,28 @@ def register_member(conn, data, now_func):
 
     password_hash = generate_password_hash(password)
 
-    conn.execute(
-        "INSERT INTO accounts (student_id, email, password_hash, phone, created_at) VALUES (?, ?, ?, ?, ?)",
-        (student_id, email, password_hash, phone, now_func().isoformat(timespec="seconds"))
-    )
-
-    vehicle_payload = {
-        "student_id": student_id,
-        "vehicle_type": vehicle_type,
-        "plate": plate,
-        "province": province
-    }
-    
     try:
+        # บันทึกข้อมูลลงตาราง accounts (US11)
+        conn.execute(
+            "INSERT INTO accounts (student_id, email, password_hash, phone, created_at) VALUES (?, ?, ?, ?, ?)",
+            (student_id, email, password_hash, phone, now_func().isoformat(timespec="seconds"))
+        )
+
+        vehicle_payload = {
+            "student_id": student_id,
+            "vehicle_type": vehicle_type,
+            "plate": plate,
+            "province": province
+        }
+        
+        # บันทึกข้อมูลรถ
         saved_vehicle = vehicle_service.save_vehicle(conn, vehicle_payload, now_func())
+        
+        # ยืนยันการบันทึกข้อมูลลงฐานข้อมูล
+        conn.commit()
+
     except Exception as e:
+        conn.rollback() # ยกเลิกการเปลี่ยนแปลงทั้งหมดหากเกิดข้อผิดพลาด
         raise e
 
     response_data = {
