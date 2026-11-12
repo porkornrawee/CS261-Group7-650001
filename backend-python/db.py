@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS vehicles (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id  TEXT NOT NULL UNIQUE,
+    vehicle_type TEXT NOT NULL DEFAULT 'car',
     plate       TEXT NOT NULL,
     province    TEXT NOT NULL,
     created_at  TEXT NOT NULL,
@@ -117,6 +118,12 @@ def init_db(path):
         for column in ("faculty", "verified_at"):
             if column not in student_columns:
                 conn.execute(f"ALTER TABLE students ADD COLUMN {column} TEXT")
+
+        vehicle_columns = {
+            row["name"] for row in conn.execute("PRAGMA table_info(vehicles)")
+        }
+        if "vehicle_type" not in vehicle_columns:
+            conn.execute("ALTER TABLE vehicles ADD COLUMN vehicle_type TEXT")
 
         # DB เก่าที่มีทะเบียนซ้ำอยู่แล้วจะสร้าง unique index ไม่ได้ (IntegrityError)
         # ข้ามไปก่อนให้เซิร์ฟเวอร์ยังเปิดได้ — vehicle_service ยังกันทะเบียนซ้ำที่ระดับแอปอยู่
