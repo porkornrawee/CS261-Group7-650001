@@ -1,6 +1,6 @@
 """เว็บแอปจองที่จอดรถ (US7): Flask + SQLite + QR Code
 
-รัน:   python app.py          แล้วเปิด http://127.0.0.1:5000
+รัน:   python app.py         แล้วเปิด http://127.0.0.1:5000
 ทดสอบ: python -m unittest discover -s tests -v
 """
 
@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
 
-from auth import login_required, student_from_session
+from auth import login_required, student_from_session, login_user
 import auth_service
 import booking_service as service
 import cancel_service
@@ -20,6 +20,7 @@ import history_service
 import notification_service
 import qr_service
 import vehicle_service
+import member_service
 from config import NO_SHOW_GRACE_MIN, SESSION_LIFETIME_HOURS
 from db import connect, init_db
 from tu_client import create_tu_client
@@ -123,6 +124,32 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         )
         return jsonify({"ok": True, "vehicle": updated_vehicle}), 200
 
+    @app.post("/api/members")
+    def api_register_member():
+        """API สำหรับลงทะเบียนสมาชิก (US2)"""
+        conn = get_conn()
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+            result, status_code = member_service.register_member(
+                conn, request.get_json(silent=True), app.config["NOW_FUNC"]
+            )
+            if status_code >= 400:
+                conn.rollback()
+            else:
+                conn.commit()
+                data = request.get_json(silent=True) or {}
+                if "student_id" in data:
+                    login_user(str(data.get("student_id")).strip())
+
+            return jsonify(result), status_code
+
+        except service.BookingError as be:
+            conn.rollback()
+            return jsonify({"ok": False, "error": {"code": be.code, "message": be.message}}), be.http_status
+        except Exception as e:
+            conn.rollback()
+            return jsonify({"ok": False, "error": {"code": "INTERNAL_ERROR", "message": str(e)}}), 500
+
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
     auth_service.register_routes(app, get_conn)
     no_show_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
@@ -187,8 +214,8 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         notification_service.generate_due_notifications(conn, now)
         rows = conn.execute(
             """SELECT id, reservation_id, type, message, created_at, read_at
-               FROM notifications WHERE student_id = ?
-               ORDER BY created_at DESC, id DESC LIMIT 100""",
+                FROM notifications WHERE student_id = ?
+                ORDER BY created_at DESC, id DESC LIMIT 100""",
             (g.student_id,),
         ).fetchall()
         notifications = [dict(row) for row in rows]
@@ -208,7 +235,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         conn = get_conn()
         row = conn.execute(
             """SELECT id, student_id, reservation_id, type, message, created_at, read_at
-               FROM notifications WHERE id = ?""",
+                FROM notifications WHERE id = ?""",
             (notification_id,),
         ).fetchone()
         if row is None:
@@ -226,7 +253,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         )
         row = conn.execute(
             """SELECT id, reservation_id, type, message, created_at, read_at
-               FROM notifications WHERE id = ?""",
+                FROM notifications WHERE id = ?""",
             (notification_id,),
         ).fetchone()
         return jsonify({"ok": True, "notification": dict(row)})
