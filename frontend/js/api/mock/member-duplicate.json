@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "error": {
+    "code": "MEMBER_DUPLICATE",
+    "message": "มีสมาชิกหรือทะเบียนรถนี้ในระบบแล้ว"
+  }
+}
