@@ -14,10 +14,12 @@ import { HistoryPage } from './pages/HistoryPage.js';
 import { h } from './core/dom.js';
 import { getState } from './store.js';
 import { ensureSession, loginRedirect, nextFromHash } from './features/auth/session.js';
+import { MemberRegisterPage } from './pages/MemberRegisterPage.js';
 
 export const ROUTES = [
   { path: '/', page: HomePage },
   { path: '/login', page: LoginPage, guestOnly: true },
+  { path: '/register-external', page: MemberRegisterPage, guestOnly: true },
   { path: '/vehicle', page: VehiclePage, auth: true },
   { path: '/booking', page: BookingPage, auth: true },
   { path: '/ticket/:code', page: TicketPage, auth: true },
