@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
 
-from auth import login_required, student_from_session
+from auth import login_required, login_user, student_from_session
 import auth_service
 import booking_service as service
 import cancel_service
@@ -20,6 +20,7 @@ import history_service
 import notification_service
 import qr_service
 import vehicle_service
+import member_service
 from config import NO_SHOW_GRACE_MIN, SESSION_LIFETIME_HOURS
 from db import connect, init_db
 from tu_client import create_tu_client
@@ -122,6 +123,29 @@ def create_app(db_path=None, now_func=None, tu_client=None):
             get_conn(), vehicle_id, data, g.student_id, app.config["NOW_FUNC"]()
         )
         return jsonify({"ok": True, "vehicle": updated_vehicle}), 200
+
+    @app.post("/api/members")
+    def api_register_member():
+        """API สำหรับลงทะเบียนสมาชิก (US2): สำเร็จแล้วล็อกอินอัตโนมัติ"""
+        conn = get_conn()
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+            result, status_code = member_service.register_member(
+                conn, request.get_json(silent=True), app.config["NOW_FUNC"]
+            )
+            if status_code >= 400:
+                conn.rollback()
+            else:
+                conn.commit()
+                login_user(result["member"]["student_id"])
+            return jsonify(result), status_code
+        except service.BookingError as be:
+            conn.rollback()
+            return jsonify({"ok": False, "error": {"code": be.code, "message": be.message}}), be.http_status
+        except Exception:
+            conn.rollback()
+            app.logger.exception("register member failed")
+            return jsonify({"ok": False, "error": {"code": "INTERNAL_ERROR", "message": "เกิดข้อผิดพลาดภายในระบบ"}}), 500
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
     auth_service.register_routes(app, get_conn)

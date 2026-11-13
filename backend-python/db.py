@@ -55,6 +55,8 @@ CREATE INDEX IF NOT EXISTS idx_reservations_slot_time
 -- US11: บัญชีเข้าสู่ระบบ (ยังไม่มีบัญชีจริงจาก reg) เก็บเฉพาะ hash ห้ามเก็บรหัสผ่านตรง ๆ
 CREATE TABLE IF NOT EXISTS accounts (
     student_id    TEXT PRIMARY KEY REFERENCES students(student_id),
+    email         TEXT,
+    phone         TEXT,
     password_hash TEXT NOT NULL,
     created_at    TEXT NOT NULL
 );
@@ -63,6 +65,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS vehicles (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id  TEXT NOT NULL UNIQUE,
+    vehicle_type TEXT NOT NULL DEFAULT 'car',
     plate       TEXT NOT NULL,
     province    TEXT NOT NULL,
     created_at  TEXT NOT NULL,
@@ -117,6 +120,25 @@ def init_db(path):
         for column in ("faculty", "verified_at"):
             if column not in student_columns:
                 conn.execute(f"ALTER TABLE students ADD COLUMN {column} TEXT")
+
+        vehicle_columns = {
+            row["name"] for row in conn.execute("PRAGMA table_info(vehicles)")
+        }
+        if "vehicle_type" not in vehicle_columns:
+            conn.execute(
+                "ALTER TABLE vehicles ADD COLUMN vehicle_type TEXT NOT NULL DEFAULT 'car'"
+            )
+
+        # US2: accounts เก็บอีเมล/เบอร์โทรของสมาชิกที่ลงทะเบียน (DB เก่าไม่มีสองคอลัมน์นี้)
+        account_columns = {
+            row["name"] for row in conn.execute("PRAGMA table_info(accounts)")
+        }
+        for column in ("email", "phone"):
+            if column not in account_columns:
+                conn.execute(f"ALTER TABLE accounts ADD COLUMN {column} TEXT")
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_accounts_email ON accounts (email)"
+        )
 
         # DB เก่าที่มีทะเบียนซ้ำอยู่แล้วจะสร้าง unique index ไม่ได้ (IntegrityError)
         # ข้ามไปก่อนให้เซิร์ฟเวอร์ยังเปิดได้ — vehicle_service ยังกันทะเบียนซ้ำที่ระดับแอปอยู่
