@@ -4,7 +4,7 @@
  * @param {{ onSubmit:(cred:{studentId:string,password:string})=>Promise<void>, onSocial?:(name:string)=>void }} props
  * @returns {HTMLElement}
  *
- * - แท็บ "นักศึกษา / บุคลากร" = ฟอร์มนี้ · แท็บ "บุคคลทั่วไป" = ลิงก์ไปหน้า #/register-external ของ Dev 2 (US2)
+ * - แท็บ "นักศึกษา / บุคลากร" = ฟอร์มนี้ · แท็บ "สมัครสมาชิก" = ลิงก์ไปหน้า #/register ของ Dev 2 (US2)
  * - error จาก backend แสดงข้อความเดียว ไม่บอกว่าผิดช่องไหน (AC US11)
  * - กดซ้ำระหว่างรอไม่ได้
  */
@@ -120,8 +120,8 @@ export function LoginForm({ onSubmit, onSocial = () => {} } = {}) {
       class: 'login-form__tab',
       role: 'tab',
       'aria-selected': 'false',
-      href: '#/register-external',
-    }, 'บุคคลทั่วไป (฿10 - 20 / ชม.)'),
+      href: '#/register',
+    }, 'สมัครสมาชิก'),
   );
 
   const socials = h('div', { class: 'login-form__socials' },

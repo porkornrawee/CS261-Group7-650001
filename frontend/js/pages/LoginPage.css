@@ -157,7 +157,7 @@
   font-weight: 500;
 }
 
-/* ช่องรหัสผ่าน + ปุ่มแสดง/ซ่อน (หน้า #/register-external) */
+/* ช่องรหัสผ่าน + ปุ่มแสดง/ซ่อน (หน้า #/register) */
 .login-form__pw {
   position: relative;
   display: flex;

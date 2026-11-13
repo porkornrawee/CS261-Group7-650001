@@ -19,7 +19,7 @@ import { MemberRegisterPage } from './pages/MemberRegisterPage.js';
 export const ROUTES = [
   { path: '/', page: HomePage },
   { path: '/login', page: LoginPage, guestOnly: true },
-  { path: '/register-external', page: MemberRegisterPage, guestOnly: true },
+  { path: '/register', page: MemberRegisterPage, guestOnly: true },
   { path: '/vehicle', page: VehiclePage, auth: true },
   { path: '/booking', page: BookingPage, auth: true },
   { path: '/ticket/:code', page: TicketPage, auth: true },
