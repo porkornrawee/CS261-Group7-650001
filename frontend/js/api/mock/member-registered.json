@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "member": {
+    "student_id": "6509650002",
+    "name": "ผู้ใช้ ทดสอบ",
+    "email": "test@dome.tu.ac.th",
+    "phone": "0812345678"
+  },
+  "vehicle": { "id": 1, "student_id": "6509650002", "vehicle_type": "car", "plate": "1กข 1234", "province": "กรุงเทพมหานคร" }
+}

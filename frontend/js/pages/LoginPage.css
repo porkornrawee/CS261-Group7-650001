@@ -151,6 +151,40 @@
   font-weight: 500;
 }
 
+.login-form__social-label {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 500;
+}
+
+/* ช่องรหัสผ่าน + ปุ่มแสดง/ซ่อน (หน้า #/register) */
+.login-form__pw {
+  position: relative;
+  display: flex;
+}
+.login-form__pw .login-form__input {
+  padding-right: 4.25rem;
+}
+.login-form__pw-toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  padding: 2px var(--space-2);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.login-form__pw-toggle:hover { color: var(--ink); }
+.login-form__pw-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-100);
+}
+
 @media (max-width: 480px) {
   .login-form { padding: var(--space-4); box-shadow: var(--shadow-lg); }
   .login-form__tab { font-size: 0.66rem; }

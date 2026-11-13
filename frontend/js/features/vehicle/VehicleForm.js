@@ -11,7 +11,7 @@ import { h } from '../../core/dom.js';
 import { Button } from '../../components/ui/Button.js';
 import { Alert } from '../../components/ui/Alert.js';
 
-const PROVINCES = [
+export const PROVINCES = [
   "กรุงเทพมหานคร",
   "กระบี่",
   "กาญจนบุรี",
