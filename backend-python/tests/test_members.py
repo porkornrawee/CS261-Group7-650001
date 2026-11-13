@@ -15,8 +15,8 @@ class TestMemberRegistration(unittest.TestCase):
         
         conn = connect(self.db_path)
         conn.execute(
-            "INSERT INTO students (student_id, name, email, phone) VALUES (?, ?, ?, ?)",
-            ("6809650799", "สมชาย ใจดี", "somchai.j@dome.tu.ac.th", "0812345679")
+            "INSERT INTO students (student_id, name, email) VALUES (?, ?, ?)",
+            ("6809650799", "สมชาย ใจดี", "somchai.j@dome.tu.ac.th")
         )
         conn.commit()
         conn.close()
