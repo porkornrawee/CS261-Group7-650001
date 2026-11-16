@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 class FakeNode {
   constructor(tagName, text = '') {
@@ -141,6 +142,7 @@ test('ไม่มีอิโมจิในซอร์สหน้าเว�
       });
     }
   };
-  walk(new URL('../js', import.meta.url).pathname);
+  // fileURLToPath ให้ path ที่ถูกต้องทุกระบบ (.pathname บน Windows ได้ /C:/... แล้วอ่านโฟลเดอร์ไม่เจอ)
+  walk(fileURLToPath(new URL('../js', import.meta.url)));
   assert.deepEqual(offenders, []);
 });
