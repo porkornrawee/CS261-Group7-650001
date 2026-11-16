@@ -19,6 +19,7 @@ import { getLayout, getAvailability } from '../api/zones.js';
 import { createReservation } from '../api/reservations.js';
 import { messageFor } from '../api/errors.js';
 import { getState } from '../store.js';
+import { normalizePlate, plateErrorFor } from '../core/plate.js';
 
 export function BookingPage() {
   const tomorrow = new Date();
@@ -56,16 +57,7 @@ export function BookingPage() {
     { id: 'ev', icon: 'bolt', label: 'รถไฟฟ้า EV' },
   ];
 
-  // ทะเบียนรถไทย: [เลข 1 หลัก] + พยัญชนะ 1-3 ตัว + [เว้นวรรค] + ตัวเลข 1-4 หลัก เช่น กข 1234, 1กข 1234
-  // ตรวจฝั่งหน้าเว็บก่อนส่ง; ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
-  const PLATE_RE = /^[0-9]?[ก-ฮ]{1,3} ?[0-9]{1,4}$/;
-  const normalizePlate = (value) => value.replace(/\s+/g, ' ').trim();
-  const plateErrorFor = (value) => {
-    const plate = normalizePlate(value);
-    if (!plate) return 'กรุณากรอกทะเบียนรถ';
-    if (!PLATE_RE.test(plate)) return 'รูปแบบทะเบียนรถไม่ถูกต้อง (ตัวอย่าง: กข 1234 หรือ 1กข 1234)';
-    return '';
-  };
+  // ทะเบียนตรวจฝั่งหน้าเว็บก่อนส่ง (core/plate.js); ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
 
   const findSlot = (id) => {
     for (const zone of state.layout?.zones || []) {
@@ -168,12 +160,16 @@ export function BookingPage() {
 
   function renderLot() {
     if (!state.layout) return;
+    // ผังถูกวาดใหม่ทั้งหมด → จำช่องที่โฟกัสอยู่ไว้ แล้วคืนโฟกัสให้ (ผู้ใช้คีย์บอร์ดไม่หลงตำแหน่ง, UI test M-15)
+    const active = document.activeElement;
+    const focusedSlot = active && lotBox.contains(active) ? active.getAttribute('data-slot') : null;
     lotBox.replaceChildren(ParkingLot({
       zones: state.layout.zones,
       availability: state.availability,
       selectedSlotId: state.selectedSlotId,
       onSelectSlot: (id) => { state.selectedSlotId = id; renderLot(); renderSummary(); },
     }));
+    if (focusedSlot) lotBox.querySelector(`[data-slot="${focusedSlot}"]`)?.focus();
   }
 
   function renderSummary() {
