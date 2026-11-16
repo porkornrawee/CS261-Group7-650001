@@ -221,6 +221,11 @@ python app.py                      # เปิด http://127.0.0.1:5000  = ห�
 python -m unittest discover -s tests -v    # รันเทสทั้งหมด (ต้องผ่านหมด)
 ```
 
+**รันเทสทั้งโปรเจกต์ (backend + frontend) ด้วยคำสั่งเดียว** จากโฟลเดอร์รากของ repo:
+```bash
+./scripts/run-tests.sh   # ใช้ backend-python/.venv ถ้ามี, ต้องมี node สำหรับเทส frontend
+```
+
 ---
 
 ## 5. วิธีทำงาน 1 ใบงาน ทีละขั้น

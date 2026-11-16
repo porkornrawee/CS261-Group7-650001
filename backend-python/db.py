@@ -186,16 +186,7 @@ def init_db(path):
             """
         )
         _seed_test_account(conn)
-        if conn.execute("SELECT COUNT(*) FROM zones").fetchone()[0] == 0:
-            for zone_name, labels in DEFAULT_ZONES.items():
-                zone_id = conn.execute(
-                    "INSERT INTO zones (name) VALUES (?)", (zone_name,)
-                ).lastrowid
-                for label in labels:
-                    conn.execute(
-                        "INSERT INTO slots (zone_id, label) VALUES (?, ?)",
-                        (zone_id, label),
-                    )
+        _seed_zones_and_slots(conn)
     finally:
         conn.close()
 
@@ -213,6 +204,24 @@ def create_account(conn, student_id, password, name=None, now=None):
            ON CONFLICT(student_id) DO UPDATE SET password_hash = excluded.password_hash""",
         (student_id, generate_password_hash(password, method=PASSWORD_HASH_METHOD), created_at),
     )
+
+
+def _seed_zones_and_slots(conn):
+    """สร้างโซน/ช่องจอดตั้งต้น และเติมช่องที่ยังขาด (ฐานข้อมูลเก่าที่มีแค่ A1-A4/B1-B2)
+    ทำซ้ำได้ ไม่ลบหรือเปลี่ยนช่องเดิม จึงไม่กระทบการจองที่มีอยู่"""
+    for zone_name, labels in DEFAULT_ZONES.items():
+        row = conn.execute("SELECT id FROM zones WHERE name = ?", (zone_name,)).fetchone()
+        zone_id = row[0] if row else conn.execute(
+            "INSERT INTO zones (name) VALUES (?)", (zone_name,)
+        ).lastrowid
+        existing = {
+            r[0] for r in conn.execute("SELECT label FROM slots WHERE zone_id = ?", (zone_id,))
+        }
+        for label in labels:
+            if label not in existing:
+                conn.execute(
+                    "INSERT INTO slots (zone_id, label) VALUES (?, ?)", (zone_id, label)
+                )
 
 
 def _seed_test_account(conn):

@@ -11,6 +11,7 @@
  * - ล็อกอินแล้ว: มีกระดิ่งแจ้งเตือน (US4 ของ Dev 4) + ไอคอนผู้ใช้ ▲ เปิดเมนู "ออกจากระบบ"
  */
 import { h, s } from '../../core/dom.js';
+import { Icon } from '../ui/Icon.js';
 
 export const NAV_LINKS = [
   { href: '#/', label: 'หน้าแรก', match: (path) => path === '/' },
@@ -29,11 +30,6 @@ function userIcon() {
 function chevron() {
   return s('svg', { class: 'app-header-chevron', viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false' },
     s('path', { d: 'M5 15l7-7 7 7', fill: 'none', stroke: 'currentColor', 'stroke-width': 3.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
-}
-
-function bellIcon() {
-  return s('svg', { viewBox: '0 0 24 24', width: 24, height: 24, 'aria-hidden': 'true', focusable: 'false' },
-    s('path', { d: 'M12 22a2.5 2.5 0 0 0 2.4-2h-4.8A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.8V3.5a1.5 1.5 0 0 0-3 0v.7A7 7 0 0 0 5 11v5l-2 2v1h18v-1z', fill: 'currentColor' }));
 }
 
 export function AppHeader({
@@ -65,7 +61,7 @@ export function AppHeader({
       const expanded = nav.classList.toggle('app-header-nav--open');
       menuButton.setAttribute('aria-expanded', String(expanded));
     },
-  }, '☰');
+  }, Icon('menu', { size: 24 }));
 
   const right = h('div', { class: 'app-header-right' }, nav);
 
@@ -79,7 +75,7 @@ export function AppHeader({
       'aria-controls': 'header-notification-list',
       onClick: onToggleNotifications,
     },
-      bellIcon(),
+      Icon('bell', { size: 24 }),
       count > 0 ? h('span', { class: 'app-header-notifications-count', 'aria-hidden': 'true' }, count > 99 ? '99+' : count) : null,
     ));
 

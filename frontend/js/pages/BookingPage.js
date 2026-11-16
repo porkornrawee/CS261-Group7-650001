@@ -9,6 +9,7 @@ import { Card } from '../components/ui/Card.js';
 import { Field } from '../components/ui/Field.js';
 import { Alert } from '../components/ui/Alert.js';
 import { Spinner } from '../components/ui/Spinner.js';
+import { Icon } from '../components/ui/Icon.js';
 import { DateStrip } from '../features/booking/DateStrip.js';
 import { TimeChips } from '../features/booking/TimeChips.js';
 import { DurationPicker } from '../features/booking/DurationPicker.js';
@@ -18,6 +19,7 @@ import { getLayout, getAvailability } from '../api/zones.js';
 import { createReservation } from '../api/reservations.js';
 import { messageFor } from '../api/errors.js';
 import { getState } from '../store.js';
+import { normalizePlate, plateErrorFor } from '../core/plate.js';
 
 export function BookingPage() {
   const tomorrow = new Date();
@@ -50,21 +52,12 @@ export function BookingPage() {
   const stack = { style: 'display:grid;gap:var(--space-4)' };
 
   const VEHICLE_TYPES = [
-    { id: 'car', label: '🚗 รถยนต์' },
-    { id: 'motorcycle', label: '🏍️ มอเตอร์ไซค์' },
-    { id: 'ev', label: '⚡ รถไฟฟ้า EV' },
+    { id: 'car', icon: 'car', label: 'รถยนต์' },
+    { id: 'motorcycle', icon: 'motorcycle', label: 'มอเตอร์ไซค์' },
+    { id: 'ev', icon: 'bolt', label: 'รถไฟฟ้า EV' },
   ];
 
-  // ทะเบียนรถไทย: [เลข 1 หลัก] + พยัญชนะ 1-3 ตัว + [เว้นวรรค] + ตัวเลข 1-4 หลัก เช่น กข 1234, 1กข 1234
-  // ตรวจฝั่งหน้าเว็บก่อนส่ง; ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
-  const PLATE_RE = /^[0-9]?[ก-ฮ]{1,3} ?[0-9]{1,4}$/;
-  const normalizePlate = (value) => value.replace(/\s+/g, ' ').trim();
-  const plateErrorFor = (value) => {
-    const plate = normalizePlate(value);
-    if (!plate) return 'กรุณากรอกทะเบียนรถ';
-    if (!PLATE_RE.test(plate)) return 'รูปแบบทะเบียนรถไม่ถูกต้อง (ตัวอย่าง: กข 1234 หรือ 1กข 1234)';
-    return '';
-  };
+  // ทะเบียนตรวจฝั่งหน้าเว็บก่อนส่ง (core/plate.js); ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
 
   const findSlot = (id) => {
     for (const zone of state.layout?.zones || []) {
@@ -84,7 +77,7 @@ export function BookingPage() {
     const periodToggle = h('div', { style: 'display:flex;gap:var(--space-2);margin-bottom:var(--space-3)' },
       h('button', {
         type: 'button',
-        class: `chip-root${state.period === 'morning' ? ' chip-root--selected' : ''}`,
+        class: `chip-root chip-root--icon${state.period === 'morning' ? ' chip-root--selected' : ''}`,
         onClick: () => {
           if (state.period !== 'morning') {
             state.period = 'morning';
@@ -94,10 +87,10 @@ export function BookingPage() {
             onTimeChange();
           }
         }
-      }, '☀️ ช่วงเช้า (08:00 - 12:00)'),
+      }, Icon('sun', { size: 18 }), 'ช่วงเช้า (08:00 - 12:00)'),
       h('button', {
         type: 'button',
-        class: `chip-root${state.period === 'afternoon' ? ' chip-root--selected' : ''}`,
+        class: `chip-root chip-root--icon${state.period === 'afternoon' ? ' chip-root--selected' : ''}`,
         onClick: () => {
           if (state.period !== 'afternoon') {
             state.period = 'afternoon';
@@ -107,7 +100,7 @@ export function BookingPage() {
             onTimeChange();
           }
         }
-      }, '⛅ ช่วงบ่าย (12:00 - 20:00)')
+      }, Icon('cloud-sun', { size: 18 }), 'ช่วงบ่าย (12:00 - 20:00)')
     );
 
     // Vehicle Type Segmented Control
@@ -116,13 +109,13 @@ export function BookingPage() {
       h('div', { style: 'display:flex;flex-wrap:wrap;gap:var(--space-2)' },
         VEHICLE_TYPES.map((t) => h('button', {
           type: 'button',
-          class: `chip-root${state.vehicleType === t.id ? ' chip-root--selected' : ''}`,
+          class: `chip-root chip-root--icon${state.vehicleType === t.id ? ' chip-root--selected' : ''}`,
           onClick: () => {
             state.vehicleType = t.id;
             renderTime();
             renderSummary();
           }
-        }, t.label))
+        }, Icon(t.icon, { size: 18 }), t.label))
       )
     );
 
@@ -167,12 +160,16 @@ export function BookingPage() {
 
   function renderLot() {
     if (!state.layout) return;
+    // ผังถูกวาดใหม่ทั้งหมด → จำช่องที่โฟกัสอยู่ไว้ แล้วคืนโฟกัสให้ (ผู้ใช้คีย์บอร์ดไม่หลงตำแหน่ง, UI test M-15)
+    const active = document.activeElement;
+    const focusedSlot = active && lotBox.contains(active) ? active.getAttribute('data-slot') : null;
     lotBox.replaceChildren(ParkingLot({
       zones: state.layout.zones,
       availability: state.availability,
       selectedSlotId: state.selectedSlotId,
       onSelectSlot: (id) => { state.selectedSlotId = id; renderLot(); renderSummary(); },
     }));
+    if (focusedSlot) lotBox.querySelector(`[data-slot="${focusedSlot}"]`)?.focus();
   }
 
   function renderSummary() {

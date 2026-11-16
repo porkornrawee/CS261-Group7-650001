@@ -13,6 +13,7 @@
  */
 import { h } from '../../core/dom.js';
 import { SlotBay } from './SlotBay.js';
+import { Icon } from '../../components/ui/Icon.js';
 
 const MAX_PER_ROW = 8;
 
@@ -36,8 +37,8 @@ function chunk(list, size) {
 function lane(withEntrance) {
   return h('div', { class: 'parking-lot__lane', 'aria-hidden': 'true' },
     withEntrance ? h('span', { class: 'parking-lot__entrance' }, 'ทางเข้า') : null,
-    h('span', { class: 'parking-lot__arrow' }, '➜'),
-    h('span', { class: 'parking-lot__arrow' }, '➜'));
+    h('span', { class: 'parking-lot__arrow' }, Icon('arrow-right', { size: 18 })),
+    h('span', { class: 'parking-lot__arrow' }, Icon('arrow-right', { size: 18 })));
 }
 
 export function ParkingLot({ zones = [], availability = null, selectedSlotId = null, onSelectSlot = () => {} } = {}) {
