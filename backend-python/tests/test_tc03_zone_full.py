@@ -1,4 +1,10 @@
 """TC-US7-03  จองโซนเต็ม  (AC3, C01)
+
+[QA] (US1) เคส 4: ลานจอดเต็ม -> 422 ZONE_FULL, ไม่มีการเปลี่ยนแปลงใน DB
+  (test_tc_us7_03_full_zone_rejects_new_booking)
+  ใช้โซน B (จองให้เต็มทุกช่อง) แทนตัวอย่าง "ศกร." ในการ์ด เพราะข้อมูลตั้งต้นมีแค่โซน A/B
+
+รันเฉพาะไฟล์นี้: python -m unittest discover -s tests -p "test_tc03_zone_full.py" -v
 """
 
 import sqlite3
@@ -19,12 +25,24 @@ class TestUS7_03_ZoneFull(ReservationTestCase):
             self.assertEqual(self.book(label, start, end).status_code, 201)
 
     def test_tc_us7_03_full_zone_rejects_new_booking(self):
+        """[QA US1 เคส 4] โซนเต็ม -> 422 ZONE_FULL และ DB ไม่เปลี่ยน"""
+        self.assertEqual(self.db_rows(), [], "ฐานข้อมูลต้องว่างก่อนเริ่มเทส")
         self._fill_zone_b()
+        rows_when_full = self.db_rows()
+        self.assertEqual(len(rows_when_full), len(ZONE_B))
 
         for label in ZONE_B:
             with self.subTest(slot=label):
-                self.assertRejected(self.book(label), 409, "ZONE_FULL")
-        self.assertEqual(len(self.db_rows()), len(ZONE_B))  # ไม่มีการจองเพิ่ม
+                response = self.book(label, name="คนที่สาม")
+
+                # 1) ได้ 422 ZONE_FULL และไม่มีการจอง/QR ใน response
+                self.assertRejected(response, 422, "ZONE_FULL")
+                body = response.get_json()
+                for key in ("reservation", "qr_data_uri", "qr_url"):
+                    self.assertNotIn(key, body)
+
+                # 2) ไม่มีการเปลี่ยนแปลงใน DB (แถวเดิมทุกค่า ไม่มีแถวเพิ่ม)
+                self.assertEqual(self.db_rows(), rows_when_full)
 
     def test_tc_us7_03_availability_reports_the_zone_as_full(self):
         self._fill_zone_b()
@@ -54,7 +72,7 @@ class TestUS7_03_ZoneFull(ReservationTestCase):
         for label in ZONE_B[1:]:
             self.assertEqual(self.book(label, "10:00", "11:30").status_code, 201)
 
-        self.assertRejected(self.book(ZONE_B[0], "10:15", "10:45"), 409, "ZONE_FULL")
+        self.assertRejected(self.book(ZONE_B[0], "10:15", "10:45"), 422, "ZONE_FULL")
 
     def zone_id_of(self, label):
         with closing(sqlite3.connect(self.db_path)) as conn:
