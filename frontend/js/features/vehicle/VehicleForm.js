@@ -10,6 +10,7 @@
 import { h } from '../../core/dom.js';
 import { Button } from '../../components/ui/Button.js';
 import { Alert } from '../../components/ui/Alert.js';
+import { Icon } from '../../components/ui/Icon.js';
 
 export const PROVINCES = [
   "กรุงเทพมหานคร",
@@ -132,7 +133,7 @@ export function VehicleForm({ initial = {}, busy = false, errors = {}, isEdit = 
   showErrors(errors);
   form.append(
     h('div', { class: 'vehicle-form-heading' },
-      h('span', { class: 'vehicle-form-icon', 'aria-hidden': 'true' }, isEdit ? '✏️' : '🚗'),
+      h('span', { class: 'vehicle-form-icon', 'aria-hidden': 'true' }, Icon(isEdit ? 'pencil' : 'car', { size: 26 })),
       h('div', null, 
         h('h2', null, isEdit ? 'แก้ไขข้อมูลรถ' : 'ข้อมูลลงทะเบียนรถ'), 
         h('p', null, isEdit ? 'อัปเดตข้อมูลทะเบียนรถของคุณ' : 'กรอกข้อมูลนักศึกษาและข้อมูลรถให้ครบถ้วน')

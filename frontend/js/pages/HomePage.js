@@ -20,6 +20,9 @@ function zoneCard(zone, size) {
     src: zoneImage(zone.id),
     alt: '',
     loading: 'lazy',
+    decoding: 'async',
+    width: zone.image?.width,
+    height: zone.image?.height,
     onError: () => {
       photo.replaceWith(fallbackArt());
       card.classList.add('home-zone-card--fallback');

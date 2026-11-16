@@ -6,6 +6,7 @@
  * Page เท่านั้นที่คุยกับ js/api/* และ js/store.js ได้ (component ใน ui/ ห้ามรู้จัก api)
  */
 import { h } from '../core/dom.js';
+import { Icon } from '../components/ui/Icon.js';
 import { PageShell } from '../components/layout/PageShell.js';
 import { VehicleForm } from '../features/vehicle/VehicleForm.js';
 import { StudentVerifyStatus } from '../features/vehicle/StudentVerifyStatus.js';
@@ -42,7 +43,7 @@ export function VehiclePage() {
             status.replaceChildren();
             result.replaceChildren(
               VehicleCard({ vehicle, onEdit: handleEditClick }),
-              h('a', { class: 'vehicle-page-next', href: '#/booking' }, 'ไปหน้าจองที่จอดรถ →')
+              h('a', { class: 'vehicle-page-next', href: '#/booking' }, 'ไปหน้าจองที่จอดรถ', Icon('arrow-right', { size: 18 }))
             );
           } else {
             show({ state: 'checking' });
@@ -60,7 +61,7 @@ export function VehiclePage() {
 
             result.replaceChildren(
               VehicleCard({ vehicle, onEdit: handleEditClick }),
-              h('a', { class: 'vehicle-page-next', href: '#/booking' }, 'ไปหน้าจองที่จอดรถ →')
+              h('a', { class: 'vehicle-page-next', href: '#/booking' }, 'ไปหน้าจองที่จอดรถ', Icon('arrow-right', { size: 18 }))
             );
           }
         } catch (error) {

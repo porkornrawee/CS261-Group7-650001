@@ -10,6 +10,7 @@
  *         เต็ม = รถสีเทาจอดอยู่ · ที่เลือก = รถสีแดง + กรอบเรือง
  */
 import { h, s } from '../../core/dom.js';
+import { Icon } from '../../components/ui/Icon.js';
 
 const STATUS_TEXT = { free: 'ว่าง', partial: 'ติดจอง', booked: 'เต็ม' };
 
@@ -63,6 +64,6 @@ export function SlotBay({
     h('span', { class: 'slot-bay__label' }, slot.label),
     showVehicle ? (kind === 'moto' ? motoTopView() : carTopView()) : null,
     status === 'partial' && !selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--partial', 'aria-hidden': 'true' }, '!') : null,
-    selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--selected', 'aria-hidden': 'true' }, '✓') : null,
+    selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--selected', 'aria-hidden': 'true' }, Icon('check', { size: 12, class: 'icon--bold' })) : null,
   );
 }

@@ -1,0 +1,35 @@
+/* Icon — ไอคอน SVG แบบเส้น ขนาดตาม width/height, สีตาม currentColor */
+.icon {
+  flex: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+.icon--bold { stroke-width: 3.2; }
+
+/* ชิป/ปุ่มที่มีไอคอนนำหน้าข้อความ: จัดกึ่งกลางแนวตั้ง ระยะห่างสม่ำเสมอ */
+.chip-root--icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* กล่องไอคอนในหัวฟอร์ม/กล่องยืนยัน: จัดไอคอนกึ่งกลางทั้งสองแกน */
+.vehicle-form-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  color: var(--primary);
+}
+.cancel-dialog__icon .icon { display: block; }
+
+.vehicle-page-next {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.parking-lot__arrow { display: inline-grid; place-items: center; }
+.slot-bay__badge .icon { display: block; }
+
+.app-header-toggle { align-items: center; padding: 6px 10px; }

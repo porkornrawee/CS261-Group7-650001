@@ -4,7 +4,7 @@ import { AppFooter } from './components/layout/AppFooter.js';
 import { getState, subscribe } from './store.js';
 import { ensureSession, signOut } from './features/auth/session.js';
 import { listNotifications, markNotificationRead } from './api/notifications.js';
-import { NotificationList } from './features/notification/NotificationList.js';
+import { NotificationList, notificationMeta, resetNotificationFilter } from './features/notification/NotificationList.js';
 import { showToast } from './components/ui/Toast.js';
 import { startRouter, currentPath } from './router.js';
 
@@ -24,6 +24,7 @@ function renderHeader() {
     user: getState().user,
     onLogout: () => {
       notificationPanelOpen = false;
+      resetNotificationFilter();
       signOut().catch(() => showToast('ออกจากระบบไม่สำเร็จ กรุณาลองใหม่', 'error'));
     },
     unreadCount,
@@ -46,8 +47,15 @@ function renderHeader() {
           showToast('ทำเครื่องหมายแจ้งเตือนไม่สำเร็จ กรุณาลองใหม่', 'error');
         }
       },
+      onReadAll: async (ids) => {
+        const results = await Promise.allSettled(ids.map((id) => markNotificationRead(id)));
+        await pollNotifications();
+        if (results.some((r) => r.status === 'rejected')) {
+          showToast('ทำเครื่องหมายอ่านแล้วไม่ครบทุกรายการ กรุณาลองใหม่', 'error');
+        }
+      },
     });
-    el.querySelector('.app-header-root').append(list);
+    el.append(list);
   }
 }
 
@@ -60,7 +68,7 @@ async function pollNotifications() {
     for (const notification of next) {
       const id = String(notification.id);
       if (initialPollCompleted && !notification.read_at && !knownNotificationIds.has(id)) {
-        showToast(notification.message || 'มีการแจ้งเตือนใหม่', 'info');
+        showToast(notification.message || 'มีการแจ้งเตือนใหม่', 'info', notificationMeta(notification.type).icon);
       }
       knownNotificationIds.add(id);
     }
@@ -92,7 +100,28 @@ subscribe((state) => {
 });
 
 renderHeader();
-window.addEventListener('hashchange', renderHeader);
+window.addEventListener('hashchange', () => {
+  notificationPanelOpen = false; // เปลี่ยนหน้าแล้วปิดแผงแจ้งเตือน
+  renderHeader();
+});
+
+// ปิดแผงแจ้งเตือนเมื่อกด Esc (คืนโฟกัสให้ปุ่มกระดิ่ง) หรือคลิกนอกแผง
+function closeNotificationPanel({ restoreFocus = false } = {}) {
+  if (!notificationPanelOpen) return;
+  notificationPanelOpen = false;
+  renderHeader();
+  if (restoreFocus) header.querySelector('.app-header-notifications-toggle')?.focus();
+}
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeNotificationPanel({ restoreFocus: true });
+});
+document.addEventListener('click', (event) => {
+  if (!notificationPanelOpen) return;
+  const target = event.target;
+  if (target.closest?.('#header-notification-list, .app-header-notifications-toggle')) return;
+  if (!target.isConnected) return; // รายการที่ถูก render ใหม่ระหว่างคลิก ไม่ถือว่าคลิกนอกแผง
+  closeNotificationPanel();
+});
 ensureSession();
 window.setInterval(pollNotifications, 45_000);
 startRouter(document.querySelector('#app'));

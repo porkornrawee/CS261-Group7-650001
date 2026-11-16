@@ -9,6 +9,7 @@ import { Card } from '../components/ui/Card.js';
 import { Field } from '../components/ui/Field.js';
 import { Alert } from '../components/ui/Alert.js';
 import { Spinner } from '../components/ui/Spinner.js';
+import { Icon } from '../components/ui/Icon.js';
 import { DateStrip } from '../features/booking/DateStrip.js';
 import { TimeChips } from '../features/booking/TimeChips.js';
 import { DurationPicker } from '../features/booking/DurationPicker.js';
@@ -50,9 +51,9 @@ export function BookingPage() {
   const stack = { style: 'display:grid;gap:var(--space-4)' };
 
   const VEHICLE_TYPES = [
-    { id: 'car', label: '🚗 รถยนต์' },
-    { id: 'motorcycle', label: '🏍️ มอเตอร์ไซค์' },
-    { id: 'ev', label: '⚡ รถไฟฟ้า EV' },
+    { id: 'car', icon: 'car', label: 'รถยนต์' },
+    { id: 'motorcycle', icon: 'motorcycle', label: 'มอเตอร์ไซค์' },
+    { id: 'ev', icon: 'bolt', label: 'รถไฟฟ้า EV' },
   ];
 
   // ทะเบียนรถไทย: [เลข 1 หลัก] + พยัญชนะ 1-3 ตัว + [เว้นวรรค] + ตัวเลข 1-4 หลัก เช่น กข 1234, 1กข 1234
@@ -84,7 +85,7 @@ export function BookingPage() {
     const periodToggle = h('div', { style: 'display:flex;gap:var(--space-2);margin-bottom:var(--space-3)' },
       h('button', {
         type: 'button',
-        class: `chip-root${state.period === 'morning' ? ' chip-root--selected' : ''}`,
+        class: `chip-root chip-root--icon${state.period === 'morning' ? ' chip-root--selected' : ''}`,
         onClick: () => {
           if (state.period !== 'morning') {
             state.period = 'morning';
@@ -94,10 +95,10 @@ export function BookingPage() {
             onTimeChange();
           }
         }
-      }, '☀️ ช่วงเช้า (08:00 - 12:00)'),
+      }, Icon('sun', { size: 18 }), 'ช่วงเช้า (08:00 - 12:00)'),
       h('button', {
         type: 'button',
-        class: `chip-root${state.period === 'afternoon' ? ' chip-root--selected' : ''}`,
+        class: `chip-root chip-root--icon${state.period === 'afternoon' ? ' chip-root--selected' : ''}`,
         onClick: () => {
           if (state.period !== 'afternoon') {
             state.period = 'afternoon';
@@ -107,7 +108,7 @@ export function BookingPage() {
             onTimeChange();
           }
         }
-      }, '⛅ ช่วงบ่าย (12:00 - 20:00)')
+      }, Icon('cloud-sun', { size: 18 }), 'ช่วงบ่าย (12:00 - 20:00)')
     );
 
     // Vehicle Type Segmented Control
@@ -116,13 +117,13 @@ export function BookingPage() {
       h('div', { style: 'display:flex;flex-wrap:wrap;gap:var(--space-2)' },
         VEHICLE_TYPES.map((t) => h('button', {
           type: 'button',
-          class: `chip-root${state.vehicleType === t.id ? ' chip-root--selected' : ''}`,
+          class: `chip-root chip-root--icon${state.vehicleType === t.id ? ' chip-root--selected' : ''}`,
           onClick: () => {
             state.vehicleType = t.id;
             renderTime();
             renderSummary();
           }
-        }, t.label))
+        }, Icon(t.icon, { size: 18 }), t.label))
       )
     );
 

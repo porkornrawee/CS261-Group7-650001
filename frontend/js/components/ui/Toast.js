@@ -7,16 +7,22 @@
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .toast- ใน Toast.css)
  */
 import { h } from '../../core/dom.js';
-export function Toast({ message = '', tone = 'info' } = {}) {
-  return h('div', { class: `toast-root toast-root--${tone}`, role: 'status' }, message);
+import { Icon } from './Icon.js';
+
+const TONE_ICON = { success: 'check', error: 'alert-triangle', info: 'info' };
+export function Toast({ message = '', tone = 'info', icon } = {}) {
+  return h('div', { class: `toast-root toast-root--${tone}`, role: 'status' },
+    Icon(icon || TONE_ICON[tone] || 'info', { size: 20 }),
+    h('span', { class: 'toast-message' }, message),
+  );
 }
-export function showToast(message, tone = 'info') {
+export function showToast(message, tone = 'info', icon) {
   let container = document.querySelector('.toast-container');
   if (!container) {
     container = h('div', { class: 'toast-container', 'aria-live': 'polite' });
     document.body.append(container);
   }
-  const toast = Toast({ message, tone });
+  const toast = Toast({ message, tone, icon });
   container.append(toast);
   window.setTimeout(() => { toast.remove(); if (!container.childElementCount) container.remove(); }, 4000);
   return toast;

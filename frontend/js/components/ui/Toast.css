@@ -13,9 +13,14 @@
   padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
   background: var(--info-bg);
   color: var(--info-ink);
 }
+.toast-root .icon { margin-top: 2px; }
+.toast-message { min-width: 0; overflow-wrap: anywhere; }
 .toast-root--success {
   background: var(--ok-bg);
   color: var(--ok-ink);
