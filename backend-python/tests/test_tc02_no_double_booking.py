@@ -1,4 +1,9 @@
 """TC-US7-02  จองซ้ำช่องที่ถูกจองแล้ว / 2 คนพร้อมกันสำเร็จ 1  (AC2, NFR02)
+
+[QA] (US1) เคส 3: ช่องถูกจองแล้ว (ช่องและช่วงเวลาเดียวกัน) -> 409, DB มีเพียงการจองแรก
+  (test_tc_us7_02_same_slot_same_time_is_rejected)
+
+รันเฉพาะไฟล์นี้: python -m unittest discover -s tests -p "test_tc02_no_double_booking.py" -v
 """
 
 import sqlite3
@@ -11,12 +16,31 @@ from us7_support import DAY, ReservationTestCase
 class TestUS7_02_NoDoubleBooking(ReservationTestCase):
 
     def test_tc_us7_02_same_slot_same_time_is_rejected(self):
-        self.assertEqual(self.book("A1").status_code, 201)
+        """[QA US1 เคส 3] ช่องและช่วงเวลาเดียวกัน -> 409, DB มีเพียงการจองแรก"""
+        self.assertEqual(self.db_rows(), [], "ฐานข้อมูลต้องว่างก่อนเริ่มเทส")
 
-        second = self.book("A1", name="คนที่สอง")
+        first = self.book("A1", name="คนแรก")
+        self.assertEqual(first.status_code, 201, first.get_data(as_text=True))
+        first_code = first.get_json()["reservation"]["code"]
+        rows_after_first = self.db_rows()
 
+        second = self.book("A1", name="คนที่สอง")  # ช่อง A1 วัน/เวลาเดียวกัน 10:00-11:00
+
+        # 1) ได้ 409 SLOT_CONFLICT และไม่มีการจอง/QR ใน response
         self.assertRejected(second, 409, "SLOT_CONFLICT")
-        self.assertEqual(len(self.db_rows()), 1)  # ไม่มีแถวที่ 2 ในฐานข้อมูล
+        body = second.get_json()
+        for key in ("reservation", "qr_data_uri", "qr_url"):
+            self.assertNotIn(key, body)
+
+        # 2) DB มีเพียงการจองแรก (ไม่มีแถวที่ 2 และแถวแรกไม่ถูกแก้)
+        rows = self.db_rows()
+        self.assertEqual(rows, rows_after_first)
+        self.assertEqual(len(rows), 1)
+        code, slot_id, user_name, start_at, end_at = rows[0]
+        self.assertEqual(code, first_code)
+        self.assertEqual(slot_id, self.slots["A1"])
+        self.assertEqual(user_name, "คนแรก")
+        self.assertEqual((start_at, end_at), (f"{DAY}T10:00", f"{DAY}T11:00"))
 
     def test_tc_us7_02_overlapping_time_ranges_are_rejected(self):
         self.assertEqual(self.book("A1", "10:00", "11:00").status_code, 201)
