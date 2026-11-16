@@ -61,6 +61,7 @@ Dev 1: CORE-01 (schema + auth helper + error codes)   ← ทุกคนรอ 
 | `EXTEND_CONFLICT` | 409 | US9 |
 | `MEMBER_DUPLICATE` | 409 | US2 |
 | `STUDENT_NOT_FOUND` | 404 | US2 |
+| `ZONE_FULL` | 422 | US7/US1 จอง (โซนเต็มในช่วงเวลานั้น) |
 
 **สัญญา API ของแต่ละ US** (รูปแบบ response ละเอียดอยู่ในเอกสารของแต่ละ Dev — ใครแก้สัญญาต้องแจ้งในแชทก่อน)
 
