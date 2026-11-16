@@ -50,17 +50,21 @@ class ReservationTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
-    def book(self, label, start="10:00", end="11:00", date=DAY, name="สมชาย ใจดี", client=None):
-        return (client or self.client).post(
-            "/api/reservations",
-            json={
-                "user_name": name,
-                "slot_id": self.slots[label],
-                "date": date,
-                "start": start,
-                "end": end,
-            },
-        )
+    def book(self, label, start="10:00", end="11:00", date=DAY, name="สมชาย ใจดี", client=None,
+             plate=None, vehicle_type=None):
+        payload = {
+            "user_name": name,
+            "slot_id": self.slots[label],
+            "date": date,
+            "start": start,
+            "end": end,
+        }
+        # ส่งทะเบียน/ประเภทรถเฉพาะเมื่อระบุ เพื่อให้เทสเดิมที่ไม่ส่งทำงานเหมือนเดิม
+        if plate is not None:
+            payload["plate"] = plate
+        if vehicle_type is not None:
+            payload["vehicle_type"] = vehicle_type
+        return (client or self.client).post("/api/reservations", json=payload)
 
     def db_rows(self):
         """อ่านตาราง reservations จากไฟล์ฐานข้อมูลโดยตรง"""
@@ -68,6 +72,21 @@ class ReservationTestCase(unittest.TestCase):
             return conn.execute(
                 "SELECT code, slot_id, user_name, start_at, end_at FROM reservations"
             ).fetchall()
+
+    def db_reservations(self):
+        """อ่านตาราง reservations แบบครบคอลัมน์ (คืน list ของ dict) ไม่กระทบรูปแบบของ db_rows()"""
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            conn.row_factory = sqlite3.Row
+            return [dict(row) for row in conn.execute("SELECT * FROM reservations ORDER BY id")]
+
+    def zone_free(self, zone_name, start="10:00", end="11:00", date=DAY):
+        """จำนวนช่องว่างของโซนในช่วงเวลา จาก GET /api/availability"""
+        layout = self.client.get("/api/zones").get_json()
+        zone_id = next(z["id"] for z in layout["zones"] if z["name"] == zone_name)
+        availability = self.client.get(
+            "/api/availability", query_string={"date": date, "start": start, "end": end}
+        ).get_json()
+        return next(z["free"] for z in availability["zones"] if z["id"] == zone_id)
 
     def assertRejected(self, response, status, code):
         self.assertEqual(response.status_code, status, response.get_data(as_text=True))
