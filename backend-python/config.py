@@ -12,10 +12,11 @@ CLOSE_TIME = "20:00"
 NOTIFY_BEFORE_MIN = 15
 
 # ข้อมูลโซนและช่องจอดตั้งต้น (แทนข้อมูลจาก US6 ในช่วง Sprint 1)
-# โซน B มีแค่ 2 ช่อง เพื่อให้สาธิตกรณี "โซนเต็ม" ได้เร็ว
+# โซนละ 10 ช่อง (ฐานข้อมูลเก่าจะถูกเติมช่องที่ขาดให้อัตโนมัติตอน init_db โดยไม่แตะการจองเดิม)
+SLOTS_PER_ZONE = 10
 DEFAULT_ZONES = {
-    "โซน A": ["A1", "A2", "A3", "A4"],
-    "โซน B": ["B1", "B2"],
+    "โซน A": [f"A{i}" for i in range(1, SLOTS_PER_ZONE + 1)],
+    "โซน B": [f"B{i}" for i in range(1, SLOTS_PER_ZONE + 1)],
 }
 
 MAX_NAME_LENGTH = 100

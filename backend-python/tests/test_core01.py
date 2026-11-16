@@ -72,7 +72,16 @@ class CoreSchemaTests(unittest.TestCase):
                 "SELECT sql FROM sqlite_master WHERE type='trigger' AND name='trg_no_overlapping_reservation'"
             ).fetchone()["sql"]
             self.assertIn("auto_cancelled", trigger)
-            self.assertEqual(conn.execute("SELECT COUNT(*) FROM slots").fetchone()[0], 1)
+            # ช่องเดิม (id 1 = A1) ยังอยู่ที่เดิมและการจองเดิมยังผูกกับช่องนั้น
+            self.assertEqual(
+                tuple(conn.execute("SELECT id, label FROM slots WHERE label = 'A1'").fetchone()),
+                (1, "A1"),
+            )
+            self.assertEqual(conn.execute("SELECT slot_id FROM reservations").fetchone()[0], 1)
+            # เรียก init_db สองรอบแล้วเติมช่องที่ขาดครบโดยไม่ซ้ำ: 2 โซน x 10 ช่อง
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM slots").fetchone()[0], 20)
+            self.assertEqual(conn.execute("SELECT COUNT(DISTINCT label) FROM slots").fetchone()[0], 20)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM zones").fetchone()[0], 2)
 
     def test_cancelled_reservation_releases_the_slot_for_a_new_booking(self):
         init_db(self.path)

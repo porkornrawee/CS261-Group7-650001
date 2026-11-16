@@ -4,23 +4,27 @@
 import sqlite3
 from contextlib import closing
 
+from config import DEFAULT_ZONES
 from us7_support import DAY, ReservationTestCase
+
+ZONE_B = DEFAULT_ZONES["โซน B"]
+ZONE_A = DEFAULT_ZONES["โซน A"]
 
 
 class TestUS7_03_ZoneFull(ReservationTestCase):
 
     def _fill_zone_b(self, start="10:00", end="11:00"):
-        # โซน B มี 2 ช่อง (B1, B2) -> จองครบทั้งสองช่อง = โซนเต็ม
-        self.assertEqual(self.book("B1", start, end).status_code, 201)
-        self.assertEqual(self.book("B2", start, end).status_code, 201)
+        # จองครบทุกช่องของโซน B = โซนเต็ม
+        for label in ZONE_B:
+            self.assertEqual(self.book(label, start, end).status_code, 201)
 
     def test_tc_us7_03_full_zone_rejects_new_booking(self):
         self._fill_zone_b()
 
-        for label in ("B1", "B2"):
+        for label in ZONE_B:
             with self.subTest(slot=label):
                 self.assertRejected(self.book(label), 409, "ZONE_FULL")
-        self.assertEqual(len(self.db_rows()), 2)  # ไม่มีการจองเพิ่ม
+        self.assertEqual(len(self.db_rows()), len(ZONE_B))  # ไม่มีการจองเพิ่ม
 
     def test_tc_us7_03_availability_reports_the_zone_as_full(self):
         self._fill_zone_b()
@@ -33,9 +37,9 @@ class TestUS7_03_ZoneFull(ReservationTestCase):
         zone_b = zones[self.zone_id_of("B1")]
         zone_a = zones[self.zone_id_of("A1")]
         self.assertTrue(zone_b["full"])
-        self.assertEqual((zone_b["free"], zone_b["total"]), (0, 2))
+        self.assertEqual((zone_b["free"], zone_b["total"]), (0, len(ZONE_B)))
         self.assertFalse(zone_a["full"])
-        self.assertEqual((zone_a["free"], zone_a["total"]), (4, 4))
+        self.assertEqual((zone_a["free"], zone_a["total"]), (len(ZONE_A), len(ZONE_A)))
 
     def test_tc_us7_03_zone_is_only_full_for_the_booked_period(self):
         self._fill_zone_b("10:00", "11:00")
@@ -45,10 +49,12 @@ class TestUS7_03_ZoneFull(ReservationTestCase):
 
     def test_tc_us7_03_zone_is_full_when_partial_overlaps_cover_every_slot(self):
         """ช่องแต่ละช่องถูกจองคนละช่วงที่เหลื่อมกัน แต่ครอบช่วงที่ขอทั้งหมด = เต็ม"""
-        self.assertEqual(self.book("B1", "09:00", "10:30").status_code, 201)
-        self.assertEqual(self.book("B2", "10:00", "11:30").status_code, 201)
+        # ช่องแรกจอง 09:00-10:30 ที่เหลือจอง 10:00-11:30 → ช่วง 10:15-10:45 ไม่มีช่องว่างเลย
+        self.assertEqual(self.book(ZONE_B[0], "09:00", "10:30").status_code, 201)
+        for label in ZONE_B[1:]:
+            self.assertEqual(self.book(label, "10:00", "11:30").status_code, 201)
 
-        self.assertRejected(self.book("B1", "10:15", "10:45"), 409, "ZONE_FULL")
+        self.assertRejected(self.book(ZONE_B[0], "10:15", "10:45"), 409, "ZONE_FULL")
 
     def zone_id_of(self, label):
         with closing(sqlite3.connect(self.db_path)) as conn:
