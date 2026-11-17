@@ -1,7 +1,7 @@
 /**
  * SlotBay — ช่องจอด 1 ช่อง มองจากด้านบน 3 สถานะ: free / partial / booked (+ selected)
  * Owner: Dev 3 | Ticket: BK-06 | Priority: P0
- * @param { {slot:{id:number,label:string}, status:'free'|'partial'|'booked', busy?:Array<{start:string,end:string}>, selected?:boolean, onSelect:(slotId:number)=>void, kind?:'car'|'moto', facing?:'down'|'up'} } props
+ * @param { {slot:{id:number,label:string}, status:'free'|'partial'|'booked', busy?:Array<{start:string,end:string}>, selected?:boolean, highlighted?:boolean, onSelect:(slotId:number)=>void, kind?:'car'|'moto', facing?:'down'|'up'} } props
  * @returns {HTMLElement}
  * Done when: ช่องที่ booked ต้อง 'กดได้' ตามเดิม (ให้ Backend เป็นผู้ตัดสิน), แยกสถานะด้วยรูปรถ/ป้าย ไม่พึ่งสีอย่างเดียว
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .slot-bay- ใน SlotBay.css)
@@ -38,12 +38,12 @@ function motoTopView() {
 }
 
 export function SlotBay({
-  slot, status, busy = [], selected = false, onSelect = () => {}, kind = 'car', facing = 'down',
+  slot, status, busy = [], selected = false, highlighted = false, onSelect = () => {}, kind = 'car', facing = 'down',
 } = {}) {
   const known = status in STATUS_TEXT;
   const stateText = known ? STATUS_TEXT[status] : '';
   const busyText = busy.map((b) => `${b.start}–${b.end}`).join(', ');
-  const showVehicle = selected || status === 'booked' || status === 'partial';
+  const showVehicle = selected || highlighted || status === 'booked' || status === 'partial';
 
   // หมายเหตุ: ช่องที่ booked ยังกดเลือกได้ (ไม่ใส่ disabled) เพื่อให้เห็นว่า Backend เป็นผู้ตัดสินจริง ไม่ใช่แค่ UI
   return h('button', {
@@ -54,16 +54,18 @@ export function SlotBay({
       `slot-bay--facing-${facing}`,
       known && `slot-bay--${status}`,
       selected && 'slot-bay--selected',
+      highlighted && 'slot-bay--highlighted',
     ].filter(Boolean).join(' '),
     'data-slot': slot.id,
     'aria-pressed': String(selected),
-    'aria-label': `ช่อง ${slot.label}${stateText ? ' ' + stateText : ''}${busyText ? ` (ติดจอง ${busyText} น.)` : ''}`,
-    title: busyText ? `ติดจอง ${busyText} น.` : `ช่อง ${slot.label}${stateText ? ' · ' + stateText : ''}`,
+    'aria-label': `ช่อง ${slot.label}${highlighted ? ' (ช่องที่คุณจอง)' : ''}${stateText ? ' ' + stateText : ''}${busyText ? ` (ติดจอง ${busyText} น.)` : ''}`,
+    title: highlighted ? `ช่องที่คุณจอง: ${slot.label}` : busyText ? `ติดจอง ${busyText} น.` : `ช่อง ${slot.label}${stateText ? ' · ' + stateText : ''}`,
     onClick: () => onSelect(slot.id),
   },
     h('span', { class: 'slot-bay__label' }, slot.label),
     showVehicle ? (kind === 'moto' ? motoTopView() : carTopView()) : null,
     status === 'partial' && !selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--partial', 'aria-hidden': 'true' }, '!') : null,
+    highlighted ? h('span', { class: 'slot-bay__badge slot-bay__badge--highlighted', 'aria-hidden': 'true' }, Icon('map-pin', { size: 12, class: 'icon--bold' })) : null,
     selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--selected', 'aria-hidden': 'true' }, Icon('check', { size: 12, class: 'icon--bold' })) : null,
   );
 }

@@ -52,6 +52,7 @@ export function HistoryPage() {
       results.replaceChildren(ReservationTable({
         reservations,
         onOpen: (code) => { window.location.hash = `#/ticket/${encodeURIComponent(code)}`; },
+        onShowSlot: (code) => { window.location.hash = `#/history/${encodeURIComponent(code)}/slot`; },
       }));
     } catch (error) {
       if (currentRequest === requestId) {

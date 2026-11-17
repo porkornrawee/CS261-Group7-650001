@@ -28,3 +28,19 @@ export function thaiDate(text) {
   const month = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
   return `${date.getDate()} ${month[date.getMonth()]} ${date.getFullYear() + 543}`;
 }
+
+/** เวลาเริ่มนี้ผ่านไปแล้วหรือยัง (เทียบกับเวลาจริง) — ตรงกับกติกา PAST_TIME ของ backend (start < now) */
+export function isPastStart(date, hhmm, now = new Date()) {
+  if (!date || !hhmm) return false;
+  const [y, m, d] = date.split('-').map(Number);
+  const [hh, mm] = hhmm.split(':').map(Number);
+  return new Date(y, m - 1, d, hh, mm) < now;
+}
+
+/** ชิปเวลาแรกในช่วง [openMin, closeMin) ที่ยังไม่ผ่านไป (null = ไม่มีให้เลือกแล้ว) */
+export function firstBookableStart(date, openMin, closeMin, stepMin = 60, now = new Date()) {
+  for (let min = openMin; min < closeMin; min += stepMin) {
+    if (!isPastStart(date, fromMin(min), now)) return fromMin(min);
+  }
+  return null;
+}

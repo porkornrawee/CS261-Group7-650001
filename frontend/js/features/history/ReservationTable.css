@@ -135,3 +135,11 @@
   color: #94a3b8;
   font-size: 0.9rem;
 }
+.reservation-table__btn--slot {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--surface);
+}
+.reservation-table__btn--slot:hover {
+  background: var(--primary-50);
+}

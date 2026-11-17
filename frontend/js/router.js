@@ -11,6 +11,7 @@ import { VehiclePage } from './pages/VehiclePage.js';
 import { BookingPage } from './pages/BookingPage.js';
 import { TicketPage } from './pages/TicketPage.js';
 import { HistoryPage } from './pages/HistoryPage.js';
+import { MyBookingPage } from './pages/MyBookingPage.js';
 import { h } from './core/dom.js';
 import { getState } from './store.js';
 import { ensureSession, loginRedirect, nextFromHash } from './features/auth/session.js';
@@ -24,6 +25,7 @@ export const ROUTES = [
   { path: '/booking', page: BookingPage, auth: true },
   { path: '/ticket/:code', page: TicketPage, auth: true },
   { path: '/history', page: HistoryPage, auth: true },
+  { path: '/history/:code/slot', page: MyBookingPage, auth: true },
 ];
 
 export function match(pattern, path) {

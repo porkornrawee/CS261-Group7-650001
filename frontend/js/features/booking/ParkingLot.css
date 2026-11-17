@@ -166,3 +166,5 @@
   .parking-lot__row { padding: 0 var(--space-1); }
   .parking-lot__entrance { font-size: 0.65rem; padding: 2px 6px; }
 }
+
+.parking-lot__swatch--highlighted { background: var(--primary); outline: 2px dashed var(--accent); outline-offset: 1px; }

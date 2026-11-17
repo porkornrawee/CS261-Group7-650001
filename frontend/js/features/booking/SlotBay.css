@@ -98,3 +98,15 @@
 .slot-bay--facing-up .slot-bay__badge { top: auto; bottom: 3%; }
 .slot-bay__badge--partial { background: var(--warn); color: var(--accent-ink); }
 .slot-bay__badge--selected { background: var(--accent); color: var(--accent-ink); }
+
+/* ช่องที่ผู้ใช้จอง (US8): ขอบเส้นประหนา + ป้ายหมุด ไม่พึ่งสีอย่างเดียว */
+.slot-bay--highlighted {
+  background: var(--lot-selected);
+  outline: 3px dashed var(--accent);
+  outline-offset: -3px;
+}
+.slot-bay--highlighted .slot-bay__vehicle { opacity: 1; }
+.slot-bay--highlighted .slot-bay__body { fill: var(--primary); }
+.slot-bay--highlighted .slot-bay__roof,
+.slot-bay--highlighted .slot-bay__mirror { fill: var(--primary-dark); }
+.slot-bay__badge--highlighted { background: var(--accent); color: var(--accent-ink); }

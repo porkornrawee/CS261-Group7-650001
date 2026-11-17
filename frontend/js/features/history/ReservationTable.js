@@ -14,7 +14,7 @@ const STATUS_BADGES = {
   auto_cancelled: { text: 'ยกเลิกอัตโนมัติ', tone: 'warning' },
 };
 
-export function ReservationTable({ reservations = [], onOpen, onCancel, onReport } = {}) {
+export function ReservationTable({ reservations = [], onOpen, onCancel, onReport, onShowSlot } = {}) {
   const container = h('div', { class: 'reservation-table' });
   if (!reservations.length) {
     container.append(h('div', { class: 'reservation-table__empty' },
@@ -42,6 +42,17 @@ export function ReservationTable({ reservations = [], onOpen, onCancel, onReport
           type: 'button',
           onClick: () => onOpen?.(code),
         }, 'ดู QR Code')
+      );
+    }
+
+    if (!isCancelled && onShowSlot) {
+      actionButtons.push(
+        h('button', {
+          class: 'btn reservation-table__btn reservation-table__btn--slot',
+          type: 'button',
+          'aria-label': `ดูตำแหน่งช่อง ${slot} บนผัง`,
+          onClick: () => onShowSlot(code),
+        }, 'ดูตำแหน่งบนผัง')
       );
     }
 
