@@ -40,3 +40,10 @@
   font-size: 0.9rem;
   margin: 0;
 }
+
+.time-chips-item:disabled,
+.time-chips-item--past {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}

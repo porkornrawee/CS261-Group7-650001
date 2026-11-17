@@ -9,7 +9,8 @@
       "date": "2026-10-20",
       "start": "09:00",
       "end": "10:00",
-      "status": "completed"
+      "status": "completed",
+      "slot_id": 1
     },
     {
       "id": 2,
@@ -19,7 +20,8 @@
       "date": "2026-10-21",
       "start": "11:00",
       "end": "12:00",
-      "status": "cancelled"
+      "status": "cancelled",
+      "slot_id": 2
     },
     {
       "id": 3,
@@ -29,7 +31,8 @@
       "date": "2026-10-22",
       "start": "13:00",
       "end": "14:00",
-      "status": "auto_cancelled"
+      "status": "auto_cancelled",
+      "slot_id": 5
     },
     {
       "id": 4,
@@ -39,7 +42,8 @@
       "date": "2026-10-24",
       "start": "15:00",
       "end": "16:00",
-      "status": "active"
+      "status": "active",
+      "slot_id": 6
     }
   ]
 }

@@ -1,7 +1,7 @@
 /**
  * ParkingLot — ผังลานจอดแบบมองจากด้านบน วาดทุกโซนในตัวเอง (ไม่ต้องทำ ZoneBlock แยก)
  * Owner: Dev 3 | Ticket: BK-04 | Priority: P0
- * @param { {zones:Array<{id:number,name:string,slots:Array<{id:number,label:string}>}>, availability:{slots:Array<{id:number,status:string,busy:Array<{start:string,end:string}>}>, zones:Array<{id:number,free:number,total:number,full:boolean}>}, selectedSlotId?:number|null, onSelectSlot:(slotId:number)=>void} } props
+ * @param { {zones:Array<{id:number,name:string,slots:Array<{id:number,label:string}>}>, availability:{slots:Array<{id:number,status:string,busy:Array<{start:string,end:string}>}>, zones:Array<{id:number,free:number,total:number,full:boolean}>}, selectedSlotId?:number|null, highlightSlotId?:number|null, onSelectSlot:(slotId:number)=>void} } props
  * @returns {HTMLElement}
  * Done when: แต่ละโซนมีหัวโซน (ชื่อ + 'ว่าง x/y' หรือป้าย 'เต็ม'); รูปแบบข้อมูลตรงกับ GET /api/zones และ /api/availability (ดู api/mock/*.json)
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .parking-lot- ใน ParkingLot.css)
@@ -23,6 +23,7 @@ const LEGEND = [
   { key: 'booked', text: 'เต็มตลอดช่วง' },
   { key: 'selected', text: 'ที่คุณเลือก' },
 ];
+const LEGEND_HIGHLIGHT = { key: 'highlighted', text: 'ช่องที่คุณจอง' };
 
 function isMotoZone(zone) {
   return /มอเตอร์ไซค์|จักรยานยนต์|motor/i.test(zone.name || '');
@@ -41,7 +42,7 @@ function lane(withEntrance) {
     h('span', { class: 'parking-lot__arrow' }, Icon('arrow-right', { size: 18 })));
 }
 
-export function ParkingLot({ zones = [], availability = null, selectedSlotId = null, onSelectSlot = () => {} } = {}) {
+export function ParkingLot({ zones = [], availability = null, selectedSlotId = null, highlightSlotId = null, onSelectSlot = () => {} } = {}) {
   const slotState = new Map((availability?.slots || []).map((s) => [s.id, s]));
   const zoneState = new Map((availability?.zones || []).map((z) => [z.id, z]));
 
@@ -69,6 +70,7 @@ export function ParkingLot({ zones = [], availability = null, selectedSlotId = n
         status: s ? s.status || (s.booked ? 'booked' : 'free') : undefined,
         busy: s?.busy || [],
         selected: slot.id === selectedSlotId,
+        highlighted: highlightSlotId != null && slot.id === highlightSlotId,
         onSelect: onSelectSlot,
       });
     };
@@ -99,10 +101,10 @@ export function ParkingLot({ zones = [], availability = null, selectedSlotId = n
   });
 
   const legend = h('ul', { class: 'parking-lot__legend', 'aria-label': 'สัญลักษณ์' },
-    LEGEND.map(({ key, text }) => h('li', { class: 'parking-lot__legend-item' },
+    (highlightSlotId != null ? [...LEGEND, LEGEND_HIGHLIGHT] : LEGEND).map(({ key, text }) => h('li', { class: 'parking-lot__legend-item' },
       h('span', { class: `parking-lot__swatch parking-lot__swatch--${key}`, 'aria-hidden': 'true' }),
       text,
-      h('b', { class: 'parking-lot__n' }, availability || key === 'selected' ? totals[key] : '–'))));
+      h('b', { class: 'parking-lot__n' }, key === 'highlighted' ? 1 : availability || key === 'selected' ? totals[key] : '–'))));
 
   return h('div', { class: 'parking-lot' }, legend, zoneEls);
 }
