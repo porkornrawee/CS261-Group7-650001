@@ -42,7 +42,7 @@ export function AppFooter() {
 
   const brand = h('div', { class: 'app-footer-brand' },
     h('a', { class: 'app-footer-logo', href: '#/', 'aria-label': 'Parking หน้าแรก' },
-      h('span', { class: 'app-footer-logo-badge', 'aria-hidden': 'true' }, 'P'),
+      h('img', { class: 'app-footer-logo-img', src: 'assets/parking-logo.svg', alt: '', width: 47, height: 40 }),
       h('span', { class: 'app-footer-logo-text' }, 'Parking'),
     ),
     h('p', { class: 'app-footer-tagline' }, 'ระบบจองที่จอดรถ มหาวิทยาลัยธรรมศาสตร์ ศูนย์รังสิต'),
