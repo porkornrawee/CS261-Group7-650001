@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
 
-from auth import login_required, login_user, student_from_session
+from auth import login_required, login_user, logout_user, student_from_session
 import auth_service
 import booking_service as service
 import cancel_service
@@ -66,7 +66,16 @@ def create_app(db_path=None, now_func=None, tu_client=None):
 
     @app.before_request
     def bind_student_from_session():
-        student_from_session()
+        student_id = student_from_session()
+        if student_id is None or request.path == "/api/auth/login":
+            return
+        # session เป็น cookie ที่เซ็นไว้ อาจอยู่นานกว่าฐานข้อมูล (เช่น DB ถูกรีเซ็ต/ย้ายเครื่อง)
+        # ถ้าไม่มีนักศึกษาคนนี้แล้ว ให้ถือว่า session หมดอายุ (401) แทนที่จะพังเป็น 500
+        row = get_conn().execute(
+            "SELECT 1 FROM students WHERE student_id = ?", (student_id,)
+        ).fetchone()
+        if row is None:
+            logout_user()
 
     # US12: ยกเลิกการจองที่ไม่มาตามเวลาแบบ lazy ก่อนทุก request ที่อ่านรายการจอง/ช่อง
     SWEEP_PREFIXES = ("/api/zones", "/api/availability", "/api/reservations", "/api/me/")

@@ -27,6 +27,16 @@ class BookingOwnershipTests(ReservationTestCase):
         self.assertEqual(self.other.get("/api/reservations").get_json()["reservations"], [])
         self.assertEqual(self.other.get("/api/me/reservations").get_json()["reservations"], [])
 
+    def test_session_for_missing_student_is_401_not_500(self):
+        """cookie ยังอยู่แต่ DB ไม่มีนักศึกษานี้แล้ว (เช่น DB ถูกรีเซ็ต) -> 401 ไม่ใช่ 500"""
+        import sqlite3
+        from contextlib import closing
+        with closing(sqlite3.connect(self.db_path)) as conn:
+            conn.execute("DELETE FROM students WHERE student_id = '6500000002'")
+            conn.commit()
+        self.assertRejected(self.book("A1", client=self.other), 401, "UNAUTHORIZED")
+        self.assertEqual(len(self.db_rows()), 0)
+
     def test_anonymous_cannot_read_reservations(self):
         code = self.book("A1").get_json()["reservation"]["code"]
         self.assertEqual(self.anon.get("/api/reservations").status_code, 401)

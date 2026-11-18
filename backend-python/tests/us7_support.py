@@ -54,8 +54,12 @@ class ReservationTestCase(unittest.TestCase):
 
     def act_as(self, student_id):
         """ให้ self.client เป็นผู้ใช้รหัสนี้ (ตั้ง session ตรง ๆ ใช้กับเทสที่แค่ต้องการ "ผู้ล็อกอินคนนั้น")"""
+        student_id = str(student_id).strip()
+        with closing(connect(self.db_path)) as conn:
+            conn.execute("INSERT OR IGNORE INTO students (student_id, name) VALUES (?, ?)", (student_id, student_id))
+            conn.commit()
         with self.client.session_transaction() as user_session:
-            user_session["student_id"] = str(student_id).strip()
+            user_session["student_id"] = student_id
 
     def new_client(self, student_id, name, password="test-pass"):
         """สร้างบัญชี + client ที่ล็อกอินแล้ว (1 client = 1 ผู้ใช้ = 1 session)"""
