@@ -9,12 +9,14 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from contextlib import closing
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app  # noqa: E402
+from db import connect, create_account  # noqa: E402
 
 try:  # ใช้ถอดรหัสภาพ QR กลับมาพิสูจน์ว่าสแกนได้จริง (ไม่มีก็ข้ามเฉพาะเทสนั้น)
     import cv2
@@ -35,11 +37,20 @@ def decode_qr(png_bytes):
 class ReservationTestCase(unittest.TestCase):
     """พื้นฐานร่วม: ฐานข้อมูลใหม่ทุกเทส + ตัวช่วยยิง API"""
 
+    # เทสส่วนใหญ่จองหลายรายการด้วยบัญชีเดียว จึงยกเพดาน "จองครั้งละ 1 รายการ" ไว้
+    # เทสที่ตรวจกฎนี้ตั้ง enforce_single_booking = True
+    enforce_single_booking = False
+
     def setUp(self):
+        if not self.enforce_single_booking:
+            patcher = mock.patch("booking_service.MAX_ACTIVE_RESERVATIONS", 1000)
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.tmp_dir = tempfile.mkdtemp(prefix="parking-test-")
         self.db_path = os.path.join(self.tmp_dir, "test.db")
         self.app = create_app(db_path=self.db_path, now_func=lambda: FIXED_NOW)
-        self.client = self.app.test_client()
+        self.app.secret_key = "test-only-secret"  # ให้ session cookie ใช้ได้ในเทส
+        self.client = self.new_client("6500000001", "สมชาย ใจดี")  # จองได้เฉพาะผู้ล็อกอิน
         layout = self.client.get("/api/zones").get_json()
         self.slots = {
             slot["label"]: slot["id"]
@@ -50,15 +61,38 @@ class ReservationTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
-    def book(self, label, start="10:00", end="11:00", date=DAY, name="สมชาย ใจดี", client=None,
+    def act_as(self, student_id):
+        """ให้ self.client เป็นผู้ใช้รหัสนี้ (ตั้ง session ตรง ๆ ใช้กับเทสที่แค่ต้องการ "ผู้ล็อกอินคนนั้น")"""
+        student_id = str(student_id).strip()
+        with closing(connect(self.db_path)) as conn:
+            conn.execute("INSERT OR IGNORE INTO students (student_id, name) VALUES (?, ?)", (student_id, student_id))
+            conn.commit()
+        with self.client.session_transaction() as user_session:
+            user_session["student_id"] = student_id
+
+    def new_client(self, student_id, name, password="test-pass"):
+        """สร้างบัญชี + client ที่ล็อกอินแล้ว (1 client = 1 ผู้ใช้ = 1 session)"""
+        with closing(connect(self.db_path)) as conn:
+            create_account(conn, student_id, password, name)
+            conn.commit()
+        client = self.app.test_client()
+        response = client.post(
+            "/api/auth/login", json={"student_id": student_id, "password": password}
+        )
+        assert response.status_code == 200, response.get_data(as_text=True)
+        return client
+
+    def book(self, label, start="10:00", end="11:00", date=DAY, name=None, client=None,
              plate=None, vehicle_type=None):
+        # ชื่อผู้จองมาจากบัญชีที่ล็อกอิน; name ใช้ทดสอบว่า backend "ไม่สนใจ" ค่าที่ client ส่งมา
         payload = {
-            "user_name": name,
             "slot_id": self.slots[label],
             "date": date,
             "start": start,
             "end": end,
         }
+        if name is not None:
+            payload["user_name"] = name
         # ส่งทะเบียน/ประเภทรถเฉพาะเมื่อระบุ เพื่อให้เทสเดิมที่ไม่ส่งทำงานเหมือนเดิม
         if plate is not None:
             payload["plate"] = plate

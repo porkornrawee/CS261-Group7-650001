@@ -22,7 +22,7 @@ def list_my_reservations(conn, student_id, status=None, now=None):
     rows = conn.execute(
         """
         SELECT r.id, r.code, r.start_at, r.end_at, r.status,
-               s.label AS slot, z.name AS zone
+               r.slot_id, s.label AS slot, z.name AS zone
         FROM reservations AS r
         JOIN slots AS s ON s.id = r.slot_id
         JOIN zones AS z ON z.id = s.zone_id

@@ -1,19 +1,21 @@
 /**
  * TimeChips — ชิปเลือกเวลาเริ่ม ภายในเวลาเปิด-ปิดทำการ
  * Owner: Dev 2 | Ticket: BK-02 | Priority: P0
- * @param { {value:string, openTime:string, closeTime:string, stepMin?:number, onChange:(start:string)=>void} } props
+ * @param { {value:string, openTime:string, closeTime:string, stepMin?:number, date?:string, now?:Date, onChange:(start:string)=>void} } props
  * @returns {HTMLElement}
- * Done when: ไม่แสดงเวลานอกเวลาทำการ (ค่าจาก /api/zones)
+ * Done when: ไม่แสดงเวลานอกเวลาทำการ (ค่าจาก /api/zones); ถ้าส่ง date มา ชิปที่เวลาผ่านไปแล้ว (เทียบเวลาจริง) จะกดไม่ได้
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .time-chips- ใน TimeChips.css)
  */
 import { h } from '../../core/dom.js';
-import { toMin, fromMin } from '../../core/time.js';
+import { toMin, fromMin, isPastStart } from '../../core/time.js';
 
 export function TimeChips({
   value = '',
   openTime = '06:00',
   closeTime = '22:00',
   stepMin = 30,
+  date = '',
+  now = new Date(),
   onChange = () => {}
 } = {}) {
   const root = h('div', { class: 'time-chips-root' });
@@ -52,14 +54,17 @@ export function TimeChips({
   if (endMin > startMin) {
     for (let minutes = startMin; minutes < endMin; minutes += interval) {
       const time = fromMin(minutes);
-      const isSelected = time === selectedTime;
+      const past = isPastStart(date, time, now);
+      const isSelected = time === selectedTime && !past;
 
       const button = h(
         'button',
         {
           type: 'button',
-          class: `time-chips-item${isSelected ? ' time-chips-item--selected' : ''}`,
+          class: `time-chips-item${isSelected ? ' time-chips-item--selected' : ''}${past ? ' time-chips-item--past' : ''}`,
           'aria-pressed': String(isSelected),
+          disabled: past,
+          title: past ? 'เวลานี้ผ่านไปแล้ว' : null,
           onClick: () => updateSelected(time)
         },
         `${time} น.`

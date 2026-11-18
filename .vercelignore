@@ -1,0 +1,9 @@
+.env
+.env.*
+backend-python/parking.db*
+backend-python/tests
+backend-python/static
+frontend/tests
+CS261-sprint2-docs
+docs
+docker

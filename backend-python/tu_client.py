@@ -11,14 +11,41 @@ import urllib.parse
 import urllib.request
 
 from booking_service import BookingError
-from config import TU_API_TIMEOUT, TU_API_URL
+from config import TU_API_TIMEOUT, TU_API_URL, TU_AUTH_URL
 
 
 class TuApiClient:
-    def __init__(self, api_key, base_url=TU_API_URL, timeout=TU_API_TIMEOUT):
+    def __init__(self, api_key, base_url=TU_API_URL, timeout=TU_API_TIMEOUT, auth_url=TU_AUTH_URL):
         self.api_key = api_key
         self.base_url = base_url
         self.timeout = timeout
+        self.auth_url = auth_url
+
+    def verify_login(self, username, password):
+        """ตรวจรหัสผ่านกับ มธ. (บัญชีเดียวกับ reg) — ถูก: คืน {"student_id","name"}; ผิด: คืน None;
+        เรียกไม่ได้/Application-Key ใช้ไม่ได้ = TU_UNAVAILABLE"""
+        req = urllib.request.Request(
+            self.auth_url,
+            data=json.dumps({"UserName": username, "PassWord": password}).encode(),
+            method="POST",
+            headers={"Application-Key": self.api_key, "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as res:
+                body = json.load(res)
+        except urllib.error.HTTPError as error:
+            if error.code == 400:
+                return None
+            raise _unavailable() from error
+        except (urllib.error.URLError, TimeoutError, ValueError) as error:
+            raise _unavailable() from error
+
+        if not isinstance(body, dict) or body.get("status") is not True:
+            return None
+        return {
+            "student_id": str(body.get("username") or username),
+            "name": body.get("displayname_th") or body.get("displayname_en") or "",
+        }
 
     def get_student(self, student_id):
         """คืน {"name","faculty","email"} ของนักศึกษา; ไม่พบ = TU_NOT_FOUND, เรียกไม่ได้ = TU_UNAVAILABLE"""

@@ -79,9 +79,9 @@ class TestUS7_01_BookingSucceeds(ReservationTestCase):
 
     def test_tc_us7_01_booking_can_be_looked_up_by_code(self):
         """ด่านสแกน QR: ใช้รหัสค้นหาการจองที่บันทึกไว้ได้"""
-        code = self.book("A3", name="สุดา").get_json()["reservation"]["code"]
+        code = self.book("A3").get_json()["reservation"]["code"]
         found = self.client.get(f"/api/reservations/{code}")
         self.assertEqual(found.status_code, 200)
         self.assertEqual(found.get_json()["reservation"]["slot"], "A3")
-        self.assertEqual(found.get_json()["reservation"]["user_name"], "สุดา")
+        self.assertEqual(found.get_json()["reservation"]["user_name"], "สมชาย ใจดี")  # ชื่อจากบัญชีที่ล็อกอิน
         self.assertEqual(self.client.get("/api/reservations/PK-NOSUCH99").status_code, 404)

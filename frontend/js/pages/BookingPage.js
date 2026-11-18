@@ -3,7 +3,7 @@
  * ข้อมูลทั้งหมดมาจาก API จริง (GET /api/zones, /api/availability, POST /api/reservations)
  */
 import { h } from '../core/dom.js';
-import { ymd, toMin, fromMin } from '../core/time.js';
+import { ymd, toMin, fromMin, isPastStart, firstBookableStart } from '../core/time.js';
 import { PageShell } from '../components/layout/PageShell.js';
 import { Card } from '../components/ui/Card.js';
 import { Field } from '../components/ui/Field.js';
@@ -22,17 +22,16 @@ import { getState } from '../store.js';
 import { normalizePlate, plateErrorFor } from '../core/plate.js';
 
 export function BookingPage() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const { student, vehicle } = getState();
+  const { user, student, vehicle } = getState();
   const state = {
-    date: ymd(tomorrow),
+    date: ymd(new Date()),
     start: '09:00',
     duration: 60,
     end: '10:00',
     period: 'morning', // 'morning' (08:00-12:00) | 'afternoon' (12:00-20:00)
     vehicleType: 'car', // 'car' | 'motorcycle' | 'ev'
-    userName: student?.name || '',
+    // ชื่อผู้จองมาจากบัญชีที่ล็อกอินเสมอ (backend ใช้ชื่อจากบัญชี ไม่รับค่าจากหน้านี้)
+    userName: user?.name || student?.name || user?.student_id || '',
     plate: vehicle?.plate || '',
     plateError: '',
     layout: null,
@@ -43,6 +42,37 @@ export function BookingPage() {
 
   let availabilityRequest = 0;
   let refreshTimer;
+  let clockTimer;
+
+  // ผูกกับเวลาจริง: วันนี้เป็นค่าเริ่มต้น, เวลาเริ่มที่ผ่านไปแล้วเลือกไม่ได้ และเลื่อนไปช่วงเวลาถัดไปที่จองได้
+  const periodRange = (period) => (period === 'morning'
+    ? [toMin(state.layout?.open_time || '08:00'), toMin('12:00')]
+    : [toMin('12:00'), toMin(state.layout?.close_time || '20:00')]);
+
+  /** @returns {boolean} true ถ้าค่าวัน/ช่วง/เวลาเริ่มถูกปรับ */
+  function ensureStartNotPast(now = new Date()) {
+    if (!isPastStart(state.date, state.start, now)) return false;
+    const close = toMin(state.layout?.close_time || '20:00');
+    for (const period of [state.period, state.period === 'morning' ? 'afternoon' : 'morning']) {
+      const [open, end] = periodRange(period);
+      const next = firstBookableStart(state.date, open, end, 60, now);
+      if (next) {
+        state.period = period;
+        state.start = next;
+        state.end = fromMin(Math.min(toMin(next) + state.duration, close));
+        return true;
+      }
+    }
+    // วันนี้ไม่มีเวลาเหลือแล้ว → ไปพรุ่งนี้
+    const nextDay = new Date(now);
+    nextDay.setDate(nextDay.getDate() + 1);
+    state.date = ymd(nextDay);
+    state.period = 'morning';
+    state.start = fromMin(periodRange('morning')[0]);
+    state.end = fromMin(Math.min(toMin(state.start) + state.duration, close));
+    return true;
+  }
+  ensureStartNotPast();
 
   const timeBox = h('div', { class: 'booking-page-time' });
   const lotBox = h('div', { class: 'booking-page-lot' }, Spinner({ label: 'กำลังโหลดผังลานจอด' }));
@@ -83,6 +113,7 @@ export function BookingPage() {
             state.period = 'morning';
             state.start = '09:00';
             state.end = fromMin(Math.min(toMin(state.start) + state.duration, toMin('12:00')));
+            ensureStartNotPast();
             renderTime();
             onTimeChange();
           }
@@ -96,6 +127,7 @@ export function BookingPage() {
             state.period = 'afternoon';
             state.start = '13:00';
             state.end = fromMin(Math.min(toMin(state.start) + state.duration, toMin(state.layout?.close_time || defaultClose)));
+            ensureStartNotPast();
             renderTime();
             onTimeChange();
           }
@@ -120,10 +152,11 @@ export function BookingPage() {
     );
 
     timeBox.replaceChildren(h('div', stack,
-      DateStrip({ value: state.date, onChange: (date) => { state.date = date; onTimeChange(); } }),
+      DateStrip({ value: state.date, onChange: (date) => { state.date = date; ensureStartNotPast(); renderTime(); onTimeChange(); } }),
       periodToggle,
       TimeChips({
         value: state.start,
+        date: state.date,
         openTime,
         closeTime,
         stepMin: 60,
@@ -182,9 +215,7 @@ export function BookingPage() {
         id: 'booking-user-name',
         label: 'ชื่อผู้จอง',
         value: state.userName,
-        maxLength: 100,
-        placeholder: 'เช่น สมชาย ใจดี',
-        onInput: (v) => { state.userName = v; }
+        readOnly: true,
       }),
       Field({
         id: 'booking-plate',
@@ -241,6 +272,13 @@ export function BookingPage() {
   async function submit() {
     if (state.submitting || !state.selectedSlotId) return;
     submitAlert.replaceChildren();
+    if (isPastStart(state.date, state.start)) {
+      ensureStartNotPast();
+      renderTime();
+      onTimeChange();
+      submitAlert.replaceChildren(Alert({ tone: 'error', message: 'เวลาที่เลือกผ่านไปแล้ว ระบบปรับเป็นเวลาถัดไปที่จองได้ให้แล้ว กรุณาตรวจสอบก่อนยืนยัน' }));
+      return;
+    }
     state.plateError = plateErrorFor(state.plate);
     if (state.plateError) {
       renderSummary();
@@ -252,7 +290,6 @@ export function BookingPage() {
     renderSummary();
     try {
       const result = await createReservation({
-        user_name: state.userName,
         slot_id: state.selectedSlotId,
         date: state.date,
         start: state.start,
@@ -276,11 +313,20 @@ export function BookingPage() {
   getLayout()
     .then((layout) => {
       state.layout = layout;
+      ensureStartNotPast();
       renderTime();
       renderLot();
       refreshAvailability();
     })
     .catch((error) => lotBox.replaceChildren(Alert({ tone: 'error', message: messageFor(error) })));
+
+  // เดินตามเวลาจริง: ทุกนาทีปิดชิปเวลาที่ผ่านไปแล้ว (หยุดเองเมื่อออกจากหน้านี้)
+  clockTimer = setInterval(() => {
+    if (!timeBox.isConnected) { clearInterval(clockTimer); return; }
+    const moved = ensureStartNotPast();
+    renderTime();
+    if (moved) onTimeChange();
+  }, 60000);
 
   return PageShell({
     title: 'จองที่จอดรถ',

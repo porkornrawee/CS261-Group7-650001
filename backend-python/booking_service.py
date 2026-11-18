@@ -14,11 +14,13 @@
 import re
 import secrets
 import sqlite3
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from config import (
     BOOKING_CODE_PREFIX,
     CLOSE_TIME,
+    MAX_ACTIVE_RESERVATIONS,
+    MAX_ADVANCE_DAYS,
     MAX_NAME_LENGTH,
     OPEN_TIME,
 )
@@ -89,17 +91,6 @@ def _validate_payload(payload):
     if not isinstance(payload, dict):
         raise BookingError("VALIDATION_ERROR", "รูปแบบข้อมูลที่ส่งมาไม่ถูกต้อง", 400)
 
-    user_name = payload.get("user_name")
-    if not isinstance(user_name, str) or not user_name.strip():
-        raise BookingError("VALIDATION_ERROR", "กรุณากรอกชื่อผู้จอง", 400)
-    user_name = user_name.strip()
-    if len(user_name) > MAX_NAME_LENGTH:
-        raise BookingError(
-            "VALIDATION_ERROR",
-            f"ชื่อผู้จองต้องไม่เกิน {MAX_NAME_LENGTH} ตัวอักษร",
-            400,
-        )
-
     slot_id = payload.get("slot_id")
     if isinstance(slot_id, bool) or not isinstance(slot_id, int):
         raise BookingError("VALIDATION_ERROR", "กรุณาเลือกช่องจอด", 400)
@@ -116,7 +107,16 @@ def _validate_payload(payload):
     start, end = parse_interval(
         payload.get("date"), payload.get("start"), payload.get("end")
     )
-    return user_name, slot_id, start, end, plate, vehicle_type
+    return slot_id, start, end, plate, vehicle_type
+
+
+def _owner_name(conn, student_id):
+    """ชื่อผู้จอง = ชื่อในบัญชีที่ล็อกอินเสมอ (ไม่รับจาก client กันจองในชื่อคนอื่น)"""
+    row = conn.execute(
+        "SELECT name FROM students WHERE student_id = ?", (student_id,)
+    ).fetchone()
+    name = (row["name"] if row else "") or ""
+    return (name.strip() or str(student_id))[:MAX_NAME_LENGTH]
 
 
 def _check_opening_hours(start, end):
@@ -212,12 +212,13 @@ _RESERVATION_SELECT = """
 # งานหลัก: สร้างการจอง
 # ---------------------------------------------------------------------------
 
-def create_reservation(conn, payload, now, student_id=None):
+def create_reservation(conn, payload, now, student_id):
     """ตรวจเงื่อนไขทั้งหมดแล้วบันทึกการจอง คืนค่าเป็น dict ของการจอง
 
     now = เวลาปัจจุบัน (ส่งเข้ามาเพื่อให้ทดสอบได้ตรงเวลา)
     """
-    user_name, slot_id, start, end, plate, vehicle_type = _validate_payload(payload)
+    slot_id, start, end, plate, vehicle_type = _validate_payload(payload)
+    user_name = _owner_name(conn, student_id)
 
     slot = conn.execute(
         """
@@ -237,12 +238,32 @@ def create_reservation(conn, payload, now, student_id=None):
             "PAST_TIME", "ไม่สามารถจองย้อนหลังได้ กรุณาเลือกเวลาในอนาคต", 422
         )
 
+    if start.date() > now.date() + timedelta(days=MAX_ADVANCE_DAYS):
+        raise BookingError(
+            "TOO_FAR_AHEAD",
+            f"จองล่วงหน้าได้ไม่เกิน {MAX_ADVANCE_DAYS} วัน",
+            422,
+        )
+
     start_at = start.strftime(STORE_FORMAT)
     end_at = end.strftime(STORE_FORMAT)
 
     try:
         # ล็อกการเขียนก่อนตรวจ: คนที่มาพร้อมกันต้องรอคิว และจะเห็นผลการจองของคนก่อนหน้าเสมอ
         conn.execute("BEGIN IMMEDIATE")
+
+        # จำกัดจองครั้งละ 1 รายการ: ต้องใช้/ยกเลิก/รอให้หมดเวลาการจองเดิมก่อนจึงจองใหม่ได้
+        holding = conn.execute(
+            """SELECT COUNT(*) FROM reservations
+               WHERE student_id = ? AND status IN ('active', 'checked_in') AND end_at > ?""",
+            (student_id, now.strftime(STORE_FORMAT)),
+        ).fetchone()[0]
+        if holding >= MAX_ACTIVE_RESERVATIONS:
+            raise BookingError(
+                "ALREADY_HAS_BOOKING",
+                "คุณมีการจองที่ยังไม่สิ้นสุดอยู่แล้ว (จองได้ครั้งละ 1 รายการ) กรุณายกเลิกหรือรอให้หมดเวลาก่อน",
+                409,
+            )
 
         # C01: ทุกช่องในโซนถูกจองในช่วงเวลานี้หมดแล้ว = โซนเต็ม
         if _free_slots_in_zone(conn, slot["zone_id"], start_at, end_at) == 0:
@@ -322,16 +343,22 @@ def get_reservation_by_id(conn, reservation_id):
     return _reservation_to_dict(row) if row else None
 
 
-def get_reservation_by_code(conn, code):
-    row = conn.execute(
-        _RESERVATION_SELECT + " WHERE r.code = ?", (str(code).strip().upper(),)
-    ).fetchone()
+def get_reservation_by_code(conn, code, student_id=None):
+    """หาด้วยรหัสจอง; ถ้าระบุ student_id จะคืนเฉพาะของเจ้าของ (ไม่ใช่ = ไม่พบ)"""
+    sql = _RESERVATION_SELECT + " WHERE r.code = ?"
+    params = [str(code).strip().upper()]
+    if student_id is not None:
+        sql += " AND r.student_id = ?"
+        params.append(student_id)
+    row = conn.execute(sql, params).fetchone()
     return _reservation_to_dict(row) if row else None
 
 
-def list_reservations(conn, limit=20):
+def list_reservations(conn, student_id, limit=20):
+    """รายการจองล่าสุดของเจ้าของบัญชีนี้เท่านั้น"""
     rows = conn.execute(
-        _RESERVATION_SELECT + " ORDER BY r.id DESC LIMIT ?", (limit,)
+        _RESERVATION_SELECT + " WHERE r.student_id = ? ORDER BY r.id DESC LIMIT ?",
+        (student_id, limit),
     ).fetchall()
     return [_reservation_to_dict(row) for row in rows]
 

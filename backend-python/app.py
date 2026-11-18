@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, request
 
-from auth import login_required, login_user, student_from_session
+from auth import login_required, login_user, logout_user, student_from_session
 import auth_service
 import booking_service as service
 import cancel_service
@@ -66,7 +66,16 @@ def create_app(db_path=None, now_func=None, tu_client=None):
 
     @app.before_request
     def bind_student_from_session():
-        student_from_session()
+        student_id = student_from_session()
+        if student_id is None or request.path == "/api/auth/login":
+            return
+        # session เป็น cookie ที่เซ็นไว้ อาจอยู่นานกว่าฐานข้อมูล (เช่น DB ถูกรีเซ็ต/ย้ายเครื่อง)
+        # ถ้าไม่มีนักศึกษาคนนี้แล้ว ให้ถือว่า session หมดอายุ (401) แทนที่จะพังเป็น 500
+        row = get_conn().execute(
+            "SELECT 1 FROM students WHERE student_id = ?", (student_id,)
+        ).fetchone()
+        if row is None:
+            logout_user()
 
     # US12: ยกเลิกการจองที่ไม่มาตามเวลาแบบ lazy ก่อนทุก request ที่อ่านรายการจอง/ช่อง
     SWEEP_PREFIXES = ("/api/zones", "/api/availability", "/api/reservations", "/api/me/")
@@ -100,17 +109,29 @@ def create_app(db_path=None, now_func=None, tu_client=None):
 
     # --- API ----------------------------------------------------------------
 
+    def _own_student_payload():
+        """payload ที่ล็อก student_id เป็นของผู้ล็อกอินเสมอ; ถ้า client ส่งรหัสอื่นมา = 403"""
+        payload = request.get_json(silent=True)
+        payload = dict(payload) if isinstance(payload, dict) else {}
+        sent = str(payload.get("student_id") or "").strip()
+        if sent and sent != g.student_id:
+            raise service.BookingError("FORBIDDEN", "ทำรายการได้เฉพาะรหัสนักศึกษาของบัญชีที่ล็อกอินอยู่", 403)
+        payload["student_id"] = g.student_id
+        return payload
+
     @app.post("/api/vehicles/verify")
+    @login_required
     def api_verify_student():
         student = vehicle_service.verify_student(
-            get_conn(), request.get_json(silent=True), tu, app.config["NOW_FUNC"]()
+            get_conn(), _own_student_payload(), tu, app.config["NOW_FUNC"]()
         )
         return jsonify({"ok": True, "student": student})
 
     @app.post("/api/vehicles")
+    @login_required
     def api_save_vehicle():
         vehicle = vehicle_service.save_vehicle(
-            get_conn(), request.get_json(silent=True), app.config["NOW_FUNC"]()
+            get_conn(), _own_student_payload(), app.config["NOW_FUNC"]()
         )
         return jsonify({"ok": True, "vehicle": vehicle}), 201
 
@@ -131,7 +152,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         try:
             conn.execute("BEGIN IMMEDIATE")
             result, status_code = member_service.register_member(
-                conn, request.get_json(silent=True), app.config["NOW_FUNC"]
+                conn, request.get_json(silent=True), app.config["NOW_FUNC"], tu
             )
             if status_code >= 400:
                 conn.rollback()
@@ -148,7 +169,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
             return jsonify({"ok": False, "error": {"code": "INTERNAL_ERROR", "message": "เกิดข้อผิดพลาดภายในระบบ"}}), 500
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
-    auth_service.register_routes(app, get_conn)
+    auth_service.register_routes(app, get_conn, tu)
     no_show_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
 
     @app.get("/api/zones")
@@ -168,11 +189,11 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify(result)
 
     @app.post("/api/reservations")
+    @login_required
     def api_create_reservation():
         payload = request.get_json(silent=True)
         reservation = service.create_reservation(
-            get_conn(), payload, app.config["NOW_FUNC"](),
-            student_id=getattr(g, "student_id", None),
+            get_conn(), payload, app.config["NOW_FUNC"](), g.student_id,
         )
         png = qr_service.make_qr_png(reservation["code"])
         body = {
@@ -184,9 +205,10 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify(body), 201
 
     @app.get("/api/reservations")
+    @login_required
     def api_list_reservations():
         limit = min(max(request.args.get("limit", default=20, type=int), 1), 100)
-        return jsonify({"reservations": service.list_reservations(get_conn(), limit)})
+        return jsonify({"reservations": service.list_reservations(get_conn(), g.student_id, limit)})
 
     @app.get("/api/me/reservations")
     @login_required
@@ -256,15 +278,17 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify({"ok": True, "notification": dict(row)})
 
     @app.get("/api/reservations/<code>")
+    @login_required
     def api_get_reservation(code):
-        reservation = service.get_reservation_by_code(get_conn(), code)
+        reservation = service.get_reservation_by_code(get_conn(), code, g.student_id)
         if reservation is None:
             return not_found("ไม่พบรหัสการจองนี้")
         return jsonify({"ok": True, "reservation": reservation})
 
     @app.get("/api/reservations/<code>/qr.png")
+    @login_required
     def api_reservation_qr(code):
-        reservation = service.get_reservation_by_code(get_conn(), code)
+        reservation = service.get_reservation_by_code(get_conn(), code, g.student_id)
         if reservation is None:
             return not_found("ไม่พบรหัสการจองนี้")
         return Response(qr_service.make_qr_png(reservation["code"]), mimetype="image/png")

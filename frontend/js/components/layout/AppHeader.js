@@ -108,7 +108,10 @@ export function AppHeader({
 
   return h('div', { class: 'app-header-root' },
     h('div', { class: 'app-header-inner' },
-      h('a', { class: 'app-header-brand', href: '#/' }, 'Parking'),
+      h('a', { class: 'app-header-brand', href: '#/' },
+        h('img', { class: 'app-header-logo', src: 'assets/parking-logo.svg', alt: '', width: 40, height: 34 }),
+        'Parking',
+      ),
       menuButton,
       right,
     ),

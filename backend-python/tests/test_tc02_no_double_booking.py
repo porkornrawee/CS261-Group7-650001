@@ -39,7 +39,7 @@ class TestUS7_02_NoDoubleBooking(ReservationTestCase):
         code, slot_id, user_name, start_at, end_at = rows[0]
         self.assertEqual(code, first_code)
         self.assertEqual(slot_id, self.slots["A1"])
-        self.assertEqual(user_name, "คนแรก")
+        self.assertEqual(user_name, "สมชาย ใจดี")  # ชื่อจากบัญชี ไม่ใช่ค่าที่ client ส่ง
         self.assertEqual((start_at, end_at), (f"{DAY}T10:00", f"{DAY}T11:00"))
 
     def test_tc_us7_02_overlapping_time_ranges_are_rejected(self):
@@ -61,11 +61,15 @@ class TestUS7_02_NoDoubleBooking(ReservationTestCase):
         """ให้ `people` คนยิงจองช่องเดียวกัน เวลาเดียวกัน พร้อมกันที่เส้นสตาร์ท"""
         start_line = threading.Barrier(people)
         outcomes = [None] * people
+        # คนละ client = คนละ session/คนละ connection (ล็อกอินก่อนถึงเส้นสตาร์ท)
+        clients = [
+            self.new_client(f"65000100{index:02d}", f"ผู้ใช้ {index + 1}") for index in range(people)
+        ]
 
         def worker(index):
-            client = self.app.test_client()  # คนละ client = คนละ request/คนละ connection
+            client = clients[index]
             start_line.wait(timeout=10)
-            response = self.book(label, date=date, name=f"ผู้ใช้ {index + 1}", client=client)
+            response = self.book(label, date=date, client=client)
             body = response.get_json()
             outcomes[index] = (
                 response.status_code,
@@ -83,7 +87,7 @@ class TestUS7_02_NoDoubleBooking(ReservationTestCase):
     def test_tc_us7_02_two_users_at_the_same_moment_exactly_one_succeeds(self):
         """2 คนกดจองช่องเดียวกันพร้อมกัน -> สำเร็จ 1 ล้มเหลว 1 (ทดสอบซ้ำ 15 รอบเพื่อจับ race)"""
         for round_no in range(15):
-            date = f"2026-11-{round_no + 1:02d}"
+            date = f"2026-10-{round_no + 16:02d}"  # 16-30 ต.ค. อยู่ในช่วงจองล่วงหน้า 30 วัน
             with self.subTest(round=round_no + 1):
                 outcomes = self._race("A1", 2, date)
                 self.assertEqual(sorted(o[0] for o in outcomes), [201, 409], outcomes)
