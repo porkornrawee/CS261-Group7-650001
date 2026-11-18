@@ -90,6 +90,9 @@ class NotificationApiTests(unittest.TestCase):
     def test_reservation_owner_comes_from_the_session_not_the_request_body(self):
         self.login_as("A")
         with closing(connect(self.db_path)) as conn:
+            # A มีการจองค้างอยู่แล้ว (จองได้ครั้งละ 1 รายการ) จึงปิดรายการเดิมก่อนจองใหม่
+            conn.execute("UPDATE reservations SET status = 'cancelled' WHERE student_id = 'A'")
+            conn.commit()
             slot_id = next(
                 row["id"]
                 for row in conn.execute("SELECT id, label FROM slots")

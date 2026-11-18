@@ -47,3 +47,6 @@ TEST_ACCOUNT = {
 TU_API_URL = "https://restapi.tu.ac.th/api/v2/profile/std/info/"
 TU_API_TIMEOUT = 8  # วินาที
 TU_AUTH_URL = "https://restapi.tu.ac.th/api/v1/auth/Ad/verify"  # ตรวจ username/password ของ มธ.
+
+# จำนวนการจองที่ยังไม่สิ้นสุด (active/checked_in และยังไม่ถึงเวลาสิ้นสุด) ที่ผู้ใช้ 1 คนถือได้พร้อมกัน
+MAX_ACTIVE_RESERVATIONS = 1
