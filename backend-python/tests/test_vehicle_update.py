@@ -14,6 +14,7 @@ class TestVehicleUpdate(ReservationTestCase):
         self.other = self.save("6410000002", "2ขค 5678", "กรุงเทพมหานคร")
 
     def save(self, student_id, plate, province):
+        self.act_as(student_id)
         response = self.client.post(
             "/api/vehicles",
             json={"student_id": student_id, "plate": plate, "province": province},

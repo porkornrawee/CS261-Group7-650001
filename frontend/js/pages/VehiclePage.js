@@ -13,7 +13,7 @@ import { StudentVerifyStatus } from '../features/vehicle/StudentVerifyStatus.js'
 import { VehicleCard } from '../features/vehicle/VehicleCard.js';
 import { verifyStudent, saveVehicle, updateVehicle } from '../api/vehicles.js';
 import { messageFor } from '../api/errors.js';
-import { setState } from '../store.js';
+import { getState, setState } from '../store.js';
 
 export function VehiclePage() {
   const status = h('div', { class: 'vehicle-page-status' });
@@ -89,7 +89,8 @@ export function VehiclePage() {
     result.replaceChildren(formElement);
   };
 
-  let form = renderForm({}, false);
+  // backend รับเฉพาะรหัสของบัญชีที่ล็อกอิน จึงเติมรหัสให้ล่วงหน้า
+  let form = renderForm({ studentId: getState().user?.student_id || '' }, false);
 
   return PageShell({
     title: 'ลงทะเบียนรถ',

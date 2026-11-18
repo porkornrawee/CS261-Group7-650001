@@ -52,6 +52,11 @@ class ReservationTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp_dir, ignore_errors=True)
 
+    def act_as(self, student_id):
+        """ให้ self.client เป็นผู้ใช้รหัสนี้ (ตั้ง session ตรง ๆ ใช้กับเทสที่แค่ต้องการ "ผู้ล็อกอินคนนั้น")"""
+        with self.client.session_transaction() as user_session:
+            user_session["student_id"] = str(student_id).strip()
+
     def new_client(self, student_id, name, password="test-pass"):
         """สร้างบัญชี + client ที่ล็อกอินแล้ว (1 client = 1 ผู้ใช้ = 1 session)"""
         with closing(connect(self.db_path)) as conn:

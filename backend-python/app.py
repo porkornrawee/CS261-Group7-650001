@@ -100,17 +100,29 @@ def create_app(db_path=None, now_func=None, tu_client=None):
 
     # --- API ----------------------------------------------------------------
 
+    def _own_student_payload():
+        """payload ที่ล็อก student_id เป็นของผู้ล็อกอินเสมอ; ถ้า client ส่งรหัสอื่นมา = 403"""
+        payload = request.get_json(silent=True)
+        payload = dict(payload) if isinstance(payload, dict) else {}
+        sent = str(payload.get("student_id") or "").strip()
+        if sent and sent != g.student_id:
+            raise service.BookingError("FORBIDDEN", "ทำรายการได้เฉพาะรหัสนักศึกษาของบัญชีที่ล็อกอินอยู่", 403)
+        payload["student_id"] = g.student_id
+        return payload
+
     @app.post("/api/vehicles/verify")
+    @login_required
     def api_verify_student():
         student = vehicle_service.verify_student(
-            get_conn(), request.get_json(silent=True), tu, app.config["NOW_FUNC"]()
+            get_conn(), _own_student_payload(), tu, app.config["NOW_FUNC"]()
         )
         return jsonify({"ok": True, "student": student})
 
     @app.post("/api/vehicles")
+    @login_required
     def api_save_vehicle():
         vehicle = vehicle_service.save_vehicle(
-            get_conn(), request.get_json(silent=True), app.config["NOW_FUNC"]()
+            get_conn(), _own_student_payload(), app.config["NOW_FUNC"]()
         )
         return jsonify({"ok": True, "vehicle": vehicle}), 201
 
@@ -131,7 +143,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         try:
             conn.execute("BEGIN IMMEDIATE")
             result, status_code = member_service.register_member(
-                conn, request.get_json(silent=True), app.config["NOW_FUNC"]
+                conn, request.get_json(silent=True), app.config["NOW_FUNC"], tu
             )
             if status_code >= 400:
                 conn.rollback()

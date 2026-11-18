@@ -3,6 +3,7 @@
 import re
 from werkzeug.security import generate_password_hash
 import vehicle_service
+from booking_service import BookingError
 
 def validate_email(email):
     """ตรวจสอบรูปแบบอีเมลเบื้องต้น"""
@@ -14,7 +15,20 @@ def validate_phone(phone):
     pattern = r"^0\d{9}$"
     return bool(re.match(pattern, phone))
 
-def register_member(conn, data, now_func):
+def _is_tu_member(tu_client, student_id):
+    """มธ. มีรหัสนี้หรือไม่ (ไม่ได้ตั้ง TU_API_KEY = เช็กไม่ได้ จึงพึ่งเงื่อนไข verified_at อย่างเดียว)"""
+    if tu_client is None:
+        return False
+    try:
+        tu_client.get_student(student_id)
+    except BookingError as error:
+        if error.code == "TU_NOT_FOUND":
+            return False
+        raise  # TU_UNAVAILABLE: ปิดประตูไว้ก่อน ไม่ปล่อยให้สมัครผ่านไปโดยไม่ได้ตรวจ
+    return True
+
+
+def register_member(conn, data, now_func, tu_client=None):
     """
     ตรวจสอบข้อมูลและบันทึกสมาชิกลงตาราง students, accounts และ vehicles
     """
@@ -46,12 +60,17 @@ def register_member(conn, data, now_func):
         return {"ok": False, "error": {"code": "VALIDATION_ERROR", "message": "ประเภทรถต้องเป็น car หรือ motorcycle เท่านั้น"}}, 400
 
     student_row = conn.execute(
-        "SELECT student_id, name FROM students WHERE student_id = ?",
+        "SELECT student_id, name, verified_at FROM students WHERE student_id = ?",
         (student_id,)
     ).fetchone()
 
     if not student_row:
         return {"ok": False, "error": {"code": "STUDENT_NOT_FOUND", "message": "ไม่พบรหัสประจำตัวนักศึกษาในระบบ กรุณาติดต่อเจ้าหน้าที่"}}, 404
+
+    # รหัสของนักศึกษา/บุคลากร มธ. ต้องเข้าด้วยบัญชี มธ. เท่านั้น: ห้ามคนอื่นสมัครสมาชิกด้วยรหัสนี้แล้วตั้งรหัสผ่านเอง
+    # (กัน account takeover) -> ปฏิเสธถ้าเคยยืนยันกับ มธ. แล้ว หรือ มธ. มีรหัสนี้อยู่จริง
+    if student_row["verified_at"] or _is_tu_member(tu_client, student_id):
+        return {"ok": False, "error": {"code": "USE_TU_LOGIN", "message": "รหัสนี้เป็นของนักศึกษา/บุคลากร มธ. กรุณาเข้าสู่ระบบด้วยบัญชี มธ. แทนการสมัครสมาชิก"}}, 409
 
     existing_account = conn.execute(
         "SELECT student_id FROM accounts WHERE student_id = ? OR email = ?",

@@ -41,12 +41,14 @@ def authenticate(conn, student_id, password):
     return {"student_id": row["student_id"], "name": row["name"]}
 
 
-def sign_in_tu_user(conn, tu_user):
+def sign_in_tu_user(conn, tu_user, now):
     """สะท้อนผู้ใช้ มธ. ลงตาราง students (ไม่เก็บรหัสผ่านใด ๆ) แล้วคืน dict ผู้ใช้"""
     conn.execute(
-        """INSERT INTO students (student_id, name) VALUES (?, ?)
-           ON CONFLICT(student_id) DO UPDATE SET name = COALESCE(NULLIF(excluded.name, ''), students.name)""",
-        (tu_user["student_id"], tu_user["name"]),
+        """INSERT INTO students (student_id, name, verified_at) VALUES (?, ?, ?)
+           ON CONFLICT(student_id) DO UPDATE SET
+               name = COALESCE(NULLIF(excluded.name, ''), students.name),
+               verified_at = excluded.verified_at""",
+        (tu_user["student_id"], tu_user["name"], now.isoformat(timespec="seconds")),
     )
     conn.commit()
     row = conn.execute(
@@ -76,7 +78,7 @@ def register_routes(app, get_conn, tu=None):
             except BookingError as error:
                 return error_response(error.code, error.message, error.http_status)
             if tu_user is not None:
-                user = sign_in_tu_user(get_conn(), tu_user)
+                user = sign_in_tu_user(get_conn(), tu_user, app.config["NOW_FUNC"]())
         if user is None:
             logout_user()
             return error_response("INVALID_CREDENTIALS", INVALID_MESSAGE, 401)

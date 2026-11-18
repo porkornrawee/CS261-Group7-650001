@@ -109,7 +109,7 @@ export function VehicleForm({ initial = {}, busy = false, errors = {}, isEdit = 
     return h('div', { class: 'vehicle-form-field' },
       h('label', { for: id }, title), input, error);
   };
-  const studentId = createField('studentId', 'รหัสนักศึกษา 10 หลัก', 'กรอกรหัสนักศึกษา', { maxLength: 10, inputMode: 'numeric', readOnly: isEdit });
+  const studentId = createField('studentId', 'รหัสนักศึกษา 10 หลัก', 'กรอกรหัสนักศึกษา', { maxLength: 10, inputMode: 'numeric', readOnly: isEdit || Boolean(initial.studentId) });
   const email = createField('email', 'อีเมลธรรมศาสตร์', 'example@dome.tu.ac.th', { type: 'email', readOnly: isEdit });
   const plate = createField('plate', 'ทะเบียนรถ', 'กข 1234');
   const provinceSelect = h('select', { class: 'vehicle-form-input', id: 'vehicle-form-province', name: 'province' },

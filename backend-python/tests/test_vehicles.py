@@ -9,6 +9,7 @@ from us7_support import ReservationTestCase
 class TestVehicles(ReservationTestCase):
 
     def verify(self, student_id="6410000001", email="somchai.j@dome.tu.ac.th"):
+        self.act_as(student_id)
         return self.client.post(
             "/api/vehicles/verify", json={"student_id": student_id, "email": email}
         )
@@ -32,6 +33,7 @@ class TestVehicles(ReservationTestCase):
         self.assertRejected(self.verify(email="a@gmail.com"), 400, "VALIDATION_ERROR")
 
     def test_verify_rejects_missing_body(self):
+        self.act_as("6410000001")
         response = self.client.post("/api/vehicles/verify")
         self.assertRejected(response, 400, "VALIDATION_ERROR")
 
@@ -46,12 +48,14 @@ class TestVehicles(ReservationTestCase):
         self.assertRejected(self.verify(email="@dome.tu.ac.th"), 400, "VALIDATION_ERROR")
 
     def test_verify_rejects_non_string_fields(self):
+        self.act_as("6410000001")
         response = self.client.post(
             "/api/vehicles/verify", json={"student_id": 6410000001, "email": ["a@dome.tu.ac.th"]}
         )
         self.assertRejected(response, 400, "VALIDATION_ERROR")
 
     def test_save_rejects_bad_student_id(self):
+        self.act_as("abc")
         response = self.client.post(
             "/api/vehicles",
             json={"student_id": "abc", "plate": "1กข 1234", "province": "กรุงเทพมหานคร"},
@@ -59,6 +63,7 @@ class TestVehicles(ReservationTestCase):
         self.assertRejected(response, 400, "VALIDATION_ERROR")
 
     def test_save_vehicle(self):
+        self.act_as("6410000001")
         response = self.client.post(
             "/api/vehicles",
             json={"student_id": "6410000001", "plate": "1กข 1234", "province": "กรุงเทพมหานคร"},
@@ -69,6 +74,7 @@ class TestVehicles(ReservationTestCase):
         self.assertEqual(vehicle["student_id"], "6410000001")
 
     def test_save_same_student_twice_keeps_id(self):
+        self.act_as("6410000001")
         payload = {"student_id": "6410000001", "plate": "1กข 1234", "province": "กรุงเทพมหานคร"}
         first = self.client.post("/api/vehicles", json=payload).get_json()["vehicle"]
         payload["plate"] = "2ขค 5678"
@@ -77,6 +83,7 @@ class TestVehicles(ReservationTestCase):
         self.assertEqual(second["plate"], "2ขค 5678")
 
     def test_save_rejects_missing_plate(self):
+        self.act_as("6410000001")
         response = self.client.post(
             "/api/vehicles",
             json={"student_id": "6410000001", "plate": "", "province": "กรุงเทพมหานคร"},
@@ -97,6 +104,7 @@ class TestUpdateVehicle(ReservationTestCase):
         self.other_vehicle_id = self.save(self.OTHER, "1กข 1234", "กรุงเทพมหานคร")["id"]
 
     def save(self, student_id, plate, province):
+        self.act_as(student_id)
         response = self.client.post(
             "/api/vehicles",
             json={"student_id": student_id, "plate": plate, "province": province},
@@ -154,6 +162,7 @@ class TestUpdateVehicle(ReservationTestCase):
         self.assertRejected(self.put(self.vehicle_id, "1กก 1111", "กรุงเทพมหานคร"), 401, "UNAUTHORIZED")
 
     def test_save_rejects_plate_owned_by_another_student(self):
+        self.act_as("6410000003")
         response = self.client.post(
             "/api/vehicles",
             json={"student_id": "6410000003", "plate": "1กข 1234", "province": "กรุงเทพมหานคร"},
