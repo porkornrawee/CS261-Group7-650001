@@ -7,14 +7,12 @@ from us7_support import DAY, ReservationTestCase
 
 class TestInputValidationAndExtras(ReservationTestCase):
 
-    def test_missing_name_or_slot_is_rejected(self):
+    def test_missing_slot_or_time_is_rejected(self):
         base = {"date": DAY, "start": "10:00", "end": "11:00"}
         bad_payloads = [
-            {**base, "slot_id": self.slots["A1"]},                      # ไม่มีชื่อ
-            {**base, "slot_id": self.slots["A1"], "user_name": "   "},  # ชื่อว่าง
-            {**base, "user_name": "สมชาย"},                             # ไม่ได้เลือกช่อง
-            {**base, "user_name": "สมชาย", "slot_id": None},
-            {"user_name": "สมชาย", "slot_id": self.slots["A1"]},        # ไม่มีวัน/เวลา
+            {**base},                                   # ไม่ได้เลือกช่อง
+            {**base, "slot_id": None},
+            {"slot_id": self.slots["A1"]},              # ไม่มีวัน/เวลา
         ]
         for payload in bad_payloads:
             with self.subTest(payload=payload):

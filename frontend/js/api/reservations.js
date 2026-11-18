@@ -6,7 +6,7 @@ import { isMock, request } from './client.js';
 
 /**
  * POST /api/reservations
- * @param {{user_name:string, slot_id:number, date:string, start:string, end:string}} input
+ * @param {{slot_id:number, date:string, start:string, end:string}} input
  * @returns {Promise<{ok:true, reservation:object, qr_data_uri:string, qr_url:string}>}
  * ผิดพลาด -> throw ApiError(code) ดู api/errors.js
  */

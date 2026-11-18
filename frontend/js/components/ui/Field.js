@@ -7,12 +7,12 @@
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .field- ใน Field.css)
  */
 import { h } from '../../core/dom.js';
-export function Field({ id, label, type = 'text', value = '', placeholder = '', error = '', maxLength, onInput } = {}) {
+export function Field({ id, label, type = 'text', value = '', placeholder = '', error = '', maxLength, readOnly = false, onInput } = {}) {
   return h('div', { class: 'field-root' },
     h('label', { class: 'field-label', for: id }, label),
     h('input', {
       class: `field-input${error ? ' field-input--error' : ''}`, id, type, value,
-      placeholder, ...(maxLength ? { maxlength: maxLength } : {}),
+      placeholder, ...(readOnly ? { readonly: 'readonly' } : {}), ...(maxLength ? { maxlength: maxLength } : {}),
       ...(onInput ? { onInput: (event) => onInput(event.target.value) } : {}),
       ...(error ? { 'aria-invalid': 'true', 'aria-describedby': `${id}-error` } : {}),
     }),

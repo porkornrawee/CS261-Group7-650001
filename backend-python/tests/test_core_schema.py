@@ -24,7 +24,7 @@ class CoreSchemaContractTests(ReservationTestCase):
         init_db(self.db_path)
         with closing(connect(self.db_path)) as conn:
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM reservations").fetchone()[0], 1)
-            self.assertEqual(conn.execute("SELECT COUNT(*) FROM accounts").fetchone()[0], 1)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM accounts").fetchone()[0], 2)  # บัญชี seed + บัญชีผู้จองของเทส
             tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
             self.assertTrue({"reservations", "notifications", "accounts", "students"} <= tables)
 
@@ -45,6 +45,7 @@ class CoreSchemaContractTests(ReservationTestCase):
             )
 
     def test_endpoints_that_need_login_return_401_without_session(self):
+        self.client.post("/api/auth/logout")  # ทดสอบแบบไม่ล็อกอิน
         for method, path in (
             ("get", "/api/me/reservations"),
             ("get", "/api/me/notifications"),
@@ -64,7 +65,7 @@ class CoreSchemaContractTests(ReservationTestCase):
 
     def test_create_reservation_stores_student_id_from_session(self):
         with closing(connect(self.db_path)) as conn:
-            conn.execute("INSERT INTO students (student_id) VALUES ('6500000001')")
+            conn.execute("INSERT OR IGNORE INTO students (student_id) VALUES ('6500000001')")
         self.login_as("6500000001")
         response = self.client.post(
             "/api/reservations",

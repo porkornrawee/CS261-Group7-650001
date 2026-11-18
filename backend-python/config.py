@@ -19,6 +19,9 @@ DEFAULT_ZONES = {
     "โซน B": [f"B{i}" for i in range(1, SLOTS_PER_ZONE + 1)],
 }
 
+# จองล่วงหน้าได้ไกลสุดกี่วัน (นับจากวันนี้) กันการจองยึดช่องไว้นานเกินไป
+MAX_ADVANCE_DAYS = 30
+
 MAX_NAME_LENGTH = 100
 BOOKING_CODE_PREFIX = "PK-"
 

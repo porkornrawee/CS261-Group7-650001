@@ -67,6 +67,7 @@ class LoginTests(ReservationTestCase):
     # --- TC-US11-03 -------------------------------------------------------
 
     def test_tc_us11_03_protected_endpoints_require_login(self):
+        self.client.post("/api/auth/logout")  # ทดสอบแบบไม่ล็อกอิน
         self.assertRejected(self.client.get("/api/auth/me"), 401, "UNAUTHORIZED")
         self.assertRejected(self.client.get("/api/me/reservations"), 401, "UNAUTHORIZED")
 

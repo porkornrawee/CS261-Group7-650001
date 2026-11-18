@@ -150,6 +150,7 @@ class TestUpdateVehicle(ReservationTestCase):
         self.assertRejected(self.put(self.vehicle_id, "ABC 123", "กรุงเทพมหานคร"), 400, "INVALID_PLATE")
 
     def test_update_vehicle_unauthorized(self):
+        self.client.post("/api/auth/logout")  # ทดสอบแบบไม่ล็อกอิน
         self.assertRejected(self.put(self.vehicle_id, "1กก 1111", "กรุงเทพมหานคร"), 401, "UNAUTHORIZED")
 
     def test_save_rejects_plate_owned_by_another_student(self):

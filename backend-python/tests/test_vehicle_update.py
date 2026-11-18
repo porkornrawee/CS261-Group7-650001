@@ -38,6 +38,7 @@ class TestVehicleUpdate(ReservationTestCase):
         self.assertEqual(vehicle["province"], "เชียงใหม่")
 
     def test_requires_login(self):
+        self.client.post("/api/auth/logout")  # ทดสอบแบบไม่ล็อกอิน
         self.assertEqual(self.update(self.mine["id"], plate="3งจ 9999", province="x").status_code, 401)
 
     def test_other_student_cannot_update(self):

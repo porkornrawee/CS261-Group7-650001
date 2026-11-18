@@ -22,7 +22,7 @@ import { getState } from '../store.js';
 import { normalizePlate, plateErrorFor } from '../core/plate.js';
 
 export function BookingPage() {
-  const { student, vehicle } = getState();
+  const { user, student, vehicle } = getState();
   const state = {
     date: ymd(new Date()),
     start: '09:00',
@@ -30,7 +30,8 @@ export function BookingPage() {
     end: '10:00',
     period: 'morning', // 'morning' (08:00-12:00) | 'afternoon' (12:00-20:00)
     vehicleType: 'car', // 'car' | 'motorcycle' | 'ev'
-    userName: student?.name || '',
+    // ชื่อผู้จองมาจากบัญชีที่ล็อกอินเสมอ (backend ใช้ชื่อจากบัญชี ไม่รับค่าจากหน้านี้)
+    userName: user?.name || student?.name || user?.student_id || '',
     plate: vehicle?.plate || '',
     plateError: '',
     layout: null,
@@ -214,9 +215,7 @@ export function BookingPage() {
         id: 'booking-user-name',
         label: 'ชื่อผู้จอง',
         value: state.userName,
-        maxLength: 100,
-        placeholder: 'เช่น สมชาย ใจดี',
-        onInput: (v) => { state.userName = v; }
+        readOnly: true,
       }),
       Field({
         id: 'booking-plate',
@@ -291,7 +290,6 @@ export function BookingPage() {
     renderSummary();
     try {
       const result = await createReservation({
-        user_name: state.userName,
         slot_id: state.selectedSlotId,
         date: state.date,
         start: state.start,

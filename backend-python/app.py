@@ -168,11 +168,11 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify(result)
 
     @app.post("/api/reservations")
+    @login_required
     def api_create_reservation():
         payload = request.get_json(silent=True)
         reservation = service.create_reservation(
-            get_conn(), payload, app.config["NOW_FUNC"](),
-            student_id=getattr(g, "student_id", None),
+            get_conn(), payload, app.config["NOW_FUNC"](), g.student_id,
         )
         png = qr_service.make_qr_png(reservation["code"])
         body = {
@@ -184,9 +184,10 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify(body), 201
 
     @app.get("/api/reservations")
+    @login_required
     def api_list_reservations():
         limit = min(max(request.args.get("limit", default=20, type=int), 1), 100)
-        return jsonify({"reservations": service.list_reservations(get_conn(), limit)})
+        return jsonify({"reservations": service.list_reservations(get_conn(), g.student_id, limit)})
 
     @app.get("/api/me/reservations")
     @login_required
@@ -256,15 +257,17 @@ def create_app(db_path=None, now_func=None, tu_client=None):
         return jsonify({"ok": True, "notification": dict(row)})
 
     @app.get("/api/reservations/<code>")
+    @login_required
     def api_get_reservation(code):
-        reservation = service.get_reservation_by_code(get_conn(), code)
+        reservation = service.get_reservation_by_code(get_conn(), code, g.student_id)
         if reservation is None:
             return not_found("ไม่พบรหัสการจองนี้")
         return jsonify({"ok": True, "reservation": reservation})
 
     @app.get("/api/reservations/<code>/qr.png")
+    @login_required
     def api_reservation_qr(code):
-        reservation = service.get_reservation_by_code(get_conn(), code)
+        reservation = service.get_reservation_by_code(get_conn(), code, g.student_id)
         if reservation is None:
             return not_found("ไม่พบรหัสการจองนี้")
         return Response(qr_service.make_qr_png(reservation["code"]), mimetype="image/png")
