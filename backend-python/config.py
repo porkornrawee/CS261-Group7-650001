@@ -43,3 +43,4 @@ TEST_ACCOUNT = {
 # ถ้าไม่ตั้ง TU_API_KEY ระบบจะใช้ข้อมูลจำลอง (stub) เหมือนเดิม
 TU_API_URL = "https://restapi.tu.ac.th/api/v2/profile/std/info/"
 TU_API_TIMEOUT = 8  # วินาที
+TU_AUTH_URL = "https://restapi.tu.ac.th/api/v1/auth/Ad/verify"  # ตรวจ username/password ของ มธ.

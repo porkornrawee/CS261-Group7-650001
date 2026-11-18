@@ -11,6 +11,7 @@ GET  /api/auth/me      200 {ok:true, user:{...}} | 401 UNAUTHORIZED
 from flask import Blueprint, g, jsonify, request
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from booking_service import BookingError
 from auth import error_response, login_required, login_user, logout_user
 
 INVALID_MESSAGE = "รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง"
@@ -40,7 +41,21 @@ def authenticate(conn, student_id, password):
     return {"student_id": row["student_id"], "name": row["name"]}
 
 
-def register_routes(app, get_conn):
+def sign_in_tu_user(conn, tu_user):
+    """สะท้อนผู้ใช้ มธ. ลงตาราง students (ไม่เก็บรหัสผ่านใด ๆ) แล้วคืน dict ผู้ใช้"""
+    conn.execute(
+        """INSERT INTO students (student_id, name) VALUES (?, ?)
+           ON CONFLICT(student_id) DO UPDATE SET name = COALESCE(NULLIF(excluded.name, ''), students.name)""",
+        (tu_user["student_id"], tu_user["name"]),
+    )
+    conn.commit()
+    row = conn.execute(
+        "SELECT student_id, name FROM students WHERE student_id = ?", (tu_user["student_id"],)
+    ).fetchone()
+    return {"student_id": row["student_id"], "name": row["name"]}
+
+
+def register_routes(app, get_conn, tu=None):
     blueprint = Blueprint("auth", __name__)
 
     @blueprint.post("/api/auth/login")
@@ -54,6 +69,14 @@ def register_routes(app, get_conn):
             return error_response("VALIDATION_ERROR", "กรุณากรอกรหัสนักศึกษาและรหัสผ่าน", 400)
 
         user = authenticate(get_conn(), student_id, password)
+        if user is None and tu is not None:
+            # ไม่ใช่บัญชีในระบบ (เช่น สมาชิกภายนอก) -> ลองตรวจกับ มธ. (ใช้ไอดี/รหัสเดียวกับ reg)
+            try:
+                tu_user = tu.verify_login(student_id, password)
+            except BookingError as error:
+                return error_response(error.code, error.message, error.http_status)
+            if tu_user is not None:
+                user = sign_in_tu_user(get_conn(), tu_user)
         if user is None:
             logout_user()
             return error_response("INVALID_CREDENTIALS", INVALID_MESSAGE, 401)

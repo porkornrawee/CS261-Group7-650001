@@ -148,7 +148,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
             return jsonify({"ok": False, "error": {"code": "INTERNAL_ERROR", "message": "เกิดข้อผิดพลาดภายในระบบ"}}), 500
 
     cancel_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
-    auth_service.register_routes(app, get_conn)
+    auth_service.register_routes(app, get_conn, tu)
     no_show_service.register_routes(app, get_conn, app.config["NOW_FUNC"])
 
     @app.get("/api/zones")
