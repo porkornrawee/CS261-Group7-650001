@@ -42,7 +42,7 @@ function lane(withEntrance) {
     h('span', { class: 'parking-lot__arrow' }, Icon('arrow-right', { size: 18 })));
 }
 
-export function ParkingLot({ zones = [], availability = null, selectedSlotId = null, highlightSlotId = null, onSelectSlot = () => {} } = {}) {
+export function ParkingLot({ zones = [], availability = null, selectedSlotId = null, highlightSlotId = null, vehicleType = null, onSelectSlot = () => {} } = {}) {
   const slotState = new Map((availability?.slots || []).map((s) => [s.id, s]));
   const zoneState = new Map((availability?.zones || []).map((z) => [z.id, z]));
 
@@ -55,7 +55,7 @@ export function ParkingLot({ zones = [], availability = null, selectedSlotId = n
 
   const zoneEls = zones.map((zone) => {
     const state = zoneState.get(zone.id);
-    const kind = isMotoZone(zone) ? 'moto' : 'car';
+    const kind = vehicleType ? (vehicleType === 'motorcycle' ? 'moto' : 'car') : (isMotoZone(zone) ? 'moto' : 'car');
     const count = state
       ? h('span', { class: `parking-lot__count parking-lot__count--${state.full ? 'full' : 'ok'}` },
           state.full ? 'เต็ม' : `ว่าง ${state.free}/${state.total}`)

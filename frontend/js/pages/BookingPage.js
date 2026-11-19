@@ -145,6 +145,7 @@ export function BookingPage() {
           onClick: () => {
             state.vehicleType = t.id;
             renderTime();
+            renderLot();
             renderSummary();
           }
         }, Icon(t.icon, { size: 18 }), t.label))
@@ -200,6 +201,7 @@ export function BookingPage() {
       zones: state.layout.zones,
       availability: state.availability,
       selectedSlotId: state.selectedSlotId,
+      vehicleType: state.vehicleType,
       onSelectSlot: (id) => { state.selectedSlotId = id; renderLot(); renderSummary(); },
     }));
     if (focusedSlot) lotBox.querySelector(`[data-slot="${focusedSlot}"]`)?.focus();
