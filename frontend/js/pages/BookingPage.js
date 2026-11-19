@@ -200,12 +200,15 @@ export function BookingPage() {
     // ผังถูกวาดใหม่ทั้งหมด → จำช่องที่โฟกัสอยู่ไว้ แล้วคืนโฟกัสให้ (ผู้ใช้คีย์บอร์ดไม่หลงตำแหน่ง, UI test M-15)
     const active = document.activeElement;
     const focusedSlot = active && lotBox.contains(active) ? active.getAttribute('data-slot') : null;
-    // แสดงแผนที่เดียว: เฉพาะโซนที่ตรงกับประเภทรถที่เลือก (ถ้าไม่มีโซนตรงเลยให้แสดงทั้งหมดกันหน้าว่าง)
+    // แสดงแผนที่เดียว: เฉพาะโซนที่ตรงกับประเภทรถที่เลือก ไม่แสดงแผนที่ของประเภทอื่นแทน
     const kind = kindOfType(state.vehicleType);
-    const matched = state.layout.zones.filter((z) => zoneKind(z) === kind);
-    const zones = matched.length ? matched : state.layout.zones;
+    const zones = state.layout.zones.filter((z) => zoneKind(z) === kind);
+    if (!zones.length) {
+      lotBox.replaceChildren(Alert({ tone: 'info', message: 'ยังไม่มีโซนจอดสำหรับประเภทรถนี้ (ถ้าเพิ่งอัปเดตระบบ ให้รีสตาร์ต backend แล้วรีเฟรชหน้า)' }));
+      return;
+    }
     const slotIds = new Set(zones.flatMap((z) => z.slots.map((sl) => sl.id)));
-    const availability = state.availability && matched.length
+    const availability = state.availability
       ? { ...state.availability, slots: state.availability.slots.filter((sl) => slotIds.has(sl.id)) }
       : state.availability;
     lotBox.replaceChildren(ParkingLot({
