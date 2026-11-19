@@ -17,7 +17,9 @@ SLOTS_PER_ZONE = 10
 DEFAULT_ZONES = {
     "โซน A": [f"A{i}" for i in range(1, SLOTS_PER_ZONE + 1)],
     "โซน B": [f"B{i}" for i in range(1, SLOTS_PER_ZONE + 1)],
+    "โซน C": [f"C{i}" for i in range(1, SLOTS_PER_ZONE + 1)],
 }
+# โซน A = รถยนต์, โซน B = มอเตอร์ไซค์, โซน C = รถไฟฟ้า (หน้าเว็บแสดงรูปรถตามโซน)
 
 # จองล่วงหน้าได้ไกลสุดกี่วัน (นับจากวันนี้) กันการจองยึดช่องไว้นานเกินไป
 MAX_ADVANCE_DAYS = 30
@@ -47,6 +49,3 @@ TEST_ACCOUNT = {
 TU_API_URL = "https://restapi.tu.ac.th/api/v2/profile/std/info/"
 TU_API_TIMEOUT = 8  # วินาที
 TU_AUTH_URL = "https://restapi.tu.ac.th/api/v1/auth/Ad/verify"  # ตรวจ username/password ของ มธ.
-
-# จำนวนการจองที่ยังไม่สิ้นสุด (active/checked_in และยังไม่ถึงเวลาสิ้นสุด) ที่ผู้ใช้ 1 คนถือได้พร้อมกัน
-MAX_ACTIVE_RESERVATIONS = 1

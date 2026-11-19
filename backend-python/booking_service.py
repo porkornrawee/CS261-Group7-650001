@@ -19,7 +19,6 @@ from datetime import datetime, time, timedelta
 from config import (
     BOOKING_CODE_PREFIX,
     CLOSE_TIME,
-    MAX_ACTIVE_RESERVATIONS,
     MAX_ADVANCE_DAYS,
     MAX_NAME_LENGTH,
     OPEN_TIME,
@@ -251,19 +250,6 @@ def create_reservation(conn, payload, now, student_id):
     try:
         # ล็อกการเขียนก่อนตรวจ: คนที่มาพร้อมกันต้องรอคิว และจะเห็นผลการจองของคนก่อนหน้าเสมอ
         conn.execute("BEGIN IMMEDIATE")
-
-        # จำกัดจองครั้งละ 1 รายการ: ต้องใช้/ยกเลิก/รอให้หมดเวลาการจองเดิมก่อนจึงจองใหม่ได้
-        holding = conn.execute(
-            """SELECT COUNT(*) FROM reservations
-               WHERE student_id = ? AND status IN ('active', 'checked_in') AND end_at > ?""",
-            (student_id, now.strftime(STORE_FORMAT)),
-        ).fetchone()[0]
-        if holding >= MAX_ACTIVE_RESERVATIONS:
-            raise BookingError(
-                "ALREADY_HAS_BOOKING",
-                "คุณมีการจองที่ยังไม่สิ้นสุดอยู่แล้ว (จองได้ครั้งละ 1 รายการ) กรุณายกเลิกหรือรอให้หมดเวลาก่อน",
-                409,
-            )
 
         # C01: ทุกช่องในโซนถูกจองในช่วงเวลานี้หมดแล้ว = โซนเต็ม
         if _free_slots_in_zone(conn, slot["zone_id"], start_at, end_at) == 0:

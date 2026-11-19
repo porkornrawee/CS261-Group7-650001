@@ -74,12 +74,46 @@ CREATE TABLE IF NOT EXISTS vehicles (
 """
 
 
+REMOTE_SCHEMA_VERSION = 1
+
+
+def _remote_schema_version(conn):
+    """เวอร์ชันโครงสร้างที่เตรียมไว้บนฐานข้อมูลกลาง (0 = ยังไม่เคยเตรียม)"""
+    try:
+        row = conn.execute("SELECT version FROM schema_meta WHERE id = 1").fetchone()
+    except sqlite3.Error:
+        return 0
+    return row[0] if row else 0
+
+
+def _use_libsql():
+    return bool(os.environ.get("TURSO_DATABASE_URL")) or os.environ.get("PARKING_DB_DRIVER") == "libsql"
+
+
 def connect(path):
     """เปิด connection ใหม่ (1 request ต่อ 1 connection)
 
     isolation_level=None = ให้เราควบคุม BEGIN/COMMIT เอง
     timeout=10 = ถ้ามีคนอื่นกำลังเขียนอยู่ ให้รอคิวสูงสุด 10 วินาที
+    ตั้ง TURSO_DATABASE_URL (+ TURSO_AUTH_TOKEN) = ใช้ฐานข้อมูลกลางบน Turso แทนไฟล์ SQLite (ดู db_libsql.py)
     """
+    if _use_libsql():
+        import db_libsql
+        conn = db_libsql.connect(
+            path,
+            url=os.environ.get("TURSO_DATABASE_URL"),
+            auth_token=os.environ.get("TURSO_AUTH_TOKEN"),
+        )
+        # ทุกคำสั่งบน Turso เสียเวลาข้ามเครือข่าย จึงตั้งเท่าที่จำเป็น (busy_timeout ใช้เฉพาะไฟล์ในเครื่อง)
+        pragmas = ["PRAGMA foreign_keys = ON"]
+        if not os.environ.get("TURSO_DATABASE_URL"):
+            pragmas.append("PRAGMA busy_timeout = 10000")
+        for pragma in pragmas:
+            try:
+                conn.execute(pragma)
+            except sqlite3.Error:
+                pass  # บางเซิร์ฟเวอร์เปิดไว้ให้แล้ว/ไม่รองรับ
+        return conn
     conn = sqlite3.connect(path, timeout=10, isolation_level=None)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
@@ -90,7 +124,13 @@ def init_db(path):
     """Create the base schema and apply repeatable CORE-01 migrations."""
     conn = connect(path)
     try:
-        conn.execute("PRAGMA journal_mode = WAL")  # อ่านได้ระหว่างที่มีคนกำลังเขียน
+        remote = bool(os.environ.get("TURSO_DATABASE_URL"))
+        # ฐานข้อมูลกลาง (Turso): ทุกคำสั่งเสียเวลาข้ามเครือข่าย ถ้าเตรียมตารางไว้แล้วให้ข้าม (instance ใหม่จะได้ไม่ช้า)
+        # ถ้าเปลี่ยนโครงสร้างตาราง ให้เพิ่มเลข REMOTE_SCHEMA_VERSION
+        if remote and _remote_schema_version(conn) >= REMOTE_SCHEMA_VERSION:
+            return
+        if not remote:
+            conn.execute("PRAGMA journal_mode = WAL")  # อ่านได้ระหว่างที่มีคนกำลังเขียน (ไฟล์ในเครื่องเท่านั้น)
         conn.executescript(SCHEMA)
 
         reservation_columns = {
@@ -187,6 +227,9 @@ def init_db(path):
         )
         _seed_test_account(conn)
         _seed_zones_and_slots(conn)
+        if remote:
+            conn.execute("CREATE TABLE IF NOT EXISTS schema_meta (id INTEGER PRIMARY KEY CHECK (id = 1), version INTEGER NOT NULL)")
+            conn.execute("INSERT OR REPLACE INTO schema_meta (id, version) VALUES (1, ?)", (REMOTE_SCHEMA_VERSION,))
     finally:
         conn.close()
 

@@ -13,7 +13,7 @@ import { Icon } from '../components/ui/Icon.js';
 import { DateStrip } from '../features/booking/DateStrip.js';
 import { TimeChips } from '../features/booking/TimeChips.js';
 import { DurationPicker } from '../features/booking/DurationPicker.js';
-import { ParkingLot } from '../features/booking/ParkingLot.js';
+import { ParkingLot, zoneKind } from '../features/booking/ParkingLot.js';
 import { BookingSummary } from '../features/booking/BookingSummary.js';
 import { getLayout, getAvailability } from '../api/zones.js';
 import { createReservation } from '../api/reservations.js';
@@ -29,7 +29,7 @@ export function BookingPage() {
     duration: 60,
     end: '10:00',
     period: 'morning', // 'morning' (08:00-12:00) | 'afternoon' (12:00-20:00)
-    vehicleType: 'car', // 'car' | 'motorcycle' | 'ev'
+    vehicleType: 'car', // 'car' | 'motorcycle' | 'ev' -> เลือกโซน A / B / C
     // ชื่อผู้จองมาจากบัญชีที่ล็อกอินเสมอ (backend ใช้ชื่อจากบัญชี ไม่รับค่าจากหน้านี้)
     userName: user?.name || student?.name || user?.student_id || '',
     plate: vehicle?.plate || '',
@@ -82,10 +82,11 @@ export function BookingPage() {
   const stack = { style: 'display:grid;gap:var(--space-4)' };
 
   const VEHICLE_TYPES = [
-    { id: 'car', icon: 'car', label: 'รถยนต์' },
-    { id: 'motorcycle', icon: 'motorcycle', label: 'มอเตอร์ไซค์' },
-    { id: 'ev', icon: 'bolt', label: 'รถไฟฟ้า EV' },
+    { id: 'car', kind: 'car', icon: 'car', label: 'รถยนต์' },
+    { id: 'motorcycle', kind: 'moto', icon: 'motorcycle', label: 'มอเตอร์ไซค์' },
+    { id: 'ev', kind: 'ev', icon: 'bolt', label: 'รถไฟฟ้า EV' },
   ];
+  const kindOfType = (type) => VEHICLE_TYPES.find((v) => v.id === type)?.kind || 'car';
 
   // ทะเบียนตรวจฝั่งหน้าเว็บก่อนส่ง (core/plate.js); ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
 
@@ -135,7 +136,7 @@ export function BookingPage() {
       }, Icon('cloud-sun', { size: 18 }), 'ช่วงบ่าย (12:00 - 20:00)')
     );
 
-    // Vehicle Type Segmented Control
+    // เลือกประเภทรถ -> แสดงผังเฉพาะโซนของประเภทนั้น
     const vehicleTypeControl = h('div', { style: 'display:grid;gap:var(--space-2);margin-top:var(--space-2)' },
       h('label', { style: 'font-weight:700;font-size:0.95rem;color:var(--ink)' }, 'ประเภทพาหนะ'),
       h('div', { style: 'display:flex;flex-wrap:wrap;gap:var(--space-2)' },
@@ -143,8 +144,11 @@ export function BookingPage() {
           type: 'button',
           class: `chip-root chip-root--icon${state.vehicleType === t.id ? ' chip-root--selected' : ''}`,
           onClick: () => {
+            if (state.vehicleType === t.id) return;
             state.vehicleType = t.id;
+            state.selectedSlotId = null; // ช่องที่เลือกไว้อยู่คนละโซนแล้ว
             renderTime();
+            renderLot();
             renderSummary();
           }
         }, Icon(t.icon, { size: 18 }), t.label))
@@ -196,9 +200,20 @@ export function BookingPage() {
     // ผังถูกวาดใหม่ทั้งหมด → จำช่องที่โฟกัสอยู่ไว้ แล้วคืนโฟกัสให้ (ผู้ใช้คีย์บอร์ดไม่หลงตำแหน่ง, UI test M-15)
     const active = document.activeElement;
     const focusedSlot = active && lotBox.contains(active) ? active.getAttribute('data-slot') : null;
+    // แสดงแผนที่เดียว: เฉพาะโซนที่ตรงกับประเภทรถที่เลือก ไม่แสดงแผนที่ของประเภทอื่นแทน
+    const kind = kindOfType(state.vehicleType);
+    const zones = state.layout.zones.filter((z) => zoneKind(z) === kind);
+    if (!zones.length) {
+      lotBox.replaceChildren(Alert({ tone: 'info', message: 'ยังไม่มีโซนจอดสำหรับประเภทรถนี้ (ถ้าเพิ่งอัปเดตระบบ ให้รีสตาร์ต backend แล้วรีเฟรชหน้า)' }));
+      return;
+    }
+    const slotIds = new Set(zones.flatMap((z) => z.slots.map((sl) => sl.id)));
+    const availability = state.availability
+      ? { ...state.availability, slots: state.availability.slots.filter((sl) => slotIds.has(sl.id)) }
+      : state.availability;
     lotBox.replaceChildren(ParkingLot({
-      zones: state.layout.zones,
-      availability: state.availability,
+      zones,
+      availability,
       selectedSlotId: state.selectedSlotId,
       onSelectSlot: (id) => { state.selectedSlotId = id; renderLot(); renderSummary(); },
     }));

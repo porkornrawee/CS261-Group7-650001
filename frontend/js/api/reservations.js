@@ -3,6 +3,10 @@
  * รูปแบบข้อมูลดู api/mock/reservation-created.json, reservations-list.json
  */
 import { isMock, request } from './client.js';
+import { getState } from '../store.js';
+import { saveLocalReservation, updateLocalStatus, mergeWithLocal } from '../core/localHistory.js';
+
+const currentStudentId = () => getState().user?.student_id || null;
 
 /**
  * POST /api/reservations
@@ -10,8 +14,10 @@ import { isMock, request } from './client.js';
  * @returns {Promise<{ok:true, reservation:object, qr_data_uri:string, qr_url:string}>}
  * ผิดพลาด -> throw ApiError(code) ดู api/errors.js
  */
-export function createReservation(input) {
-  return request('/api/reservations', { method: 'POST', body: input, mockFile: 'reservation-created.json' });
+export async function createReservation(input) {
+  const result = await request('/api/reservations', { method: 'POST', body: input, mockFile: 'reservation-created.json' });
+  saveLocalReservation(currentStudentId(), result.reservation); // เก็บสำเนาไว้ในเครื่อง ประวัติไม่หายแม้ server รีเซ็ต
+  return result;
 }
 
 /** GET /api/reservations?limit= -> { reservations: [...] }  (Dev 4) */
@@ -28,9 +34,11 @@ export async function listMyReservations(status = '') {
   const reservations = data.reservations || [];
   return {
     ...data,
-    reservations: isMock() && status
-      ? reservations.filter((reservation) => reservation.status === status)
-      : reservations,
+    reservations: mergeWithLocal(
+      currentStudentId(),
+      isMock() && status ? reservations.filter((reservation) => reservation.status === status) : reservations,
+      status,
+    ),
   };
 }
 
@@ -40,11 +48,13 @@ export function getReservation(code) {
 }
 
 /** POST /api/reservations/<code>/cancel -> { ok: true, reservation } */
-export function cancelReservation(code) {
-  return request(`/api/reservations/${encodeURIComponent(code)}/cancel`, {
+export async function cancelReservation(code) {
+  const result = await request(`/api/reservations/${encodeURIComponent(code)}/cancel`, {
     method: 'POST',
     mockFile: 'reservation-cancelled.json',
   });
+  updateLocalStatus(currentStudentId(), code, 'cancelled');
+  return result;
 }
 
 /** URL ภาพ QR สำหรับ <img src> (Dev 4) */

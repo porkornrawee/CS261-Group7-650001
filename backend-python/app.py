@@ -9,7 +9,7 @@ import secrets
 import sqlite3
 from datetime import datetime, timedelta
 
-from flask import Flask, Response, g, jsonify, request
+from flask import Flask, Response, g, jsonify, request, session
 
 from auth import login_required, login_user, logout_user, student_from_session
 import auth_service
@@ -75,7 +75,18 @@ def create_app(db_path=None, now_func=None, tu_client=None):
             "SELECT 1 FROM students WHERE student_id = ?", (student_id,)
         ).fetchone()
         if row is None:
-            logout_user()
+            # เซิร์ฟเวอร์แบบ serverless (Vercel) แต่ละ instance มี SQLite ใน /tmp ของตัวเอง
+            # cookie เซ็นไว้ใช้ได้ทุก instance แต่แถวผู้ใช้อาจไม่มี -> สร้างคืนจากชื่อใน session แทนการเด้งออก
+            # (เปิดเฉพาะบน Vercel เท่านั้น เพื่อไม่ให้บัญชีที่ถูกลบจริงกลับมาได้บนเซิร์ฟเวอร์ปกติ)
+            name = session.get("student_name") if os.environ.get("VERCEL") else None
+            if name:
+                get_conn().execute(
+                    "INSERT OR IGNORE INTO students (student_id, name) VALUES (?, ?)",
+                    (student_id, name),
+                )
+                get_conn().commit()
+            else:
+                logout_user()
 
     # US12: ยกเลิกการจองที่ไม่มาตามเวลาแบบ lazy ก่อนทุก request ที่อ่านรายการจอง/ช่อง
     SWEEP_PREFIXES = ("/api/zones", "/api/availability", "/api/reservations", "/api/me/")
@@ -158,7 +169,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
                 conn.rollback()
             else:
                 conn.commit()
-                login_user(result["member"]["student_id"])
+                login_user(result["member"]["student_id"], result["member"]["name"])
             return jsonify(result), status_code
         except service.BookingError as be:
             conn.rollback()

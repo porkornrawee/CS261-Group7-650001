@@ -25,9 +25,18 @@ const LEGEND = [
 ];
 const LEGEND_HIGHLIGHT = { key: 'highlighted', text: 'ช่องที่คุณจอง' };
 
-function isMotoZone(zone) {
-  return /มอเตอร์ไซค์|จักรยานยนต์|motor/i.test(zone.name || '');
+/** ชนิดรถของโซน: A = รถยนต์, B = มอเตอร์ไซค์, C = รถไฟฟ้า (ถ้าชื่อโซนระบุชนิดไว้ชัด ใช้ตามชื่อก่อน) */
+export function zoneKind(zone) {
+  const name = zone?.name || '';
+  if (/มอเตอร์ไซค์|จักรยานยนต์|motor/i.test(name)) return 'moto';
+  if (/รถไฟฟ้า|\bEV\b/i.test(name) && !/รถยนต์\s*\/\s*EV/i.test(name)) return 'ev';
+  if (/โซน\s*B\b/i.test(name)) return 'moto';
+  if (/โซน\s*C\b/i.test(name)) return 'ev';
+  return 'car';
 }
+
+export const KIND_LABEL = { car: 'รถยนต์', moto: 'มอเตอร์ไซค์', ev: 'รถไฟฟ้า' };
+export const KIND_VEHICLE_TYPE = { car: 'car', moto: 'motorcycle', ev: 'ev' };
 
 function chunk(list, size) {
   const out = [];
@@ -55,7 +64,7 @@ export function ParkingLot({ zones = [], availability = null, selectedSlotId = n
 
   const zoneEls = zones.map((zone) => {
     const state = zoneState.get(zone.id);
-    const kind = isMotoZone(zone) ? 'moto' : 'car';
+    const kind = zoneKind(zone);
     const count = state
       ? h('span', { class: `parking-lot__count parking-lot__count--${state.full ? 'full' : 'ok'}` },
           state.full ? 'เต็ม' : `ว่าง ${state.free}/${state.total}`)
@@ -93,7 +102,7 @@ export function ParkingLot({ zones = [], availability = null, selectedSlotId = n
 
     return h('section', { class: `parking-lot__zone parking-lot__zone--${kind}`, 'data-zone': zone.id, role: 'group', 'aria-label': zone.name },
       h('div', { class: 'parking-lot__head' },
-        h('h3', { class: 'parking-lot__name' }, zone.name),
+        h('h3', { class: 'parking-lot__name' }, zone.name, h('span', { class: 'parking-lot__kind' }, ` · ${KIND_LABEL[kind]}`)),
         count),
       h('div', { class: 'parking-lot__site' },
         h('div', { class: 'parking-lot__walkway', 'aria-hidden': 'true' }, h('span', null, 'ทางเท้าคนเดิน')),

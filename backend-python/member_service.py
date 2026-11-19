@@ -65,7 +65,12 @@ def register_member(conn, data, now_func, tu_client=None):
     ).fetchone()
 
     if not student_row:
-        return {"ok": False, "error": {"code": "STUDENT_NOT_FOUND", "message": "ไม่พบรหัสประจำตัวนักศึกษาในระบบ กรุณาติดต่อเจ้าหน้าที่"}}, 404
+        # ไม่มีรหัสนี้ในระบบ = สมาชิกใหม่ สร้างแถวนักศึกษาจากรหัสที่กรอก (ไม่ต้องมีรายชื่อล่วงหน้า)
+        # ถ้า มธ. มีรหัสนี้อยู่จริง ให้ไปล็อกอินด้วยบัญชี มธ. แทน (กัน account takeover)
+        if _is_tu_member(tu_client, student_id):
+            return {"ok": False, "error": {"code": "USE_TU_LOGIN", "message": "รหัสนี้เป็นของนักศึกษา/บุคลากร มธ. กรุณาเข้าสู่ระบบด้วยบัญชี มธ. แทนการสมัครสมาชิก"}}, 409
+        conn.execute("INSERT INTO students (student_id, name) VALUES (?, ?)", (student_id, name))
+        student_row = {"verified_at": None}
 
     # รหัสของนักศึกษา/บุคลากร มธ. ต้องเข้าด้วยบัญชี มธ. เท่านั้น: ห้ามคนอื่นสมัครสมาชิกด้วยรหัสนี้แล้วตั้งรหัสผ่านเอง
     # (กัน account takeover) -> ปฏิเสธถ้าเคยยืนยันกับ มธ. แล้ว หรือ มธ. มีรหัสนี้อยู่จริง

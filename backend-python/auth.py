@@ -43,10 +43,12 @@ def student_from_session():
     return None
 
 
-def login_user(student_id):
+def login_user(student_id, name=None):
     """เริ่ม session ใหม่ (ล้างของเดิมก่อน กัน session fixation)"""
     session.clear()
     session["student_id"] = str(student_id)
+    if name:
+        session["student_name"] = str(name)
     session.permanent = True
     g.student_id = str(student_id)
 

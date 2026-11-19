@@ -78,10 +78,10 @@ class CoreSchemaTests(unittest.TestCase):
                 (1, "A1"),
             )
             self.assertEqual(conn.execute("SELECT slot_id FROM reservations").fetchone()[0], 1)
-            # เรียก init_db สองรอบแล้วเติมช่องที่ขาดครบโดยไม่ซ้ำ: 2 โซน x 10 ช่อง
-            self.assertEqual(conn.execute("SELECT COUNT(*) FROM slots").fetchone()[0], 20)
-            self.assertEqual(conn.execute("SELECT COUNT(DISTINCT label) FROM slots").fetchone()[0], 20)
-            self.assertEqual(conn.execute("SELECT COUNT(*) FROM zones").fetchone()[0], 2)
+            # เรียก init_db สองรอบแล้วเติมช่องที่ขาดครบโดยไม่ซ้ำ: 3 โซน x 10 ช่อง
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM slots").fetchone()[0], 30)
+            self.assertEqual(conn.execute("SELECT COUNT(DISTINCT label) FROM slots").fetchone()[0], 30)
+            self.assertEqual(conn.execute("SELECT COUNT(*) FROM zones").fetchone()[0], 3)
 
     def test_cancelled_reservation_releases_the_slot_for_a_new_booking(self):
         init_db(self.path)

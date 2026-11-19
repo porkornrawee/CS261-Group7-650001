@@ -75,6 +75,7 @@
   background: var(--lot-selected);
   box-shadow: inset 0 0 0 3px var(--accent);
 }
+.slot-bay__bolt { fill: var(--ok); stroke: #fff; stroke-width: 0.8; stroke-linejoin: round; }
 .slot-bay--selected .slot-bay__vehicle { opacity: 1; }
 .slot-bay--selected .slot-bay__body { fill: var(--primary); }
 .slot-bay--selected .slot-bay__roof,
@@ -110,3 +111,23 @@
 .slot-bay--highlighted .slot-bay__roof,
 .slot-bay--highlighted .slot-bay__mirror { fill: var(--primary-dark); }
 .slot-bay__badge--highlighted { background: var(--accent); color: var(--accent-ink); }
+
+/* ช่องรถไฟฟ้า: ทาสายฟ้าเขียวบนพื้น + เส้นขอบช่องสีเขียว */
+.slot-bay--ev { border-left-color: var(--ok); }
+.slot-bay--ev:last-child { border-right-color: var(--ok); }
+.slot-bay__ev-mark {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 46%;
+  transform: translateX(-50%);
+  fill: var(--ok);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ดีไซน์รถไฟฟ้า: ขอบตัวถังเขียว แถบไฟหน้า และฝาช่องชาร์จ */
+.slot-bay__body--ev { stroke: var(--ok); stroke-width: 1.6; }
+.slot-bay__ev-bar { fill: var(--ok); }
+.slot-bay__ev-port { fill: var(--ok); stroke: #fff; stroke-width: 0.6; }
+.slot-bay__vehicle--ev { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ok) 55%, transparent)) drop-shadow(0 3px 3px var(--car-shadow)); }
