@@ -13,7 +13,7 @@ import { Icon } from '../components/ui/Icon.js';
 import { DateStrip } from '../features/booking/DateStrip.js';
 import { TimeChips } from '../features/booking/TimeChips.js';
 import { DurationPicker } from '../features/booking/DurationPicker.js';
-import { ParkingLot } from '../features/booking/ParkingLot.js';
+import { ParkingLot, zoneKind, KIND_LABEL, KIND_VEHICLE_TYPE } from '../features/booking/ParkingLot.js';
 import { BookingSummary } from '../features/booking/BookingSummary.js';
 import { getLayout, getAvailability } from '../api/zones.js';
 import { createReservation } from '../api/reservations.js';
@@ -29,7 +29,6 @@ export function BookingPage() {
     duration: 60,
     end: '10:00',
     period: 'morning', // 'morning' (08:00-12:00) | 'afternoon' (12:00-20:00)
-    vehicleType: 'car', // 'car' | 'motorcycle' | 'ev'
     // ชื่อผู้จองมาจากบัญชีที่ล็อกอินเสมอ (backend ใช้ชื่อจากบัญชี ไม่รับค่าจากหน้านี้)
     userName: user?.name || student?.name || user?.student_id || '',
     plate: vehicle?.plate || '',
@@ -81,12 +80,6 @@ export function BookingPage() {
   const submitAlert = h('div', { 'aria-live': 'polite' });
   const stack = { style: 'display:grid;gap:var(--space-4)' };
 
-  const VEHICLE_TYPES = [
-    { id: 'car', icon: 'car', label: 'รถยนต์' },
-    { id: 'motorcycle', icon: 'motorcycle', label: 'มอเตอร์ไซค์' },
-    { id: 'ev', icon: 'bolt', label: 'รถไฟฟ้า EV' },
-  ];
-
   // ทะเบียนตรวจฝั่งหน้าเว็บก่อนส่ง (core/plate.js); ถ้า backend ตอบ INVALID_PLATE ก็แสดงใต้ช่องเดียวกัน
 
   const findSlot = (id) => {
@@ -135,23 +128,6 @@ export function BookingPage() {
       }, Icon('cloud-sun', { size: 18 }), 'ช่วงบ่าย (12:00 - 20:00)')
     );
 
-    // Vehicle Type Segmented Control
-    const vehicleTypeControl = h('div', { style: 'display:grid;gap:var(--space-2);margin-top:var(--space-2)' },
-      h('label', { style: 'font-weight:700;font-size:0.95rem;color:var(--ink)' }, 'ประเภทพาหนะ'),
-      h('div', { style: 'display:flex;flex-wrap:wrap;gap:var(--space-2)' },
-        VEHICLE_TYPES.map((t) => h('button', {
-          type: 'button',
-          class: `chip-root chip-root--icon${state.vehicleType === t.id ? ' chip-root--selected' : ''}`,
-          onClick: () => {
-            state.vehicleType = t.id;
-            renderTime();
-            renderLot();
-            renderSummary();
-          }
-        }, Icon(t.icon, { size: 18 }), t.label))
-      )
-    );
-
     timeBox.replaceChildren(h('div', stack,
       DateStrip({ value: state.date, onChange: (date) => { state.date = date; ensureStartNotPast(); renderTime(); onTimeChange(); } }),
       periodToggle,
@@ -179,7 +155,6 @@ export function BookingPage() {
           onTimeChange();
         },
       }),
-      vehicleTypeControl,
       h('details', null,
         h('summary', { style: 'cursor:pointer;color:var(--primary);font-weight:600' }, 'กำหนดเวลาและช่องทางเลือกเอง'),
         h('div', { style: 'display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3)' },
@@ -201,7 +176,6 @@ export function BookingPage() {
       zones: state.layout.zones,
       availability: state.availability,
       selectedSlotId: state.selectedSlotId,
-      vehicleType: state.vehicleType,
       onSelectSlot: (id) => { state.selectedSlotId = id; renderLot(); renderSummary(); },
     }));
     if (focusedSlot) lotBox.querySelector(`[data-slot="${focusedSlot}"]`)?.focus();
@@ -210,7 +184,8 @@ export function BookingPage() {
   function renderSummary() {
     const picked = findSlot(state.selectedSlotId);
     const slotState = state.availability?.slots.find((s) => s.id === state.selectedSlotId);
-    const vehicleTypeLabel = VEHICLE_TYPES.find((v) => v.id === state.vehicleType)?.label || 'รถยนต์';
+    const pickedKind = picked ? zoneKind(picked.zone) : 'car';
+    const vehicleTypeLabel = KIND_LABEL[pickedKind] === 'รถไฟฟ้า' ? 'รถไฟฟ้า (EV)' : KIND_LABEL[pickedKind];
 
     summaryBox.replaceChildren(h('div', stack,
       Field({
@@ -297,7 +272,7 @@ export function BookingPage() {
         start: state.start,
         end: state.end,
         plate: state.plate,
-        vehicle_type: state.vehicleType,
+        vehicle_type: KIND_VEHICLE_TYPE[zoneKind(findSlot(state.selectedSlotId)?.zone)],
       });
       window.location.hash = `#/ticket/${encodeURIComponent(result.reservation.code)}`;
     } catch (error) {

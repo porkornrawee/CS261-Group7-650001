@@ -168,3 +168,5 @@
 }
 
 .parking-lot__swatch--highlighted { background: var(--primary); outline: 2px dashed var(--accent); outline-offset: 1px; }
+
+.parking-lot__kind { font-weight: 500; opacity: 0.75; }

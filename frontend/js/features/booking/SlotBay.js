@@ -1,7 +1,7 @@
 /**
  * SlotBay — ช่องจอด 1 ช่อง มองจากด้านบน 3 สถานะ: free / partial / booked (+ selected)
  * Owner: Dev 3 | Ticket: BK-06 | Priority: P0
- * @param { {slot:{id:number,label:string}, status:'free'|'partial'|'booked', busy?:Array<{start:string,end:string}>, selected?:boolean, highlighted?:boolean, onSelect:(slotId:number)=>void, kind?:'car'|'moto', facing?:'down'|'up'} } props
+ * @param { {slot:{id:number,label:string}, status:'free'|'partial'|'booked', busy?:Array<{start:string,end:string}>, selected?:boolean, highlighted?:boolean, onSelect:(slotId:number)=>void, kind?:'car'|'moto'|'ev', facing?:'down'|'up'} } props
  * @returns {HTMLElement}
  * Done when: ช่องที่ booked ต้อง 'กดได้' ตามเดิม (ให้ Backend เป็นผู้ตัดสิน), แยกสถานะด้วยรูปรถ/ป้าย ไม่พึ่งสีอย่างเดียว
  * กติกา: ดู docs/CONVENTIONS.md (ไม่ fetch เอง, ไม่ hard-code สี, class ขึ้นต้น .slot-bay- ใน SlotBay.css)
@@ -25,6 +25,13 @@ function carTopView() {
     s('path', { class: 'slot-bay__glass', d: 'M11 53h18l2 7c-4 2-18 2-22 0z' }),
     s('rect', { class: 'slot-bay__light', x: 8, y: 5, width: 7, height: 3, rx: 1.5 }),
     s('rect', { class: 'slot-bay__light', x: 25, y: 5, width: 7, height: 3, rx: 1.5 }));
+}
+
+/** รถไฟฟ้ามองจากด้านบน = รถยนต์ + สายฟ้าบนหลังคา */
+function evTopView() {
+  const svg = carTopView();
+  svg.appendChild(s('path', { class: 'slot-bay__bolt', d: 'M21.5 31 14 42h5l-1.5 8L26 38.5h-5z' }));
+  return svg;
 }
 
 /** มอเตอร์ไซค์มองจากด้านบน */
@@ -63,7 +70,7 @@ export function SlotBay({
     onClick: () => onSelect(slot.id),
   },
     h('span', { class: 'slot-bay__label' }, slot.label),
-    showVehicle ? (kind === 'moto' ? motoTopView() : carTopView()) : null,
+    showVehicle ? (kind === 'moto' ? motoTopView() : kind === 'ev' ? evTopView() : carTopView()) : null,
     status === 'partial' && !selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--partial', 'aria-hidden': 'true' }, '!') : null,
     highlighted ? h('span', { class: 'slot-bay__badge slot-bay__badge--highlighted', 'aria-hidden': 'true' }, Icon('map-pin', { size: 12, class: 'icon--bold' })) : null,
     selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--selected', 'aria-hidden': 'true' }, Icon('check', { size: 12, class: 'icon--bold' })) : null,

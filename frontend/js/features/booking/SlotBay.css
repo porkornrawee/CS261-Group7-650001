@@ -75,6 +75,7 @@
   background: var(--lot-selected);
   box-shadow: inset 0 0 0 3px var(--accent);
 }
+.slot-bay__bolt { fill: var(--ok); stroke: #fff; stroke-width: 0.8; stroke-linejoin: round; }
 .slot-bay--selected .slot-bay__vehicle { opacity: 1; }
 .slot-bay--selected .slot-bay__body { fill: var(--primary); }
 .slot-bay--selected .slot-bay__roof,
