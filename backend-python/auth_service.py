@@ -83,7 +83,7 @@ def register_routes(app, get_conn, tu=None):
             logout_user()
             return error_response("INVALID_CREDENTIALS", INVALID_MESSAGE, 401)
 
-        login_user(user["student_id"])
+        login_user(user["student_id"], user.get("name"))
         return jsonify({"ok": True, "user": user})
 
     @blueprint.post("/api/auth/logout")
