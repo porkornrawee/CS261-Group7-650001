@@ -80,6 +80,29 @@ class TestMemberRegistration(unittest.TestCase):
         # สมัครซ้ำด้วยรหัสเดิมต้องไม่ได้
         self.assertEqual(self.client.post("/api/members", json=payload).status_code, 409)
 
+    def test_registered_session_survives_a_fresh_server_instance(self):
+        """Vercel: คำขอถัดไปอาจไปตก instance ที่มี SQLite ว่าง ผู้ที่เพิ่งสมัครต้องไม่ถูกเด้งออก (401)"""
+        from unittest import mock
+        payload = {
+            "student_id": "9999999998", "name": "คนใหม่", "phone": "0898765431",
+            "email": "newbie@example.com", "password": "securepassword123",
+            "vehicle_type": "car", "plate": "ชม 5679", "province": "เชียงใหม่",
+        }
+        self.assertEqual(self.client.post("/api/members", json=payload).status_code, 201)
+        fd, other_db = tempfile.mkstemp()
+        try:
+            with mock.patch.dict(os.environ, {"VERCEL": "1"}):
+                other = create_app(db_path=other_db, now_func=lambda: datetime(2026, 11, 12, 10, 0, 0))
+            other.secret_key = self.app.secret_key
+            other_client = other.test_client()
+            cookie = self.client.get_cookie("session")
+            other_client.set_cookie("session", cookie.value)
+            with mock.patch.dict(os.environ, {"VERCEL": "1"}):
+                self.assertEqual(other_client.get("/api/auth/me").status_code, 200)
+        finally:
+            os.close(fd)
+            os.unlink(other_db)
+
     def test_register_duplicate_member(self):
         """ทดสอบกรณีมีบัญชีแล้วหรืออีเมลซ้ำ -> 409 MEMBER_DUPLICATE"""
         payload = {

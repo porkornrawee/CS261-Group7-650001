@@ -169,7 +169,7 @@ def create_app(db_path=None, now_func=None, tu_client=None):
                 conn.rollback()
             else:
                 conn.commit()
-                login_user(result["member"]["student_id"])
+                login_user(result["member"]["student_id"], result["member"]["name"])
             return jsonify(result), status_code
         except service.BookingError as be:
             conn.rollback()
