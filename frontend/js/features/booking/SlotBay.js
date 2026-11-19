@@ -34,6 +34,12 @@ function evTopView() {
   return svg;
 }
 
+/** สัญลักษณ์สายฟ้าทาบนพื้นช่องจอดรถไฟฟ้า (เห็นแม้ช่องว่าง) */
+function evFloorMark() {
+  return s('svg', { class: 'slot-bay__ev-mark', viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false' },
+    s('path', { d: 'M13 2 4 14h6l-1 8 9-12h-6z' }));
+}
+
 /** มอเตอร์ไซค์มองจากด้านบน */
 function motoTopView() {
   return s('svg', { class: 'slot-bay__vehicle', viewBox: '0 0 24 60', 'aria-hidden': 'true', focusable: 'false' },
@@ -70,6 +76,7 @@ export function SlotBay({
     onClick: () => onSelect(slot.id),
   },
     h('span', { class: 'slot-bay__label' }, slot.label),
+    kind === 'ev' && !showVehicle ? evFloorMark() : null,
     showVehicle ? (kind === 'moto' ? motoTopView() : kind === 'ev' ? evTopView() : carTopView()) : null,
     status === 'partial' && !selected ? h('span', { class: 'slot-bay__badge slot-bay__badge--partial', 'aria-hidden': 'true' }, '!') : null,
     highlighted ? h('span', { class: 'slot-bay__badge slot-bay__badge--highlighted', 'aria-hidden': 'true' }, Icon('map-pin', { size: 12, class: 'icon--bold' })) : null,

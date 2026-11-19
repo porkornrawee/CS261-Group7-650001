@@ -111,3 +111,17 @@
 .slot-bay--highlighted .slot-bay__roof,
 .slot-bay--highlighted .slot-bay__mirror { fill: var(--primary-dark); }
 .slot-bay__badge--highlighted { background: var(--accent); color: var(--accent-ink); }
+
+/* ช่องรถไฟฟ้า: ทาสายฟ้าเขียวบนพื้น + เส้นขอบช่องสีเขียว */
+.slot-bay--ev { border-left-color: var(--ok); }
+.slot-bay--ev:last-child { border-right-color: var(--ok); }
+.slot-bay__ev-mark {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  width: 46%;
+  transform: translateX(-50%);
+  fill: var(--ok);
+  opacity: 0.55;
+  pointer-events: none;
+}
