@@ -50,8 +50,9 @@ class TuApiClient:
     def get_student(self, student_id):
         """คืน {"name","faculty","email"} ของนักศึกษา; ไม่พบ = TU_NOT_FOUND, เรียกไม่ได้ = TU_UNAVAILABLE"""
         url = f"{self.base_url}?{urllib.parse.urlencode({'id': student_id})}"
+        # API ข้อมูลนักศึกษาของ มธ. รับเฉพาะ GET ?id=<รหัส> (POST ได้ 405 Unknown method)
         req = urllib.request.Request(
-            url, method="POST", headers={"Application-Key": self.api_key}
+            url, method="GET", headers={"Application-Key": self.api_key}
         )
         try:
             with urllib.request.urlopen(req, timeout=self.timeout) as res:
