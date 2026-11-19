@@ -61,22 +61,24 @@ class TestMemberRegistration(unittest.TestCase):
         self.assertFalse(data["ok"])
         self.assertEqual(data["error"]["code"], "VALIDATION_ERROR")
 
-    def test_register_student_not_found(self):
-        """ทดสอบกรณีไม่พบ student_id ในตาราง students (ห้ามสร้าง EXT-xxxx) -> 404 STUDENT_NOT_FOUND"""
+    def test_register_unknown_student_id_creates_new_member(self):
+        """รหัสที่ยังไม่มีในตาราง students = สมาชิกใหม่ สมัครได้และล็อกอินให้อัตโนมัติ"""
         payload = {
             "student_id": "9999999999",
             "name": "Unknown",
             "phone": "0898765432",
-            "email": "unknown@tu.ac.th",
+            "email": "unknown@example.com",
             "password": "securepassword123",
             "vehicle_type": "car",
             "plate": "ชม 5678",
             "province": "เชียงใหม่"
         }
         response = self.client.post("/api/members", json=payload)
-        self.assertEqual(response.status_code, 404)
-        data = response.get_json()
-        self.assertEqual(data["error"]["code"], "STUDENT_NOT_FOUND")
+        self.assertEqual(response.status_code, 201, response.get_data(as_text=True))
+        self.assertEqual(response.get_json()["member"]["student_id"], "9999999999")
+        self.assertEqual(self.client.get("/api/auth/me").status_code, 200)
+        # สมัครซ้ำด้วยรหัสเดิมต้องไม่ได้
+        self.assertEqual(self.client.post("/api/members", json=payload).status_code, 409)
 
     def test_register_duplicate_member(self):
         """ทดสอบกรณีมีบัญชีแล้วหรืออีเมลซ้ำ -> 409 MEMBER_DUPLICATE"""
