@@ -104,7 +104,11 @@ def connect(path):
             url=os.environ.get("TURSO_DATABASE_URL"),
             auth_token=os.environ.get("TURSO_AUTH_TOKEN"),
         )
-        for pragma in ("PRAGMA foreign_keys = ON", "PRAGMA busy_timeout = 10000"):
+        # ทุกคำสั่งบน Turso เสียเวลาข้ามเครือข่าย จึงตั้งเท่าที่จำเป็น (busy_timeout ใช้เฉพาะไฟล์ในเครื่อง)
+        pragmas = ["PRAGMA foreign_keys = ON"]
+        if not os.environ.get("TURSO_DATABASE_URL"):
+            pragmas.append("PRAGMA busy_timeout = 10000")
+        for pragma in pragmas:
             try:
                 conn.execute(pragma)
             except sqlite3.Error:
