@@ -125,3 +125,9 @@
   opacity: 0.55;
   pointer-events: none;
 }
+
+/* ดีไซน์รถไฟฟ้า: ขอบตัวถังเขียว แถบไฟหน้า และฝาช่องชาร์จ */
+.slot-bay__body--ev { stroke: var(--ok); stroke-width: 1.6; }
+.slot-bay__ev-bar { fill: var(--ok); }
+.slot-bay__ev-port { fill: var(--ok); stroke: #fff; stroke-width: 0.6; }
+.slot-bay__vehicle--ev { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--ok) 55%, transparent)) drop-shadow(0 3px 3px var(--car-shadow)); }
