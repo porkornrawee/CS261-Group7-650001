@@ -9,7 +9,6 @@ import sqlite3
 import sys
 import tempfile
 import unittest
-from unittest import mock
 from contextlib import closing
 from datetime import datetime
 
@@ -37,15 +36,7 @@ def decode_qr(png_bytes):
 class ReservationTestCase(unittest.TestCase):
     """พื้นฐานร่วม: ฐานข้อมูลใหม่ทุกเทส + ตัวช่วยยิง API"""
 
-    # เทสส่วนใหญ่จองหลายรายการด้วยบัญชีเดียว จึงยกเพดาน "จองครั้งละ 1 รายการ" ไว้
-    # เทสที่ตรวจกฎนี้ตั้ง enforce_single_booking = True
-    enforce_single_booking = False
-
     def setUp(self):
-        if not self.enforce_single_booking:
-            patcher = mock.patch("booking_service.MAX_ACTIVE_RESERVATIONS", 1000)
-            patcher.start()
-            self.addCleanup(patcher.stop)
         self.tmp_dir = tempfile.mkdtemp(prefix="parking-test-")
         self.db_path = os.path.join(self.tmp_dir, "test.db")
         self.app = create_app(db_path=self.db_path, now_func=lambda: FIXED_NOW)
